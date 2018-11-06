@@ -1,4 +1,4 @@
-from vanilla import *
+from vanilla import Window, TextBox, PopUpButton, Button, List, CheckBoxListCell
 import os.path
 import json
 
