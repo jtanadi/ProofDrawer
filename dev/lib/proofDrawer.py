@@ -3,8 +3,8 @@ import os.path
 import json
 
 # If imported proof group is a py list in a module:
-# but has to live in the same folder, otherwise it's too messy (ie. deal w/ packages)
 # from proofList import proofList
+# (but has to live in the same folder, otherwise it's too messy (ie. deal w/ packages))
 
 currentFilePath = os.path.dirname(__file__)
 jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofList.json")
