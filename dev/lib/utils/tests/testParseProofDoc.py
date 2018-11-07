@@ -6,14 +6,17 @@ class TestParseProofDoc(unittest.TestCase):
     def test_baseAsFile(self):
         """
         Base case. The file content looks like this:
-        <group>UC, lc, numerals</group>
+        <group>
+        UC, lc, numerals
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
         abcdefghijklmnopqrstuvwxyz
         0123456789
-
-        <group>UC control</group>
+        </group>
+        <group>
+        UC control
         |H| |O| HOHOHOHO
         |A| HAHAHAOAOAOA
+        </group>
         """
         currentFile = os.path.dirname(__file__)
         proofDoc = os.path.join(currentFile, "resources", "proofDocTest.txt")
@@ -41,13 +44,17 @@ class TestParseProofDoc(unittest.TestCase):
         Base case, using list instead of file
         """
         proofList = [
-            "<group>UC, lc, numerals</group>",
+            "<group>",
+            "UC, lc, numerals",
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             "abcdefghijklmnopqrstuvwxyz",
             "0123456789",
-            "<group>UC control</group>",
+            "</group>",
+            "<group>",
+            "UC control",
             "|H| |O| HOHOHOHO",
-            "|A| HAHAHAOAOAOA"
+            "|A| HAHAHAOAOAOA",
+            "</group>"
             ]
         expected = [
             {

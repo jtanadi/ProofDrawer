@@ -1,8 +1,11 @@
-<group>UC, lc, numerals</group>
+<group>
+UC, lc, numerals
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 abcdefghijklmnopqrstuvwxyz
 0123456789
-
-<group>UC control</group>
+</group>
+<group>
+UC control
 |H| |O| HOHOHOHO
 |A| HAHAHAOAOAOA
+</group>
