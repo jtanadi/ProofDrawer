@@ -44,7 +44,8 @@ def parseProofDoc(filePath):
     return proofList
 
 if __name__ == "__main__":
-    # test removeXMLtags()
+    from dev.lib.utils import readWritePreset
+    # Simple testing
     tag = "group"
     stringToUse = "<%s>UC</%s>" % (tag, tag)
     print(removeXMLtags(stringToUse, tag))
