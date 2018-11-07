@@ -30,6 +30,7 @@ def parseProofDoc(proofDocPathOrList, xmlTag):
     [{xmlTag: content of xmlTag, "contents": [content1, content2, etc.]}]
     xmlTag is the tag it should look out for.
     """
+    # Will a list ever be passed in?
     if isinstance(proofDocPathOrList, list):
         readList = proofDocPathOrList[:]
     else:
