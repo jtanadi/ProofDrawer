@@ -1,6 +1,6 @@
+import helperFuncs as hf
 from vanilla import Window, TextBox, PopUpButton, Button, List, CheckBoxListCell
 import os.path
-import json
 
 # If imported proof group is a py list in a module:
 # from proofList import proofList
@@ -9,24 +9,13 @@ import json
 currentFilePath = os.path.dirname(__file__)
 jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofList.json")
 
-def readProofListFile(filePath):
-    try:
-        jsonFile = open(filePath, "r")
-        tempDict = json.loads(jsonFile.read())
-    except FileNotFoundError:
-        tempDict = {}
-    return [value for value in tempDict.values()]
-
-def grabGroupsFromList(groupList):   
-    return [group["Group"] for group in groupList if group["Group"]]
-
 class ProofDrawer:
     def __init__(self, proofListFilePath):
         self.fonts = ["Font 1", "Font 2"]
 
         # These lists should be imported from json preset file
-        self.proofGroupsList = readProofListFile(proofListFilePath)
-        self.additionalGroupsList = grabGroupsFromList(self.proofGroupsList)
+        self.proofGroupsList = hf.readJSONpresets(proofListFilePath)
+        self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "Group")
 
         self.w = Window((400, 600), "Proof Drawer")
 
