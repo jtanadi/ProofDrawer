@@ -2,10 +2,17 @@
 For converting proof doc into preset file (JSON)
 """
 
+class XMLtagError(Exception):
+    pass
+
 def removeXMLtags(stringWithTags, tagName):
     """
     Returns string between <tag></tag>
+    If input doesn't follow correct format, an exception will be raised
     """
+    if not ("<%s>" % tagName and "</%s>" % tagName) in stringWithTags:
+        raise XMLtagError("Check string formatting: <tag>string</tag>")
+
     return stringWithTags.replace("<%s>" % tagName, "")\
                          .replace("</%s>" % tagName, "")
 
