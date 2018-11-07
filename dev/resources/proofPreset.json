@@ -1,0 +1,44 @@
+[
+  {
+    "Group": "UC",
+    "Type size": 96,
+    "Leading": 112,
+    "Print": 1,
+    "Contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  },
+  {
+    "Group": "lc, numerals, punctuations",
+    "Type size": 96,
+    "Leading": 112,
+    "Print": 1,
+    "Contents": "abcdefghijklmnopqrstuvwxyz0123456789;:,."
+  },
+  {
+    "Group": "Charset",
+    "Type size": 48,
+    "Leading": 52,
+    "Print": 1,
+    "Contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789;:,."
+  },
+  {
+    "Group": "UC between control chars",
+    "Type size": 10,
+    "Leading": 12,
+    "Print": 1,
+    "Contents": "|H| |O| HHHOHOHHOOOHOHOO\n|A| HHHAHAHHOHOAOAOA"
+  },
+  {
+    "Group": "lc between control chars",
+    "Type size": 10,
+    "Leading": 12,
+    "Print": 1,
+    "Contents": "|n| |o| nnnononnooononoo\n|a| nnnanannonoaoaoa"
+  },
+  {
+    "Group": "Numerals between control chars",
+    "Type size": 10,
+    "Leading": 12,
+    "Print": 1,
+    "Contents": "|n| |0| nnn0n0nn000n0n00\n|1| nnn1n1nn0n010101"
+  }
+]
