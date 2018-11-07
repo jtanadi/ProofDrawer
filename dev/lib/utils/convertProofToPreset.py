@@ -7,7 +7,7 @@ class XMLtagError(Exception):
 
 def removeXMLtags(stringWithTags, tagName):
     """
-    Returns string between <tag></tag>
+    Return string between <tag></tag>
     If input doesn't follow correct format, an exception will be raised
     """
     if not ("<%s>" % tagName and "</%s>" % tagName) in stringWithTags:
@@ -17,19 +17,26 @@ def removeXMLtags(stringWithTags, tagName):
                          .replace("</%s>" % tagName, "")
 
 def getIndicesOfTag(inputList, tagName):
+    """
+    Returns a list of indices of <tag>string</tag> from a list.
+    Currently unused, but maybe useful later?
+    """
     return [index for index, item in enumerate(inputList)\
             if "<%s>" % tagName and "</%s>" % tagName in item]
 
-def parseProofDoc(filePath):
+def parseProofDoc(proofDocPathOrList, xmlTag):
     """
-    Take a text file and turn it into a list of dicts
+    Return a list of dicts from proofDoc formatted like so:
+    [{xmlTag: content of xmlTag, "contents": [content1, content2, etc.]}]
+    xmlTag is the tag it should look out for.
     """
-    # pass
-    f = open(filePath, "r")
-    readList = f.readlines()
-    f.close()
+    if isinstance(proofDocPathOrList, list):
+        readList = proofDocPathOrList[:]
+    else:
+        f = open(proofDocPathOrList, "r")
+        readList = f.readlines()
+        f.close()
 
-    xmlTag = "group"
     proofList = []
 
     for index, line in enumerate(readList):
@@ -51,7 +58,6 @@ def parseProofDoc(filePath):
     return proofList
 
 if __name__ == "__main__":
-    from dev.lib.utils import readWritePreset
     # Simple testing
     tag = "group"
     stringToUse = "<%s>UC</%s>" % (tag, tag)
@@ -62,5 +68,5 @@ if __name__ == "__main__":
     fileDir = os.path.dirname(__file__)
     testFile = os.path.join(fileDir, "..", "..", "resources", "test.txt")
 
-    testList = parseProofDoc(testFile)
+    testList = parseProofDoc(testFile, "group")
     print(testList)
