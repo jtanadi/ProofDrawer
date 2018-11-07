@@ -9,7 +9,7 @@ def getTags(inputList, tagName):
     """
     Return a list of tags only
     """
-    return [item for item in inputList\
+    return [item.strip() for item in inputList\
             if "<%s>" % tagName in item or "</%s>" % tagName in item]
 
 def checkXMLtagsSequence(listOfTags):
@@ -32,8 +32,6 @@ def checkXMLtagsSequence(listOfTags):
                 openTag = False
             else:
                 raise XMLtagError("Incorrect <tag></tag> sequence")
-
-    return True
 
 def removeXMLtags(stringWithTags, tagName):
     """
@@ -71,8 +69,7 @@ def parseProofDoc(proofDocPathOrList, tagName):
 
     # Check if tags are in sequence before anything else
     tagsList = getTags(readList, tagName)
-    if not checkXMLtagsSequence(tagsList):
-        return
+    checkXMLtagsSequence(tagsList)
 
     proofList = []
     startGroup = False

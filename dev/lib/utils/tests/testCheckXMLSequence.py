@@ -7,7 +7,7 @@ class TestCheckXMLtagsSequence(unittest.TestCase):
         Base case: check open tag is closed
         """
         tagsList = ["<group>", "</group>", "<group>", "</group>", "<group>", "</group>"]
-        self.assertTrue(checkXMLtagsSequence(tagsList))
+        checkXMLtagsSequence(tagsList)
 
     def test_wrongClose(self):
         """
