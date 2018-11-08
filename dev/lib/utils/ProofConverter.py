@@ -5,20 +5,23 @@ For converting proof doc into preset file (JSON)
 class XMLtagError(Exception):
     pass
 
-class Proof2Preset:
+class ProofConverter:
     def __init__(self, inputList, tagName):
         self.inputList = inputList
         self.tagName = tagName
 
-    def getTags(self):
+        # Run some basic validation on init
+        self._checkForTags()
+        self._checkXMLtagsSequence()
+        
+    def _checkForTags(self):
         """
-        Return a list of tags only
+        Make sure object has opening & closing tags at all
         """
-        return [item.strip() for item in self.inputList\
-                if "<%s>" % self.tagName in item or "</%s>" % self.tagName in item]
+        if not ("<%s>" % self.tagName and "</%s>" % self.tagName) in self.inputList:
+            raise XMLtagError("Tags should be <tag>content here</tag>")
 
-
-    def checkXMLtagsSequence(self):
+    def _checkXMLtagsSequence(self):
         """
         Make sure open tags have closing ones:
         [<tag>, </tag>, <tag>, </tag>]
@@ -39,18 +42,20 @@ class Proof2Preset:
                 else:
                     raise XMLtagError("Incorrect <tag></tag> sequence")
 
-
-    def removeXMLtags(self, stringWithTags):
+    def getTags(self):
         """
-        Return string between <tag></tag>
-        If input doesn't follow correct format, an exception will be raised
-        Currently unused
+        Return a list of tags only
         """
-        if not ("<%s>" % self.tagName and "</%s>" % self.tagName) in stringWithTags:
-            raise XMLtagError("Check string formatting: <tag>string</tag>")
+        return [item.strip() for item in self.inputList\
+                if "<%s>" % self.tagName in item or "</%s>" % self.tagName in item]
 
-        return stringWithTags.replace("<%s>" % self.tagName, "")\
-                            .replace("</%s>" % self.tagName, "")
+    def returnAllButTags(self):
+        """
+        Return everything but tag?
+        """
+        pass
+        # return stringWithTags.replace("<%s>" % self.tagName, "")\
+        #                     .replace("</%s>" % self.tagName, "")
 
 
     def parseProofDoc(self):
@@ -65,9 +70,9 @@ class Proof2Preset:
         UC, lc, and numerals
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
         </group>
-        """ 
+        """
         # Check if tags are in sequence before anything else
-        self.checkXMLtagsSequence()
+        self._checkXMLtagsSequence()
 
         proofList = []
         startGroup = False
