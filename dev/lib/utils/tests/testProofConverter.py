@@ -1,8 +1,8 @@
-from lib.utils.proofConverter import ProofConverter, XMLtagError
+from lib.utils.proofPreset import ProofPreset, XMLtagError
 import unittest
 import os.path
 
-class ProofConverterTest(unittest.TestCase):
+class ProofPresetTest(unittest.TestCase):
     def setUp(self):
         fileDir = os.path.dirname(__file__)
         testFileDir = os.path.join(fileDir, "resources", "proofDocTest.txt")
@@ -11,11 +11,11 @@ class ProofConverterTest(unittest.TestCase):
         testList = testFile.readlines()
         testFile.close()
 
-        self.testPreset = ProofConverter(testList, "group")
+        self.testPreset = ProofPreset(testList, "group")
 
     def test_baseGetTags(self):
         """
-        Base case for ProofConverter.getTags()
+        Base case for ProofPreset.getTags()
         """
         tagsList = self.testPreset.getTags()
         expected = ["<group>", "</group>", "<group>",
@@ -24,15 +24,21 @@ class ProofConverterTest(unittest.TestCase):
 
     def test_baseReturnAllButTags(self):
         """
-        Base case for ProofConverter.returnAllButTags()
+        Base case for ProofPreset.returnAllButTags()
         """
         pass
 
+    def test_baseCleanList(self):
+        dirtyList = ["item\n", "\n", "\nnext", "\n\n"]
+        cleanList = self.testPreset._cleanList(dirtyList)
+        expected = ["item", "next"]
+        self.assertEqual(cleanList, expected)
+
     def test_baseParseProofDoc(self):
         """
-        Base case for ProofConverter.parseProofDoc()
+        Base case for ProofPreset.parseProofDoc()
         """
-        testProof = self.testPreset.parseProofDoc()
+        testProof = self.testPreset.getPreset()
         expected = [
             {
                 "group": "UC, lc, numerals",
@@ -65,47 +71,57 @@ class ProofConverterTest(unittest.TestCase):
 
     def test_checkForTagsNoClose(self):
         """
-        Fail ProofConverter._checkForTags(): no closing tags
+        Fail ProofPreset._checkForTags(): no closing tags
         """
         inputList = ["<group>", "<group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            testProof = ProofConverter(inputList, "group")
+            testProof = ProofPreset(inputList, "group")
 
     def test_checkSequenceNested(self):
         """
-        Fail ProofConverter._checkXMLtagsSequence()
+        Fail ProofPreset._checkXMLtagsSequence()
         if tags are nested (<tag><tag></tag></tag>).
         """
         inputList = ["<group>", "<group>", "</group>", "</group>"]
         with self.assertRaises(XMLtagError):
-            testProof = ProofConverter(inputList, "group")
+            testProof = ProofPreset(inputList, "group")
     
     def test_checkSequenceLessClose(self):
         """
-        Fail ProofConverter._checkXMLtagsSequence()
+        Fail ProofPreset._checkXMLtagsSequence()
         If 2 opens and 1 close
         """
         inputList = ["<group>", "</group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            testProof = ProofConverter(inputList, "group")
+            testProof = ProofPreset(inputList, "group")
 
     def test_checkSequenceLessOpen(self):
         """
-        Fail ProofConverter._checkXMLtagsSequence()
+        Fail ProofPreset._checkXMLtagsSequence()
         If 1 open and 2 closes
         """
         inputList = ["<group>", "</group>", "</group>"]
         with self.assertRaises(XMLtagError):
-            testProof = ProofConverter(inputList, "group")
+            testProof = ProofPreset(inputList, "group")
 
     def test_checkSequenceBadPairs(self):
         """
-        Fail ProofConverter._checkXMLtagsSequence()
+        Fail ProofPreset._checkXMLtagsSequence()
         If open/close/close/open
         """
         inputList = ["<group>", "</group>", "</group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            testProof = ProofConverter(inputList, "group")            
+            testProof = ProofPreset(inputList, "group")    
+
+    def test_checkSequenceStartWithClose(self):
+        """
+        Fail ProofPreset._checkXMLtagsSequence()
+        If close/open/close/open
+        """
+        inputList = ["</group>", "<group>", "</group>", "<group>"]
+        with self.assertRaises(XMLtagError):
+            testProof = ProofPreset(inputList, "group")    
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

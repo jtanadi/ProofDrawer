@@ -1,18 +1,42 @@
 """
-For converting proof doc into preset file (JSON)
+A container for proof list, with a .getPreset() method
+to convert tagged proof doc into preset (list of dicts)
+that can be saved as a JSON file
 """
 
 class XMLtagError(Exception):
     pass
 
-class ProofConverter:
+class ProofPreset:
+    """
+    Initialize with list of input and tag name used
+    ProofPreset.getPreset() will return list of dicts for JSON
+    """
     def __init__(self, inputList, tagName):
-        self.inputList = inputList
+        """
+        inputList is list, doesn't have to be "clean"
+        tagName is a string, the tag used in proof doc
+        tagName for <group>proof</group> is "group"
+        """
+        self.inputList = self._cleanList(inputList)
         self.tagName = tagName
 
         # Run some basic validation on init
         self._checkForTags()
         self._checkXMLtagsSequence()
+
+    def _cleanList(self, listToClean):
+        """
+        Get rid of leading and trailing whitespaces all at once
+        Only include non-empty items in returned list
+        """
+        return [item.strip() for item in listToClean if item.strip()]
+
+    def _isTag(self, item):
+        """
+        Return if item is tag (open or close)
+        """
+        return item == "<%s>" % self.tagName or item == "</%s>" % self.tagName
 
     def _checkForTags(self):
         """
@@ -27,11 +51,6 @@ class ProofConverter:
         Make sure open tags have closing ones:
         [<tag>, </tag>, <tag>, </tag>]
         """
-        tagsList = self.getTags()
-
-        if tagsList[0] != "<%s>" % self.tagName:
-            raise XMLtagError("First item not an open tag.")
-
         openTag = True
         openTagCount = 0
         closeTagCount = 0
@@ -53,26 +72,22 @@ class ProofConverter:
         """
         Return a list of tags only
         """
-        return [item.strip() for item in self.inputList\
-                if "<%s>" % self.tagName in item or "</%s>" % self.tagName in item]
+        return [item for item in self.inputList if self._isTag(item)]
 
-    def returnAllButTags(self):
+    def getNonTags(self):
         """
-        Return everything but tag?
+        Return a list of non tags
         """
-        pass
-        # return stringWithTags.replace("<%s>" % self.tagName, "")\
-        #                     .replace("</%s>" % self.tagName, "")
+        return [item for item in self.inputList if not self._isTag(item)]
 
-
-    def parseProofDoc(self):
+    def getPreset(self):
         """
         Return a list of dicts from proofDoc formatted like so:
         [{tagName: group title, "contents": [content1, content2, etc.]}]
         tagName is the tag it should look out for.
 
         Proof doc should be written like example below.
-        First line after opening tag is the title
+        First line after opening tag is the title.
         <group>
         UC, lc, and numerals
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -81,24 +96,19 @@ class ProofConverter:
         # Check if tags are in sequence before anything else
         self._checkXMLtagsSequence()
 
-        proofList = []
+        presetList = []
         startGroup = False
 
         for line in self.inputList:
-            # Skip over empty items (linebreak, etc.)
-            cleanLine = line.strip()
-            if not cleanLine:
-                continue
-
             # Open tag: initialize and move on
-            if "<%s>" % self.tagName in cleanLine:
+            if "<%s>" % self.tagName in line:
                 group = {}
                 startGroup = True
                 continue
 
-            # Close tag: add group to proofList and move on
-            elif "</%s>" % self.tagName in cleanLine:
-                proofList.append(group)
+            # Close tag: add group to presetList and move on
+            elif "</%s>" % self.tagName in line:
+                presetList.append(group)
                 continue
 
             # Title line: add title to group[self.tagName] and initialize contents list
@@ -109,9 +119,9 @@ class ProofConverter:
 
             # Middle of block: just add line to group["contents"]
             else:
-                group["contents"].append(cleanLine)
+                group["contents"].append(line)
 
-        return proofList
+        return presetList
 
 
 if __name__ == "__main__":
@@ -125,5 +135,5 @@ if __name__ == "__main__":
     testFile.close()
 
     # Simple testing:
-    preset = ProofConverter(readList, "group")
-    print(preset.parseProofDoc())
+    preset = ProofPreset(readList, "group")
+    print(preset.getTags())
