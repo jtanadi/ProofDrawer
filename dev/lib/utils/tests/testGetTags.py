@@ -1,3 +1,7 @@
+"""
+THIS IS OLD, before functions consolidated into class
+"""
+
 from lib.utils.convertProofToPreset import getTags, XMLtagError
 import unittest
 
