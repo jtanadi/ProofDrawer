@@ -1,0 +1,28 @@
+[
+  {
+    "group": "UC, lc, numerals",
+    "contents": [
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "abcdefghijklmnopqrstuvwxyz",
+      "0123456789"
+    ]
+  },
+  {
+    "group": "UC control",
+    "contents": [
+      "|H| |O| HOHOHOHO",
+      "|A| HAHAHAOAOAOA",
+      "|B| HBHBHBOBOBOB",
+      "|C| HCHCHCOCOCOC"
+    ]
+  },
+  {
+    "group": "lc control",
+    "contents": [
+      "|n| |o| nononono",
+      "|a| nananaoaoaoa",
+      "|b| nbnbnbobobob",
+      "|c| ncncncocococ"
+    ]
+  }
+]
