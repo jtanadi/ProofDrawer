@@ -5,115 +5,113 @@ For converting proof doc into preset file (JSON)
 class XMLtagError(Exception):
     pass
 
-def getTags(inputList, tagName):
-    """
-    Return a list of tags only
-    """
-    return [item.strip() for item in inputList\
-            if "<%s>" % tagName in item or "</%s>" % tagName in item]
+class Proof2Preset:
+    def __init__(self, inputList, tagName):
+        self.inputList = inputList
+        self.tagName = tagName
 
-def checkXMLtagsSequence(listOfTags):
-    """
-    Make sure open tags have closing ones:
-    [<tag>, </tag>, <tag>, </tag>]
-    """
-    openTag = False
-    for tag in listOfTags:
-        # Detect open tag and continue
-        if not openTag and "<" in tag and "/" not in tag:
-            tagName = tag.strip("<").strip(">")
-            openTag = True
+    def getTags(self):
+        """
+        Return a list of tags only
+        """
+        return [item.strip() for item in self.inputList\
+                if "<%s>" % self.tagName in item or "</%s>" % self.tagName in item]
 
-        # If tag is open, close it if possible
-        # if not possible, raise XMLtagError.
-        # (Closing tag must match opening tag)
-        else:
-            if "</%s>" % tagName in tag:
-                openTag = False
+
+    def checkXMLtagsSequence(self):
+        """
+        Make sure open tags have closing ones:
+        [<tag>, </tag>, <tag>, </tag>]
+        """
+        openTag = False
+        for tag in self.getTags():
+            # Detect open tag and continue
+            if not openTag and "<" in tag and "/" not in tag:
+                tagName = tag.strip("<").strip(">")
+                openTag = True
+
+            # If tag is open, close it if possible
+            # if not possible, raise XMLtagError.
+            # (Closing tag must match opening tag)
             else:
-                raise XMLtagError("Incorrect <tag></tag> sequence")
-
-def removeXMLtags(stringWithTags, tagName):
-    """
-    Return string between <tag></tag>
-    If input doesn't follow correct format, an exception will be raised
-    Currently unused
-    """
-    if not ("<%s>" % tagName and "</%s>" % tagName) in stringWithTags:
-        raise XMLtagError("Check string formatting: <tag>string</tag>")
-
-    return stringWithTags.replace("<%s>" % tagName, "")\
-                         .replace("</%s>" % tagName, "")
+                if "</%s>" % tagName in tag:
+                    openTag = False
+                else:
+                    raise XMLtagError("Incorrect <tag></tag> sequence")
 
 
-def parseProofDoc(proofDocPathOrList, tagName):
-    """
-    Return a list of dicts from proofDoc formatted like so:
-    [{tagName: group title, "contents": [content1, content2, etc.]}]
-    tagName is the tag it should look out for.
+    def removeXMLtags(self, stringWithTags):
+        """
+        Return string between <tag></tag>
+        If input doesn't follow correct format, an exception will be raised
+        Currently unused
+        """
+        if not ("<%s>" % self.tagName and "</%s>" % self.tagName) in stringWithTags:
+            raise XMLtagError("Check string formatting: <tag>string</tag>")
 
-    Proof doc should be written like example below.
-    First line after opening tag is the title
-    <group>
-    UC, lc, and numerals
-    ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    </group>
-    """
-    # Will a list ever be passed in?
-    if isinstance(proofDocPathOrList, list):
-        readList = proofDocPathOrList[:]
-    else:
-        f = open(proofDocPathOrList, "r")
-        readList = f.readlines()
-        f.close()
+        return stringWithTags.replace("<%s>" % self.tagName, "")\
+                            .replace("</%s>" % self.tagName, "")
 
-    # Check if tags are in sequence before anything else
-    tagsList = getTags(readList, tagName)
-    checkXMLtagsSequence(tagsList)
 
-    proofList = []
-    startGroup = False
+    def parseProofDoc(self):
+        """
+        Return a list of dicts from proofDoc formatted like so:
+        [{tagName: group title, "contents": [content1, content2, etc.]}]
+        tagName is the tag it should look out for.
 
-    for line in readList:
-        # Skip over empty items (linebreak, etc.)
-        cleanLine = line.strip()
-        if not cleanLine:
-            continue
+        Proof doc should be written like example below.
+        First line after opening tag is the title
+        <group>
+        UC, lc, and numerals
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ
+        </group>
+        """ 
+        # Check if tags are in sequence before anything else
+        self.checkXMLtagsSequence()
 
-        # Open tag: initialize and move on
-        if "<%s>" % tagName in cleanLine:
-            group = {}
-            startGroup = True
-            continue
+        proofList = []
+        startGroup = False
 
-        # Close tag: add group to proofList and move on
-        elif "</%s>" % tagName in cleanLine:
-            proofList.append(group)
-            continue
+        for line in self.inputList:
+            # Skip over empty items (linebreak, etc.)
+            cleanLine = line.strip()
+            if not cleanLine:
+                continue
 
-        # Title line: add title to group[tagName] and initialize contents list
-        if startGroup:
-            group[tagName] = line.strip()
-            group["contents"] = []
-            startGroup = False # not the start of group anymore
+            # Open tag: initialize and move on
+            if "<%s>" % self.tagName in cleanLine:
+                group = {}
+                startGroup = True
+                continue
 
-        # Middle of block: just add line to group["contents"]
-        else:
-            group["contents"].append(cleanLine)
+            # Close tag: add group to proofList and move on
+            elif "</%s>" % self.tagName in cleanLine:
+                proofList.append(group)
+                continue
 
-    return proofList
+            # Title line: add title to group[self.tagName] and initialize contents list
+            if startGroup:
+                group[self.tagName] = line.strip()
+                group["contents"] = []
+                startGroup = False # not the start of group anymore
+
+            # Middle of block: just add line to group["contents"]
+            else:
+                group["contents"].append(cleanLine)
+
+        return proofList
 
 
 if __name__ == "__main__":
-    # Simple testing
-    tempTag = "group"
-    stringToUse = "<%s>UC</%s>" % (tempTag, tempTag)
-    print(removeXMLtags(stringToUse, tempTag))
-
     import os.path
 
     fileDir = os.path.dirname(__file__)
-    testFile = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
+    testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
 
-    testList = parseProofDoc(testFile, "group")
-    print(testList)
+    testFile = open(testFileDir, "r")
+    readList = testFile.readlines()
+    testFile.close()
+
+    # Simple testing:
+    preset = Proof2Preset(readList, "group")
+    print(preset.parseProofDoc())
