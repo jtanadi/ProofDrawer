@@ -13,12 +13,13 @@ class ProofConverter:
         # Run some basic validation on init
         self._checkForTags()
         self._checkXMLtagsSequence()
-        
+
     def _checkForTags(self):
         """
         Make sure object has opening & closing tags at all
         """
-        if not ("<%s>" % self.tagName and "</%s>" % self.tagName) in self.inputList:
+        if not "<%s>" % self.tagName in self.inputList\
+        and "</%s>" % self.tagName in self.inputList:
             raise XMLtagError("Tags should be <tag>content here</tag>")
 
     def _checkXMLtagsSequence(self):
@@ -26,21 +27,27 @@ class ProofConverter:
         Make sure open tags have closing ones:
         [<tag>, </tag>, <tag>, </tag>]
         """
-        openTag = False
-        for tag in self.getTags():
-            # Detect open tag and continue
-            if not openTag and "<" in tag and "/" not in tag:
-                tagName = tag.strip("<").strip(">")
-                openTag = True
+        tagsList = self.getTags()
 
-            # If tag is open, close it if possible
-            # if not possible, raise XMLtagError.
-            # (Closing tag must match opening tag)
+        if tagsList[0] != "<%s>" % self.tagName:
+            raise XMLtagError("First item not an open tag.")
+
+        openTag = True
+        openTagCount = 0
+        closeTagCount = 0
+
+        for tag in self.getTags():
+            if openTag and tag == "<%s>" % self.tagName:
+                openTagCount += 1
+                openTag = False # Next is supposed to be close tag
+            elif not openTag and tag == "</%s>" % self.tagName:
+                closeTagCount += 1
+                openTag = True # Next is supposed to be open tag
             else:
-                if "</%s>" % tagName in tag:
-                    openTag = False
-                else:
-                    raise XMLtagError("Incorrect <tag></tag> sequence")
+                raise XMLtagError("Incorrect <tag></tag> sequence")
+
+        if openTagCount != closeTagCount:
+            raise XMLtagError("Not all tags are paired")
 
     def getTags(self):
         """
@@ -118,5 +125,5 @@ if __name__ == "__main__":
     testFile.close()
 
     # Simple testing:
-    preset = Proof2Preset(readList, "group")
+    preset = ProofConverter(readList, "group")
     print(preset.parseProofDoc())

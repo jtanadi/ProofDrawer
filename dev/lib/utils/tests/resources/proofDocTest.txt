@@ -8,4 +8,14 @@ abcdefghijklmnopqrstuvwxyz
 UC control
 |H| |O| HOHOHOHO
 |A| HAHAHAOAOAOA
+|B| HBHBHBOBOBOB
+|C| HCHCHCOCOCOC
+</group>
+
+<group>
+lc control
+|n| |o| nononono
+|a| nananaoaoaoa
+|b| nbnbnbobobob
+|c| ncncncocococ
 </group>
