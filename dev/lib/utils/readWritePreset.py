@@ -19,7 +19,7 @@ def writeJSONpreset(filePath, contentList):
     """
     Write py list as JSON array
     """
-    jsonContent = json.dumps(contentList)
+    jsonContent = json.dumps(contentList, indent=2)
     fileToWrite = open(filePath, "w+")
     fileToWrite.write(jsonContent)
     fileToWrite.close()
