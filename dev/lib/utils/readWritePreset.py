@@ -1,9 +1,9 @@
 """
-Functions to read and write preset  (JSON file)
+Functions to read and write preset (JSON file)
 """
 import json
 
-def readJSONpresets(filePath):
+def readJSONpreset(filePath):
     """
     Read JSON file and return the array as py list
     """
@@ -15,12 +15,11 @@ def readJSONpresets(filePath):
     except FileNotFoundError:
         return []
 
-def writeJSONpresets(filePath, content):
+def writeJSONpreset(filePath, contentList):
     """
     Write py list as JSON array
     """
-    jsonContent = json.dumps(content)
+    jsonContent = json.dumps(contentList)
     fileToWrite = open(filePath, "w+")
     fileToWrite.write(jsonContent)
     fileToWrite.close()
-
