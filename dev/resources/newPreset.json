@@ -1,0 +1,37 @@
+[
+  {
+    "group": "UC, lc, numerals",
+    "type size": "",
+    "leading": "",
+    "print": false,
+    "contents": [
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "abcdefghijklmnopqrstuvwxyz",
+      "0123456789"
+    ]
+  },
+  {
+    "group": "UC control",
+    "type size": "",
+    "leading": "",
+    "print": true,
+    "contents": [
+      "|H| |O| HOHOHOHO",
+      "|A| HAHAHAOAOAOA",
+      "|B| HBHBHBOBOBOB",
+      "|C| HCHCHCOCOCOC"
+    ]
+  },
+  {
+    "group": "lc control",
+    "type size": "",
+    "leading": "",
+    "print": false,
+    "contents": [
+      "|n| |o| nononono",
+      "|a| nananaoaoaoa",
+      "|b| nbnbnbobobob",
+      "|c| ncncncocococ"
+    ]
+  }
+]

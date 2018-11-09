@@ -16,6 +16,31 @@ class ProofDrawer:
 
         self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "group")
 
+        listForList = [
+            {
+                "title": "Group",
+                "width": 175
+            },
+            {
+                "title": "Type size",
+                "editable": True,
+                "width": 65
+            },
+            {
+                "title": "Leading",
+                "editable": True,
+                "width": 65
+            },
+            {
+                "title": "Print",
+                "cell": CheckBoxListCell()
+            }
+        ]
+
+        # Auto-add key so proof drawer can match w/ preset
+        for item in listForList:
+            item["key"] = item["title"].lower()
+
         self.w = Window((400, 600), "Proof Drawer")
 
         self.w.fontText = TextBox((10, 10, 80, 20), "Select font:")
@@ -26,26 +51,7 @@ class ProofDrawer:
         self.w.proofGroups = List((10, 50, -10, 250),
                                   rowHeight=18,
                                   items=self.proofGroupsList,
-                                  columnDescriptions=[
-                                      {
-                                          "title": "group",
-                                          "width": 175
-                                      },
-                                      {
-                                          "title": "type size",
-                                          "editable": True,
-                                          "width": 65
-                                      },
-                                      {
-                                          "title": "leading",
-                                          "editable": True,
-                                          "width": 65
-                                      },
-                                      {
-                                          "title": "print",
-                                          "cell": CheckBoxListCell()
-                                      }
-                                  ],
+                                  columnDescriptions=listForList,
                                   allowsMultipleSelection=False,
                                   selectionCallback=self.checkCheck)
 
@@ -58,6 +64,21 @@ class ProofDrawer:
         self.w.addProofGroup = Button((10, 560, -10, 20),
                                       "Add to proof list",
                                       callback=self.addProofGroupCB)
+
+        self.w.bind("close", self.closeWindowCB)
+
+    def closeWindowCB(self, sender):
+        # Have to convert from list of __NSDictionaryM to list of py dicts
+        listToWrite = []
+        for dictItem in self.proofGroupsList:
+            tempDict = {}
+            for key in dictItem:
+                tempDict[key] = dictItem[key]
+            
+            listToWrite.append(tempDict)
+        
+        newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
+        writeJSONpreset(newPresetPath, listToWrite)
 
     def fontButtonCB(self, sender):
         # pass
@@ -82,7 +103,7 @@ class ProofDrawer:
                 "group": self.additionalGroupsList[index],
                 "type size": "",
                 "leading": "",
-                "print": 0
+                "print": True
             }
             self.proofGroupsList.append(proofRow)
 
@@ -106,4 +127,3 @@ if __name__ == "__main__":
     preset = ProofPreset(proofList, "group")
     proofDrawer = ProofDrawer(preset.getPreset())
     proofDrawer.w.open()
-
