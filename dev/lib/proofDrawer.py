@@ -13,8 +13,8 @@ class ProofDrawer:
         
         # Testing importing list
         self.proofGroupsList = proofGroupsList
-
         self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "group")
+        self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
 
         listForList = [
             {
@@ -68,15 +68,19 @@ class ProofDrawer:
         self.w.bind("close", self.closeWindowCB)
 
     def closeWindowCB(self, sender):
-        # Have to convert from list of __NSDictionaryM to list of py dicts
-        listToWrite = []
-        for dictItem in self.proofGroupsList:
-            tempDict = {}
-            for key in dictItem:
-                tempDict[key] = dictItem[key]
+        # If list was edited, then each dict becomes __NSDictionaryM
+        # so each __NSDictionaryM has to be converted to py dict.
+        if not self.listHasBeenEdited:
+            listToWrite = self.proofGroupsList
+        else:
+            listToWrite = []
+            for dictItem in self.proofGroupsList:
+                tempDict = {}
+                for key in dictItem:
+                    tempDict[key] = dictItem[key]
+                
+                listToWrite.append(tempDict)
             
-            listToWrite.append(tempDict)
-        
         newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
         writeJSONpreset(newPresetPath, listToWrite)
 
@@ -92,6 +96,7 @@ class ProofDrawer:
     def checkCheck(self, sender):
         # Refreshes list so it remembers user input (sizes & print)
         self.proofGroupsList = sender.get()
+        self.listHasBeenEdited = True
 
     def addProofGroupCB(self, sender):
         # We capture the index of what was selected
@@ -116,6 +121,8 @@ class ProofDrawer:
         pass
 
 if __name__ == "__main__":
+    # This is just for testing. ProofDrawer() shouldn't import proof document
+    # at init, and should import a json preset instead
     currentFilePath = os.path.dirname(__file__)
     proofFilePath = os.path.join(currentFilePath, "..", "resources", "proofFile.txt")
     # jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofPreset.json")
