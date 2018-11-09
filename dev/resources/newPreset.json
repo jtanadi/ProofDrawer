@@ -3,7 +3,7 @@
     "group": "UC, lc, numerals",
     "type size": "",
     "leading": "",
-    "print": false,
+    "print": true,
     "contents": [
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       "abcdefghijklmnopqrstuvwxyz",
@@ -14,7 +14,7 @@
     "group": "UC control",
     "type size": "",
     "leading": "",
-    "print": true,
+    "print": false,
     "contents": [
       "|H| |O| HOHOHOHO",
       "|A| HAHAHAOAOAOA",
@@ -33,5 +33,11 @@
       "|b| nbnbnbobobob",
       "|c| ncncncocococ"
     ]
+  },
+  {
+    "group": "UC, lc, numerals",
+    "type size": "",
+    "leading": "",
+    "print": true
   }
 ]

@@ -53,7 +53,7 @@ class ProofDrawer:
                                   items=self.proofGroupsList,
                                   columnDescriptions=listForList,
                                   allowsMultipleSelection=False,
-                                  selectionCallback=self.checkCheck)
+                                  editCallback=self.checkCheck)
 
         self.w.proofGroupText = TextBox((10, 325, -10, 20), "Add more proof groups:")
         self.w.additionalGroups = List((10, 350, -10, 200),
