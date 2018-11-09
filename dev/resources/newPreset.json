@@ -12,7 +12,7 @@
   },
   {
     "group": "UC control",
-    "type size": "12",
+    "type size": "",
     "leading": "",
     "print": false,
     "contents": [
@@ -26,7 +26,7 @@
     "group": "lc control",
     "type size": "",
     "leading": "",
-    "print": false,
+    "print": true,
     "contents": [
       "|n| |o| nononono",
       "|a| nananaoaoaoa",

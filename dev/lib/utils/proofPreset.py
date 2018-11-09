@@ -133,9 +133,8 @@ if __name__ == "__main__":
     fileDir = os.path.dirname(__file__)
     testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
 
-    testFile = open(testFileDir, "r")
-    readList = testFile.readlines()
-    testFile.close()
+    with open(testFileDir, "r") as testFile:
+        readList = testFile.readlines()
 
     # Simple testing:
     preset = ProofPreset(readList, "group")

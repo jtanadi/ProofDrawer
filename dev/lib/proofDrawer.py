@@ -127,9 +127,8 @@ if __name__ == "__main__":
     proofFilePath = os.path.join(currentFilePath, "..", "resources", "proofFile.txt")
     # jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofPreset.json")
 
-    proofFile = open(proofFilePath, "r")
-    proofList = proofFile.readlines()
-    proofFile.close()
+    with open(proofFilePath, "r") as proofFile:
+        proofList = proofFile.readlines()
 
     preset = ProofPreset(proofList, "group")
     proofDrawer = ProofDrawer(preset.getPreset())
