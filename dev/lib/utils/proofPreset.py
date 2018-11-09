@@ -116,7 +116,7 @@ class ProofPreset:
                 group[self.tagName] = line.strip()
                 group["type size"] = ""
                 group["leading"] = ""
-                group["print"] = ""
+                group["print"] = False
                 group["contents"] = []
                 startGroup = False # not the start of group anymore
 
