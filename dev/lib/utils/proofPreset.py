@@ -111,9 +111,12 @@ class ProofPreset:
                 presetList.append(group)
                 continue
 
-            # Title line: add title to group[self.tagName] and initialize contents list
+            # Title line: add title to group[self.tagName] and initialize presets
             if startGroup:
                 group[self.tagName] = line.strip()
+                group["type size"] = ""
+                group["leading"] = ""
+                group["print"] = ""
                 group["contents"] = []
                 startGroup = False # not the start of group anymore
 

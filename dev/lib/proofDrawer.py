@@ -1,21 +1,20 @@
-import helperFuncs as hf
+from utils.readWritePreset import readJSONpreset, writeJSONpreset
+from utils.proofPreset import ProofPreset
+from utils import helperFunctions as hf
 from vanilla import Window, TextBox, PopUpButton, Button, List, CheckBoxListCell
 import os.path
 
-# If imported proof group is a py list in a module:
-# from proofList import proofList
-# (but has to live in the same folder, otherwise it's too messy (ie. deal w/ packages))
-
-currentFilePath = os.path.dirname(__file__)
-jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofList.json")
-
 class ProofDrawer:
-    def __init__(self, proofListFilePath):
+    def __init__(self, proofGroupsList):
         self.fonts = ["Font 1", "Font 2"]
 
         # These lists should be imported from json preset file
-        self.proofGroupsList = hf.readJSONpresets(proofListFilePath)
-        self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "Group")
+        # self.proofGroupsList = readJSONpreset(proofListFilePath)
+        
+        # Testing importing list
+        self.proofGroupsList = proofGroupsList
+
+        self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "group")
 
         self.w = Window((400, 600), "Proof Drawer")
 
@@ -29,21 +28,21 @@ class ProofDrawer:
                                   items=self.proofGroupsList,
                                   columnDescriptions=[
                                       {
-                                          "title": "Group",
+                                          "title": "group",
                                           "width": 175
                                       },
                                       {
-                                          "title": "Type size",
+                                          "title": "type size",
                                           "editable": True,
                                           "width": 65
                                       },
                                       {
-                                          "title": "Leading",
+                                          "title": "leading",
                                           "editable": True,
                                           "width": 65
                                       },
                                       {
-                                          "title": "Print?",
+                                          "title": "print",
                                           "cell": CheckBoxListCell()
                                       }
                                   ],
@@ -80,10 +79,10 @@ class ProofDrawer:
 
         for index in selectionIndex:
             proofRow = {
-                "Group": self.additionalGroupsList[index],
-                "Type size": "",
-                "Leading": "",
-                "Print?": 0
+                "group": self.additionalGroupsList[index],
+                "type size": "",
+                "leading": "",
+                "print": 0
             }
             self.proofGroupsList.append(proofRow)
 
@@ -96,5 +95,15 @@ class ProofDrawer:
         pass
 
 if __name__ == "__main__":
-    proofDrawer = ProofDrawer(jsonFilePath)
+    currentFilePath = os.path.dirname(__file__)
+    proofFilePath = os.path.join(currentFilePath, "..", "resources", "proofFile.txt")
+    # jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofPreset.json")
+
+    proofFile = open(proofFilePath, "r")
+    proofList = proofFile.readlines()
+    proofFile.close()
+
+    preset = ProofPreset(proofList, "group")
+    proofDrawer = ProofDrawer(preset.getPreset())
     proofDrawer.w.open()
+
