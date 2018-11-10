@@ -1,8 +1,8 @@
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils.proofPreset import ProofPreset
 from utils import helperFunctions as hf
-from vanilla import Window, TextBox, PopUpButton, Button,\
-                    List, CheckBoxListCell, ImageButton, HorizontalLine
+from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
+                    List, CheckBoxListCell, HorizontalLine
 import os.path
 
 class ProofDrawer:
@@ -163,7 +163,6 @@ class ProofDrawer:
         """
         On close, save the state of the current preset.
         """
-        print(self.w.proofGroups.get())
         listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
         newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")

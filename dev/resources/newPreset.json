@@ -1,8 +1,8 @@
 [
   {
     "group": "UC, lc, numerals",
-    "order": 1,
     "type size": "",
+    "order": 1,
     "leading": "",
     "print": false,
     "contents": [
@@ -13,8 +13,8 @@
   },
   {
     "group": "UC control",
-    "order": 2,
     "type size": "",
+    "order": 2,
     "leading": "",
     "print": false,
     "contents": [
@@ -26,8 +26,8 @@
   },
   {
     "group": "lc control",
-    "order": 3,
     "type size": "",
+    "order": 3,
     "leading": "",
     "print": false,
     "contents": [
