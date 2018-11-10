@@ -98,6 +98,7 @@ class ProofPreset:
 
         presetList = []
         startGroup = False
+        order = 1
 
         for line in self.inputList:
             # Open tag: initialize and move on
@@ -114,11 +115,13 @@ class ProofPreset:
             # Title line: add title to group[self.tagName] and initialize presets
             if startGroup:
                 group[self.tagName] = line.strip()
+                group["order"] = order
                 group["type size"] = ""
                 group["leading"] = ""
                 group["print"] = False
                 group["contents"] = []
                 startGroup = False # not the start of group anymore
+                order += 1
 
             # Middle of block: just add line to group["contents"]
             else:
