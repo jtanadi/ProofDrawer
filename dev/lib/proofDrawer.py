@@ -18,7 +18,6 @@ class ProofDrawer:
         
         # Testing importing list
         self.proofGroupsList = proofGroupsList
-        # self.proofGroupsList = hf.addOrder(proofGroupsList)
         self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "group")
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
 
@@ -65,7 +64,6 @@ class ProofDrawer:
         presetsPopUpWidth = width - popUpLeft - 44
         listWidth = textWidth + presetsPopUpWidth - 5
 
-
         self.w = Window((width, 600), "Proof Drawer")
 
         self.w.fontText = TextBox((left, row, textWidth, textHeight),
@@ -83,7 +81,7 @@ class ProofDrawer:
                                          items=self.presets,
                                          callback=self.testerCB)
 
-        self.w.editPresets = ImageButton((width - 37, row - 1, 24, 24),
+        self.w.editPresets = ImageButton((width - 37, row, 22, 22),
                                          imagePath=editPresetsImgPath,
                                          bordered=False,
                                          callback=self.testerCB)
@@ -91,7 +89,7 @@ class ProofDrawer:
 
         row += 35
         self.w.line1 = HorizontalLine((left, row, -10, 1))
-        
+
         row += 15
         self.w.proofGroups = List((left, row, listWidth, 255),
                                   rowHeight=18,
@@ -102,7 +100,7 @@ class ProofDrawer:
                                   enableDelete=True)
 
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 5
-        buttonGroup1Top = row + 60
+        buttonGroup1Top = row + 58
         self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                 "\u24D8",
                                 callback=self.testerCB)
