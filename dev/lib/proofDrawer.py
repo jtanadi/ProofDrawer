@@ -1,30 +1,43 @@
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils.proofPreset import ProofPreset
 from utils import helperFunctions as hf
-from vanilla import Window, TextBox, PopUpButton, Button, List, CheckBoxListCell
+from vanilla import Window, TextBox, PopUpButton, Button,\
+                    List, CheckBoxListCell, ImageButton, HorizontalLine
 import os.path
 
 class ProofDrawer:
     def __init__(self, proofGroupsList):
         self.fonts = ["Font 1", "Font 2"]
+        self.presets = ["Preset 1", "Preset 2"]
+        editPresetsImgPath = os.path.join(currentFilePath,\
+                                          "..", "resources",\
+                                          "editPresetsIcon.pdf")
 
         # These lists should be imported from json preset file
         # self.proofGroupsList = readJSONpreset(proofListFilePath)
         
         # Testing importing list
         self.proofGroupsList = proofGroupsList
+        # self.proofGroupsList = hf.addOrder(proofGroupsList)
         self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "group")
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
 
         listForList = [
             {
+                "title": "#",
+                "key": "order",
+                "width": 20,
+                "editable": False,
+            },
+            {
                 "title": "Group",
-                "width": 175
+                "width": 160,
+                "editable": False
             },
             {
                 "title": "Type size",
                 "editable": True,
-                "width": 65
+                "width": 70
             },
             {
                 "title": "Leading",
@@ -32,38 +45,109 @@ class ProofDrawer:
                 "width": 65
             },
             {
-                "title": "Print",
+                "title": " 🖨",
+                "key": "print",
                 "cell": CheckBoxListCell()
             }
         ]
 
         # Auto-add key so proof drawer can match w/ preset
         for item in listForList:
-            item["key"] = item["title"].lower()
+            if "key" not in item.keys():
+                item["key"] = item["title"].lower()
 
-        self.w = Window((400, 600), "Proof Drawer")
+        width = 425
+        left = 10
+        row = 10
+        textWidth = 60
+        textHeight = 20
+        popUpLeft = left + textWidth
+        presetsPopUpWidth = width - popUpLeft - 44
+        listWidth = textWidth + presetsPopUpWidth - 5
 
-        self.w.fontText = TextBox((10, 10, 80, 20), "Select font:")
-        self.w.fontButton = PopUpButton((100, 10, -10, 20),
-                                        items=self.fonts,
-                                        callback=self.fontButtonCB)
 
-        self.w.proofGroups = List((10, 50, -10, 250),
+        self.w = Window((width, 600), "Proof Drawer")
+
+        self.w.fontText = TextBox((left, row, textWidth, textHeight),
+                                  "Font:")
+        self.w.fontsList = PopUpButton((popUpLeft, row, -10, textHeight),
+                                       items=self.fonts,
+                                       callback=self.fontButtonCB)
+
+        row += 30
+        self.w.presetText = TextBox((left, row, textWidth, textHeight),
+                                    "Preset:")
+
+        
+        self.w.presetsList = PopUpButton((popUpLeft, row, presetsPopUpWidth, textHeight),
+                                         items=self.presets,
+                                         callback=self.testerCB)
+
+        self.w.editPresets = ImageButton((width - 37, row - 1, 24, 24),
+                                         imagePath=editPresetsImgPath,
+                                         bordered=False,
+                                         callback=self.testerCB)
+
+
+        row += 35
+        self.w.line1 = HorizontalLine((left, row, -10, 1))
+        
+        row += 15
+        self.w.proofGroups = List((left, row, listWidth, 255),
                                   rowHeight=18,
                                   items=self.proofGroupsList,
                                   columnDescriptions=listForList,
                                   allowsMultipleSelection=False,
-                                  editCallback=self.checkCheck)
+                                  editCallback=self.checkCheck,
+                                  enableDelete=True)
 
-        self.w.proofGroupText = TextBox((10, 325, -10, 20), "Add more proof groups:")
-        self.w.additionalGroups = List((10, 350, -10, 200),
+        buttonGroup1Left = popUpLeft + presetsPopUpWidth + 5
+        buttonGroup1Top = row + 60
+        self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
+                                "\u24D8",
+                                callback=self.testerCB)
+
+        buttonGroup1Top += 40
+        self.w.moveGroupUP = Button((buttonGroup1Left , buttonGroup1Top, 30, 20),
+                                    "↑",
+                                    callback=self.testerCB)
+        buttonGroup1Top += 25
+        self.w.moveGroupDN = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
+                                    "↓",
+                                    callback=self.testerCB)
+
+        buttonGroup1Top += 40
+        self.w.removeGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
+                                    "-",
+                                    callback=self.testerCB)
+        
+
+        row += 275
+        self.w.line2 = HorizontalLine((left, row, -10, 1))
+
+        row += 10
+        self.w.proofGroupText = TextBox((left, row, -10, 20),
+                                        "Add more proof groups:")
+
+        row += 25
+        self.w.additionalGroups = List((left, row, listWidth, 150),
                                        rowHeight=17,
                                        items=self.additionalGroupsList,
                                        allowsMultipleSelection=False)
 
-        self.w.addProofGroup = Button((10, 560, -10, 20),
-                                      "Add to proof list",
-                                      callback=self.addProofGroupCB)
+        self.w.addGroup = Button((buttonGroup1Left, row + 60, 30, 20),
+                            "+",
+                            callback=self.addProofGroupCB)
+
+        # row += 25
+        # self.w.previewButton = Button((additionalWidth + 20, row, -10, 20),
+        #                               "Preview",
+        #                               callback=self.testerCB)
+        
+        # row += 25
+        # self.w.printButton = Button((additionalWidth + 20, row, -10, 20),
+        #                              "Print",
+        #                              callback=self.testerCB)
 
         self.w.bind("close", self.closeWindowCB)
 
@@ -106,9 +190,10 @@ class ProofDrawer:
         for index in selectionIndex:
             proofRow = {
                 "group": self.additionalGroupsList[index],
+                "order": len(self.w.proofGroups) + 1,
                 "type size": "",
                 "leading": "",
-                "print": True
+                "print": False
             }
             self.proofGroupsList.append(proofRow)
 
@@ -118,7 +203,7 @@ class ProofDrawer:
         """
         Use this for fake CB
         """
-        pass
+        print("hit: ", sender)
 
 if __name__ == "__main__":
     # This is just for testing. ProofDrawer() shouldn't import proof document

@@ -1,9 +1,10 @@
 [
   {
     "group": "UC, lc, numerals",
+    "order": 1,
     "type size": "",
     "leading": "",
-    "print": true,
+    "print": false,
     "contents": [
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       "abcdefghijklmnopqrstuvwxyz",
@@ -12,6 +13,7 @@
   },
   {
     "group": "UC control",
+    "order": 2,
     "type size": "",
     "leading": "",
     "print": false,
@@ -24,9 +26,10 @@
   },
   {
     "group": "lc control",
+    "order": 3,
     "type size": "",
     "leading": "",
-    "print": true,
+    "print": false,
     "contents": [
       "|n| |o| nononono",
       "|a| nananaoaoaoa",
