@@ -14,11 +14,11 @@ class ProofDrawer:
                                           "editPresetsIcon.pdf")
 
         # These lists should be imported from json preset file
-        # self.proofGroupsList = readJSONpreset(proofListFilePath)
+        # proofGroupsList = readJSONpreset(proofListFilePath)
+        # or the extension looks at the resources folder for presets
         
         # Testing importing list
-        self.proofGroupsList = proofGroupsList
-        self.additionalGroupsList = hf.getValuesFromListOfDicts(self.proofGroupsList, "group")
+        self.additionalGroupsList = hf.getValuesFromListOfDicts(proofGroupsList, "group")
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
 
         listForList = [
@@ -26,22 +26,22 @@ class ProofDrawer:
                 "title": "#",
                 "key": "order",
                 "width": 20,
-                "editable": False,
+                "editable": False
             },
             {
                 "title": "Group",
                 "width": 160,
-                "editable": False
+                "editable": True
             },
             {
                 "title": "Type size",
-                "editable": True,
-                "width": 70
+                "width": 70,
+                "editable": True
             },
             {
                 "title": "Leading",
-                "editable": True,
-                "width": 65
+                "width": 65,
+                "editable": True
             },
             {
                 "title": " 🖨",
@@ -93,39 +93,38 @@ class ProofDrawer:
         row += 15
         self.w.proofGroups = List((left, row, listWidth, 255),
                                   rowHeight=18,
-                                  items=self.proofGroupsList,
+                                  items=proofGroupsList,
                                   columnDescriptions=listForList,
                                   allowsMultipleSelection=False,
-                                  editCallback=self.checkCheck,
                                   enableDelete=True)
 
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 5
         buttonGroup1Top = row + 58
         self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                 "\u24D8",
-                                callback=self.testerCB)
+                                callback=self.inspectGroupCB)
 
         buttonGroup1Top += 40
         self.w.moveGroupUP = Button((buttonGroup1Left , buttonGroup1Top, 30, 20),
                                     "↑",
-                                    callback=self.testerCB)
+                                    callback=self.moveGroupCB)
         buttonGroup1Top += 25
         self.w.moveGroupDN = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                     "↓",
-                                    callback=self.testerCB)
+                                    callback=self.moveGroupCB)
 
         buttonGroup1Top += 40
         self.w.removeGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                     "-",
-                                    callback=self.testerCB)
+                                    callback=self.removeGroup)
         
 
         row += 275
         self.w.line2 = HorizontalLine((left, row, -10, 1))
 
         row += 10
-        self.w.proofGroupText = TextBox((left, row, -10, 20),
-                                        "Add more proof groups:")
+        self.w.additionalGroupsText = TextBox((left, row, -10, 20),
+                                              "Add more proof groups:")
 
         row += 25
         self.w.additionalGroups = List((left, row, listWidth, 150),
@@ -149,20 +148,24 @@ class ProofDrawer:
 
         self.w.bind("close", self.closeWindowCB)
 
+    def _refreshOrder(self):
+        """
+        Simple method to refresh the order number.
+        Private because user doesn't directly interact with it.
+        """
+        newOrder = 1
+        for item in self.w.proofGroups:
+            item["order"] = newOrder
+            newOrder += 1
+
+
     def closeWindowCB(self, sender):
-        # If list was edited, then each dict becomes __NSDictionaryM
-        # so each __NSDictionaryM has to be converted to py dict.
-        if not self.listHasBeenEdited:
-            listToWrite = self.proofGroupsList
-        else:
-            listToWrite = []
-            for dictItem in self.proofGroupsList:
-                tempDict = {}
-                for key in dictItem:
-                    tempDict[key] = dictItem[key]
-                
-                listToWrite.append(tempDict)
-            
+        """
+        On close, save the state of the current preset.
+        """
+        print(self.w.proofGroups.get())
+        listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
+
         newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
         writeJSONpreset(newPresetPath, listToWrite)
 
@@ -171,21 +174,68 @@ class ProofDrawer:
         selectedFont = self.fonts[sender.get()]
         self.w.setTitle("Proof Drawer: %s" % selectedFont)
 
-    def deselectListItem(self, sender):
-        # Prevents selection by setting selection of sender object to empty list
-        sender.setSelection([])
+    def inspectGroupCB(self, sender):
+        """
+        Open new window that lets user inspect and further edit
+        selected group.
 
-    def checkCheck(self, sender):
-        # Refreshes list so it remembers user input (sizes & print)
-        self.proofGroupsList = sender.get()
-        self.listHasBeenEdited = True
+        Same note for other methods that manipulate vanilla.List:
+        vanilla.List.getSellection() returns a list,
+        so we have to iterate. (Let's not do .getSelection()[0]
+        because we might allow multiple selections later)
+        """
+        pass
 
-    def addProofGroupCB(self, sender):
-        # We capture the index of what was selected
-        # and add the item to our proofGroupsList
-        selectionIndex = self.w.additionalGroups.getSelection()
+    
+    def moveGroupCB(self, sender):
+        """
+        Both up and down buttons call this method because
+        they share the same sorting logic.
+
+        The sorting works by holding the selected object
+        in a temp variable, deleting from the groups list,
+        and then re-inserting in the index before or after.
+        """
+        direction = sender.getTitle()
+        selectionIndex = self.w.proofGroups.getSelection()
 
         for index in selectionIndex:
+            selectionObj = self.w.proofGroups[index]
+            if direction == "↑":
+                # First object can't move up
+                if index == 0:
+                    return
+                newIndex = index - 1
+            else:
+                # Last object can't move down
+                if index == len(self.w.proofGroups) - 1:
+                    return
+                newIndex = index + 1
+            
+            del self.w.proofGroups[index]
+            self.w.proofGroups.insert(newIndex, selectionObj)
+            self.w.proofGroups.setSelection([newIndex])
+            self._refreshOrder()
+
+    def removeGroup(self, sender):
+        """
+        Delete selected and refresh order number
+        """
+        selectionIndices = self.w.proofGroups.getSelection()
+
+        for index in selectionIndices:
+            del self.w.proofGroups[index]
+
+        self._refreshOrder()
+
+    def addProofGroupCB(self, sender):
+        """
+        Append selected additional group to main list and
+        add some information along the way.
+        """
+        selectionIndices = self.w.additionalGroups.getSelection()
+
+        for index in selectionIndices:
             proofRow = {
                 "group": self.additionalGroupsList[index],
                 "order": len(self.w.proofGroups) + 1,
@@ -193,9 +243,7 @@ class ProofDrawer:
                 "leading": "",
                 "print": False
             }
-            self.proofGroupsList.append(proofRow)
-
-        self.w.proofGroups.set(self.proofGroupsList)
+            self.w.proofGroups.append(proofRow)
 
     def testerCB(self, sender):
         """

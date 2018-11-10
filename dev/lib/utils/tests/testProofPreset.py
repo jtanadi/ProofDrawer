@@ -1,4 +1,8 @@
-from lib.utils.proofPreset import ProofPreset, XMLtagError
+"""
+Test ProofPreset object
+"""
+
+from utils.proofPreset import ProofPreset, XMLtagError
 import unittest
 import os.path
 
@@ -42,6 +46,10 @@ class ProofPresetTest(unittest.TestCase):
         expected = [
             {
                 "group": "UC, lc, numerals",
+                "order": 1,
+                "type size": "",
+                "leading": "",
+                "print": False,
                 "contents": [
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                     "abcdefghijklmnopqrstuvwxyz",
@@ -50,6 +58,10 @@ class ProofPresetTest(unittest.TestCase):
             },
             {
                 "group": "UC control",
+                "order": 2,
+                "type size": "",
+                "leading": "",
+                "print": False,
                 "contents": [
                     "|H| |O| HOHOHOHO",
                     "|A| HAHAHAOAOAOA",
@@ -59,6 +71,10 @@ class ProofPresetTest(unittest.TestCase):
             },
             {
                 "group": "lc control",
+                "order": 3,
+                "type size": "",
+                "leading": "",
+                "print": False,
                 "contents": [
                     "|n| |o| nononono",
                     "|a| nananaoaoaoa",
