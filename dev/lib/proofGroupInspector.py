@@ -1,4 +1,5 @@
-from vanilla import Window, TextBox, EditText, TextEditor, Button
+from vanilla import Window, TextBox, EditText,\
+                    ComboBox, TextEditor, Button
 from mojo.events import postEvent
 
 class ProofGroupInspector:
@@ -10,45 +11,60 @@ class ProofGroupInspector:
         """
         self.proofGroup = proofGroup
         self.newProofGroup = {}
+
         left = 10
         row = 10
+        textboxWidth = 92
+        leftEditText = left + 95
+        pointSizes = ["6", "8", "10", "12", "14", "18",\
+                      "21", "24", "36", "48", "60", "72"]
 
-        self.w = Window((400, 320),
+        self.w = Window((400, 275),
                         "Edit Proof Group: %s" % self.proofGroup["group"])
 
-        self.w.groupName = TextBox((left, row, 150, 20),
-                                   "Group name:")
+        self.w.groupName = TextBox((left, row + 2, textboxWidth, 20),
+                                   "Group name:",
+                                   alignment="right")
 
-        row += 22
-        self.w.groupNameEdit = EditText((left, row, -10, 20),
+        self.w.groupNameEdit = EditText((leftEditText, row, -10, 22),
                                         self.proofGroup["group"])
 
-        row += 35
-        self.w.typeSize = TextBox((left, row + 2, 95, 20),
-                                  "Type size (pt):")
+        row += 33
+        self.w.typeSize = TextBox((left, row + 2, textboxWidth, 20),
+                                  "Type size (pt):",
+                                  alignment="right")
 
-        self.w.typeSizeEdit = EditText((left + 95, row, 45, 22),
-                                       self.proofGroup["type size"])
+        self.w.typeSizeEdit = ComboBox((leftEditText, row, 55, 22),
+                                       pointSizes,
+                                       continuous=True,
+                                       callback=self._checkFloat)
 
-        self.w.leading = TextBox((left + 150, row + 2, 60, 22),
+        self.w.typeSizeEdit.set(self.proofGroup["type size"])
+
+        self.w.leading = TextBox((leftEditText + 80, row + 2, 60, 22),
                                  "Leading:")
-        self.w.leadingEdit = EditText((left + 210, row, 45, 22),
-                                      self.proofGroup["leading"])
 
-        row += 35
-        self.w.contents = TextBox((left, row, 150, 20),
-                                  "Contents:")
+        self.w.leadingEdit = ComboBox((leftEditText + 139, row, 55, 22),
+                                      pointSizes,
+                                      continuous=True,
+                                      callback=self._checkFloat)
 
-        row += 22
-        self.w.contentsEdit = TextEditor((left, row, -10, 150),
+        self.w.leadingEdit.set(self.proofGroup["leading"])
+
+        row += 33
+        self.w.contents = TextBox((left, row, textboxWidth, 20),
+                                  "Contents:",
+                                  alignment="right")
+
+        self.w.contentsEdit = TextEditor((leftEditText, row, -10, 150),
                                          "\n".join(self.proofGroup["contents"]))
 
         row += 160
-        self.w.okButton = Button((left, row, 185, 20),
+        self.w.okButton = Button((leftEditText, row, 138, 20),
                                  "OK",
                                  callback=self.okCB)
-        left += 195
-        self.w.cancelButton = Button((left, row, 185, 20),
+        leftEditText += 147
+        self.w.cancelButton = Button((leftEditText, row, 138, 20),
                                      "Cancel",
                                      callback=self.cancelCB)
 
@@ -56,6 +72,22 @@ class ProofGroupInspector:
 
     def _postCloseEvent(self, sender):
         postEvent("comInspectorClosed")
+
+    def _checkFloat(self, sender):
+        """
+        Make sure users don't input non-floats by capturing
+        value prior to new input, then using it
+        if user tries to input an illegal character
+        """
+        # "last" is newly-typed character
+        allButLast = sender.get()[:-1]
+        try:
+            float(sender.get())
+
+            # Get rid of whitespaces immediately
+            sender.set(sender.get().strip())
+        except ValueError:
+            sender.set(allButLast)
 
     def _makeCleanList(self, contentString):
         """
