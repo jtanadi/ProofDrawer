@@ -23,6 +23,7 @@ class ProofDrawer:
         # Testing importing list
         self.additionalGroupsList = hf.getValuesFromListOfDicts(proofGroupsList, "group")
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
+        self.ignoreCheckFloat = False
 
         self._buildUI(proofGroupsList)
 
@@ -112,8 +113,10 @@ class ProofDrawer:
                                   rowHeight=18,
                                   items=proofGroupsList,
                                   columnDescriptions=listForList,
+                                  showColumnTitles=False,
                                   allowsMultipleSelection=False,
-                                  editCallback=self._checkFloat)
+                                  editCallback=self._checkFloat,
+                                  drawVerticalLines=True)
 
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
@@ -210,7 +213,13 @@ class ProofDrawer:
         Make sure users don't input non-floats by capturing
         value prior to new input, then using it
         if user tries to input an illegal character
+
+        Only check float when user directly edits List;
+        add, remove, and move functions all ignore this function
         """
+        if self.ignoreCheckFloat:
+            return
+
         selectionIndex = sender.getSelection()[0]
         editedGroup = self.w.proofGroups[selectionIndex]
 
@@ -244,6 +253,7 @@ class ProofDrawer:
 
         self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
+        self.proofGroupInspector.w.makeKey()
         self._uiEnabled(False)
 
     def moveGroupCB(self, sender):
@@ -254,10 +264,13 @@ class ProofDrawer:
         The sorting works by holding the selected object
         in a temp variable, deleting from the groups list,
         and then re-inserting in the index before or after.
+
+        Don't check float while running this function.
         """
         if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
 
+        self.ignoreCheckFloat = True
         direction = sender.getTitle()
         selectionIndex = self.w.proofGroups.getSelection()[0]
 
@@ -277,25 +290,33 @@ class ProofDrawer:
         self.w.proofGroups.insert(newIndex, selectionObj)
         self.w.proofGroups.setSelection([newIndex])
         self._refreshOrder()
+        self.ignoreCheckFloat = False
 
     def removeGroup(self, sender):
         """
-        Delete selected and refresh order number
+        Delete selected and refresh order number.
+        Don't check float while running this function
         """
         if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
-
+        
+        self.ignoreCheckFloat = True
         selectionIndex = self.w.proofGroups.getSelection()[0]
         del self.w.proofGroups[selectionIndex]
         self._refreshOrder()
+        self.ignoreCheckFloat = False
 
     def addProofGroupCB(self, sender):
         """
-        Append selected additional group to main list and
-        add some information along the way.
+        Append selected additional group to main list
+        and add some information along the way.
+        Don't check float while running this function
         """
         selectionIndices = self.w.additionalGroups.getSelection()
+        if not selectionIndices:
+            return
 
+        self.ignoreCheckFloat = True
         for index in selectionIndices:
             proofRow = {
                 "group": self.additionalGroupsList[index],
@@ -305,11 +326,14 @@ class ProofDrawer:
                 "print": False
             }
             self.w.proofGroups.append(proofRow)
+        self.ignoreCheckFloat = False
 
     def closeWindowCB(self, sender):
         """
         On close, save the state of the current preset.
         """
+        self.proofGroupInspector.w.close()
+
         listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
         newPresetPath = os.path.join(currentFilePath, "..", "resources",\

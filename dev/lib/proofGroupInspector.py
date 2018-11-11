@@ -60,14 +60,16 @@ class ProofGroupInspector:
                                          "\n".join(self.proofGroup["contents"]))
 
         row += 160
-        self.w.okButton = Button((leftEditText, row, 138, 20),
-                                 "OK",
-                                 callback=self.okCB)
-        leftEditText += 147
         self.w.cancelButton = Button((leftEditText, row, 138, 20),
                                      "Cancel",
                                      callback=self.cancelCB)
+        
+        leftEditText += 147
+        self.w.okButton = Button((leftEditText, row, 138, 20),
+                                 "OK",
+                                 callback=self.okCB)
 
+        self.w.setDefaultButton(self.w.okButton)
         self.w.bind("close", self._postCloseEvent)
 
     def _postCloseEvent(self, sender):
