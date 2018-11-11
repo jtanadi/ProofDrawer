@@ -79,7 +79,7 @@ class ProofGroupInspector:
         value prior to new input, then using it
         if user tries to input an illegal character
         """
-        # "last" is newly-typed character
+        # Store everything up to newly-typed character
         allButLast = sender.get()[:-1]
         try:
             float(sender.get())
