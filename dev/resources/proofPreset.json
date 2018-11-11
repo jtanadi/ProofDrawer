@@ -1,44 +1,44 @@
 [
   {
-    "Group": "UC",
-    "Type size": 96,
-    "Leading": 112,
-    "Print": 1,
-    "Contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "group": "UC",
+    "type size": 96,
+    "leading": 112,
+    "print": 1,
+    "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   },
   {
-    "Group": "lc, numerals, punctuations",
-    "Type size": 96,
-    "Leading": 112,
-    "Print": 1,
-    "Contents": "abcdefghijklmnopqrstuvwxyz0123456789;:,."
+    "group": "lc, numerals, punctuations",
+    "type size": 96,
+    "leading": 112,
+    "print": 1,
+    "contents": "abcdefghijklmnopqrstuvwxyz0123456789;:,."
   },
   {
-    "Group": "Charset",
-    "Type size": 48,
-    "Leading": 52,
-    "Print": 1,
-    "Contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789;:,."
+    "group": "Charset",
+    "type size": 48,
+    "leading": 52,
+    "print": 1,
+    "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789;:,."
   },
   {
-    "Group": "UC between control chars",
-    "Type size": 10,
-    "Leading": 12,
-    "Print": 1,
-    "Contents": "|H| |O| HHHOHOHHOOOHOHOO\n|A| HHHAHAHHOHOAOAOA"
+    "group": "UC between control chars",
+    "type size": 10,
+    "leading": 12,
+    "print": 1,
+    "contents": "|H| |O| HHHOHOHHOOOHOHOO\n|A| HHHAHAHHOHOAOAOA"
   },
   {
-    "Group": "lc between control chars",
-    "Type size": 10,
-    "Leading": 12,
-    "Print": 1,
-    "Contents": "|n| |o| nnnononnooononoo\n|a| nnnanannonoaoaoa"
+    "group": "lc between control chars",
+    "type size": 10,
+    "leading": 12,
+    "print": 1,
+    "contents": "|n| |o| nnnononnooononoo\n|a| nnnanannonoaoaoa"
   },
   {
-    "Group": "Numerals between control chars",
-    "Type size": 10,
-    "Leading": 12,
-    "Print": 1,
-    "Contents": "|n| |0| nnn0n0nn000n0n00\n|1| nnn1n1nn0n010101"
+    "group": "Numerals between control chars",
+    "type size": 10,
+    "leading": 12,
+    "print": 1,
+    "contents": "|n| |0| nnn0n0nn000n0n00\n|1| nnn1n1nn0n010101"
   }
 ]

@@ -14,10 +14,10 @@ class ProofGroupInspector:
         row = 10
 
         self.w = Window((400, 320),
-                        "Edit Proof Group")
+                        "Edit Proof Group: %s" % self.proofGroup["group"])
 
         self.w.groupName = TextBox((left, row, 150, 20),
-                                   "Edit Proof Group: %s" % self.proofGroup["group"])
+                                   "Group name:")
 
         row += 22
         self.w.groupNameEdit = EditText((left, row, -10, 20),

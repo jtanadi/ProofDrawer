@@ -14,8 +14,8 @@ class ProofDrawer:
         self.presets = ["Preset 1", "Preset 2"]
 
         self.proofGroupInspector = None
+        self.editedGroupIndex = None
         self.inspectorOpen = False
-        self.editedGroupIndex = 0
 
         # These lists should be imported from json preset file
         # proofGroupsList = readJSONpreset(proofListFilePath)
@@ -44,7 +44,8 @@ class ProofDrawer:
                 "editable": False
             },
             {
-                "title": "Group",
+                "title": "Group name",
+                "key": "group",
                 "width": 160,
                 "editable": True
             },
@@ -73,30 +74,32 @@ class ProofDrawer:
         width = 425
         left = 10
         row = 10
-        textWidth = 60
+        textWidth = 48
         textHeight = 20
-        popUpLeft = left + textWidth
-        presetsPopUpWidth = width - popUpLeft - 44
-        listWidth = textWidth + presetsPopUpWidth - 5
+        popUpLeft = left + textWidth + 5
+        presetsPopUpWidth = width - popUpLeft - 47
+        listWidth = textWidth + presetsPopUpWidth 
 
         self.w = Window((width, 600), "Proof Drawer")
 
         self.w.fontText = TextBox((left, row, textWidth, textHeight),
-                                  "Font:")
+                                  "Font:",
+                                  alignment="right")
         self.w.fontsList = PopUpButton((popUpLeft, row, -10, textHeight),
                                        items=self.fonts,
                                        callback=self.fontButtonCB)
 
         row += 30
         self.w.presetText = TextBox((left, row, textWidth, textHeight),
-                                    "Preset:")
+                                    "Preset:",
+                                    alignment="right")
 
         
         self.w.presetsList = PopUpButton((popUpLeft, row, presetsPopUpWidth, textHeight),
                                          items=self.presets,
                                          callback=self.testerCB)
 
-        self.w.editPresets = ImageButton((width - 37, row, 22, 22),
+        self.w.editPresets = ImageButton((width - 38, row, 22, 22),
                                          imagePath=editPresetsImgPath,
                                          bordered=False,
                                          callback=self.testerCB)
@@ -113,7 +116,7 @@ class ProofDrawer:
                                   allowsMultipleSelection=False,
                                   enableDelete=True)
 
-        buttonGroup1Left = popUpLeft + presetsPopUpWidth + 5
+        buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
         self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                 "\u24D8",
@@ -162,9 +165,20 @@ class ProofDrawer:
         #                              callback=self.testerCB)
 
     def _trackInspectorWindow(self, info):
+        """
+        Prevent more than one inspector window
+        from being opened.
+        """
         self.inspectorOpen = False
     
     def _updateProofGroup(self, info):
+        """
+        Update the proof groups list to reflect
+        edits made in the inspector.
+
+        The comProofGroupEdited event also returns
+        the newly-edited proof group.
+        """
         self.w.proofGroups[self.editedGroupIndex] = info["newProofGroup"]
 
     def _refreshOrder(self):
@@ -186,20 +200,14 @@ class ProofDrawer:
         """
         Open new window that lets user inspect and further edit
         selected group.
-
-        Same note for other methods that manipulate vanilla.List:
-        vanilla.List.getSellection() returns a list,
-        so we have to iterate. (Let's not do .getSelection()[0]
-        because we might allow multiple selections later)
         """
-        if self.inspectorOpen:
+        if self.inspectorOpen or not self.w.proofGroups.getSelection():
             return
 
         self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
         selectedGroup = self.w.proofGroups[self.editedGroupIndex]
 
-        self.proofGroupInspector = ProofGroupInspector()
-        self.proofGroupInspector.setProofGroup(selectedGroup)
+        self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
         self.inspectorOpen = True
 
@@ -213,35 +221,31 @@ class ProofDrawer:
         and then re-inserting in the index before or after.
         """
         direction = sender.getTitle()
-        selectionIndex = self.w.proofGroups.getSelection()
+        selectionIndex = self.w.proofGroups.getSelection()[0]
 
-        for index in selectionIndex:
-            selectionObj = self.w.proofGroups[index]
-            if direction == "↑":
-                # First object can't move up
-                if index == 0:
-                    return
-                newIndex = index - 1
-            else:
-                # Last object can't move down
-                if index == len(self.w.proofGroups) - 1:
-                    return
-                newIndex = index + 1
-            
-            del self.w.proofGroups[index]
-            self.w.proofGroups.insert(newIndex, selectionObj)
-            self.w.proofGroups.setSelection([newIndex])
-            self._refreshOrder()
+        selectionObj = self.w.proofGroups[selectionIndex]
+        if direction == "↑":
+            # First object can't move up
+            if selectionIndex == 0:
+                return
+            newIndex = selectionIndex - 1
+        else:
+            # Last object can't move down
+            if selectionIndex == len(self.w.proofGroups) - 1:
+                return
+            newIndex = selectionIndex + 1
+        
+        del self.w.proofGroups[selectionIndex]
+        self.w.proofGroups.insert(newIndex, selectionObj)
+        self.w.proofGroups.setSelection([newIndex])
+        self._refreshOrder()
 
     def removeGroup(self, sender):
         """
         Delete selected and refresh order number
         """
-        selectionIndices = self.w.proofGroups.getSelection()
-
-        for index in selectionIndices:
-            del self.w.proofGroups[index]
-
+        selectionIndex = self.w.proofGroups.getSelection()[0]
+        del self.w.proofGroups[selectionIndex]
         self._refreshOrder()
 
     def addProofGroupCB(self, sender):
@@ -268,7 +272,8 @@ class ProofDrawer:
         listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
         newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
-        writeJSONpreset(newPresetPath, listToWrite)
+        # turn this back on later
+        # writeJSONpreset(newPresetPath, listToWrite)
 
         removeObserver(self, "comInspectorClosed")
         removeObserver(self, "comProofGroupEdited")

@@ -1,8 +1,20 @@
 [
   {
-    "group": "UC control",
+    "group": "UC, lc, numerals",
     "type size": "",
     "order": 1,
+    "leading": "",
+    "print": false,
+    "contents": [
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "abcdefghijklmnopqrstuvwxyz",
+      "0123456789"
+    ]
+  },
+  {
+    "group": "UC control",
+    "type size": "",
+    "order": 2,
     "leading": "",
     "print": false,
     "contents": [
@@ -13,20 +25,7 @@
     ]
   },
   {
-    "group": "UC, lc, numerals2",
-    "type size": "12",
-    "order": 2,
-    "leading": "14",
-    "print": true,
-    "contents": [
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-      "abcdefghijklmnopqrstuvwxyz",
-      "0123456789",
-      "hello"
-    ]
-  },
-  {
-    "group": "lc control",
+    "group": "lc control2",
     "type size": "",
     "order": 3,
     "leading": "",
