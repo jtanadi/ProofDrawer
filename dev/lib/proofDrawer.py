@@ -1,6 +1,9 @@
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
-from utils.proofPreset import ProofPreset
 from utils import helperFunctions as hf
+from utils.proofPreset import ProofPreset
+from proofGroupInspector import ProofGroupInspector
+
+from mojo.events import addObserver, removeObserver
 from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
                     List, CheckBoxListCell, HorizontalLine
 import os.path
@@ -9,9 +12,10 @@ class ProofDrawer:
     def __init__(self, proofGroupsList):
         self.fonts = ["Font 1", "Font 2"]
         self.presets = ["Preset 1", "Preset 2"]
-        editPresetsImgPath = os.path.join(currentFilePath,\
-                                          "..", "resources",\
-                                          "editPresetsIcon.pdf")
+
+        self.proofGroupInspector = None
+        self.inspectorOpen = False
+        self.editedGroupIndex = 0
 
         # These lists should be imported from json preset file
         # proofGroupsList = readJSONpreset(proofListFilePath)
@@ -20,6 +24,17 @@ class ProofDrawer:
         # Testing importing list
         self.additionalGroupsList = hf.getValuesFromListOfDicts(proofGroupsList, "group")
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
+
+        self._buildUI(proofGroupsList)
+
+        addObserver(self, "_trackInspectorWindow", "comInspectorClosed")
+        addObserver(self, "_updateProofGroup", "comProofGroupEdited")
+        self.w.bind("close", self.closeWindowCB)
+
+    def _buildUI(self, proofGroupsList):
+        editPresetsImgPath = os.path.join(currentFilePath,\
+                                          "..", "resources",\
+                                          "editPresetsIcon.pdf")
 
         listForList = [
             {
@@ -146,7 +161,11 @@ class ProofDrawer:
         #                              "Print",
         #                              callback=self.testerCB)
 
-        self.w.bind("close", self.closeWindowCB)
+    def _trackInspectorWindow(self, info):
+        self.inspectorOpen = False
+    
+    def _updateProofGroup(self, info):
+        self.w.proofGroups[self.editedGroupIndex] = info["newProofGroup"]
 
     def _refreshOrder(self):
         """
@@ -157,16 +176,6 @@ class ProofDrawer:
         for item in self.w.proofGroups:
             item["order"] = newOrder
             newOrder += 1
-
-
-    def closeWindowCB(self, sender):
-        """
-        On close, save the state of the current preset.
-        """
-        listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
-
-        newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
-        writeJSONpreset(newPresetPath, listToWrite)
 
     def fontButtonCB(self, sender):
         # pass
@@ -183,9 +192,17 @@ class ProofDrawer:
         so we have to iterate. (Let's not do .getSelection()[0]
         because we might allow multiple selections later)
         """
-        pass
+        if self.inspectorOpen:
+            return
 
-    
+        self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
+        selectedGroup = self.w.proofGroups[self.editedGroupIndex]
+
+        self.proofGroupInspector = ProofGroupInspector()
+        self.proofGroupInspector.setProofGroup(selectedGroup)
+        self.proofGroupInspector.w.open()
+        self.inspectorOpen = True
+
     def moveGroupCB(self, sender):
         """
         Both up and down buttons call this method because
@@ -243,6 +260,18 @@ class ProofDrawer:
                 "print": False
             }
             self.w.proofGroups.append(proofRow)
+
+    def closeWindowCB(self, sender):
+        """
+        On close, save the state of the current preset.
+        """
+        listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
+
+        newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
+        writeJSONpreset(newPresetPath, listToWrite)
+
+        removeObserver(self, "comInspectorClosed")
+        removeObserver(self, "comProofGroupEdited")
 
     def testerCB(self, sender):
         """
