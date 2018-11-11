@@ -59,6 +59,8 @@ class ProofGroupInspector:
                                      "Cancel",
                                      callback=self.cancelCB)
 
+        self.w.setDefaultButton(self.w.okButton)
+
     def _checkFloat(self, sender):
         """
         Make sure users don't input non-floats by capturing

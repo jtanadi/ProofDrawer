@@ -28,6 +28,7 @@ class ProofDrawer:
         # Testing importing list
         self.additionalGroupsList = hf.getValuesFromListOfDicts(proofGroupsList, "group")
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
+        self.ignoreCheckFloat = False # see _checkFloat() and inspectGroupCB()
 
         self._buildUI(proofGroupsList)
 
@@ -120,7 +121,7 @@ class ProofDrawer:
                                     allowsMultipleSelection=False,
                                     editCallback=self._checkFloat)
 
-        buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
+        buttonGroup1Left = popUpLeft + presetsPopUpWidth + 7
         buttonGroup1Top = row + 58
         self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                 "\u24D8",
@@ -168,7 +169,6 @@ class ProofDrawer:
         #                              "Print",
         #                              callback=self.testerCB)
 
-
     def _uiEnabled(self, onOff=True):
         """
         A master switch for all editable UI elements
@@ -187,8 +187,7 @@ class ProofDrawer:
 
     def _inspectorClosed(self, info):
         """
-        Prevent more than one inspector window
-        from being opened.
+        Re-enable main UI components
         """
         self._uiEnabled(True)
 
@@ -216,7 +215,13 @@ class ProofDrawer:
         Make sure users don't input non-floats by capturing
         value prior to new input, then using it
         if user tries to input an illegal character
+
+        Only check float when user is directly editing the List
+        (otherwise self.ignoreCheckFloat is True).
         """
+        if self.ignoreCheckFloat:
+            return
+
         selectionIndex = sender.getSelection()[0]
         editedGroup = self.w.proofGroups[selectionIndex]
 
@@ -250,12 +255,15 @@ class ProofDrawer:
 
         self.proofGroupInspector.setProofGroup(selectedGroup)
         self.proofGroupInspector.w.show()
+        self.proofGroupInspector.w.makeKey()
         self._uiEnabled(False)
 
     def moveGroupCB(self, sender):
         """
         Both up and down buttons call this method because
         they share the same sorting logic.
+
+        Don't check float while moving group.
 
         The sorting works by holding the selected object
         in a temp variable, deleting from the groups list,
@@ -264,6 +272,7 @@ class ProofDrawer:
         if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
 
+        self.ignoreCheckFloat = True
         direction = sender.getTitle()
         selectionIndex = self.w.proofGroups.getSelection()[0]
 
@@ -278,28 +287,36 @@ class ProofDrawer:
             if selectionIndex == len(self.w.proofGroups) - 1:
                 return
             newIndex = selectionIndex + 1
-        
+
         del self.w.proofGroups[selectionIndex]
         self.w.proofGroups.insert(newIndex, selectionObj)
         self.w.proofGroups.setSelection([newIndex])
         self._refreshOrder()
+        self.ignoreCheckFloat = False
 
     def removeGroup(self, sender):
         """
-        Delete selected and refresh order number
+        Delete selected and refresh order number.
+        Don't check float while removing group
         """
         if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
 
+        self.ignoreCheckFloat = True
         selectionIndex = self.w.proofGroups.getSelection()[0]
         del self.w.proofGroups[selectionIndex]
         self._refreshOrder()
+        self.ignoreCheckFloat = False
 
     def addProofGroupCB(self, sender):
         """
+        This might not have the right implementation... 
         Append selected additional group to main list and
         add some information along the way.
+
+        Don't check float when adding group.
         """
+        self.ignoreCheckFloat = True
         selectionIndices = self.w.additionalGroups.getSelection()
 
         for index in selectionIndices:
@@ -308,9 +325,11 @@ class ProofDrawer:
                 "order": len(self.w.proofGroups) + 1,
                 "type size": "",
                 "leading": "",
-                "print": False
+                "print": False,
+                "contents": []
             }
             self.w.proofGroups.append(proofRow)
+        self.ignoreCheckFloat = False
 
     def closeWindowCB(self, sender):
         """
