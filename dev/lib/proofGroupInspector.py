@@ -1,4 +1,4 @@
-from vanilla import Window, TextBox, EditText,\
+from vanilla import FloatingWindow, TextBox, EditText,\
                     ComboBox, TextEditor, Button
 from mojo.events import postEvent
 
@@ -19,8 +19,8 @@ class ProofGroupInspector:
         pointSizes = ["6", "8", "10", "12", "14", "18",\
                       "21", "24", "36", "48", "60", "72"]
 
-        self.w = Window((400, 275),
-                        "Edit Proof Group: %s" % self.proofGroup["group"])
+        self.w = FloatingWindow((400, 275),
+                                "Edit Proof Group: %s" % self.proofGroup["group"])
 
         self.w.groupName = TextBox((left, row + 2, textboxWidth, 20),
                                    "Group name:",
