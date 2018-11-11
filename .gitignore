@@ -1,4 +1,4 @@
 .DS_Store
 .vscode
 __pycache__
-dev/resources/newPreset.json
+newPreset.json
