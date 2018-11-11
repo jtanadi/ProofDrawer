@@ -15,7 +15,6 @@ class ProofDrawer:
 
         self.proofGroupInspector = None
         self.editedGroupIndex = None
-        self.inspectorOpen = False
 
         # These lists should be imported from json preset file
         # proofGroupsList = readJSONpreset(proofListFilePath)
@@ -27,7 +26,7 @@ class ProofDrawer:
 
         self._buildUI(proofGroupsList)
 
-        addObserver(self, "_trackInspectorWindow", "comInspectorClosed")
+        addObserver(self, "_inspectorClosed", "comInspectorClosed")
         addObserver(self, "_updateProofGroup", "comProofGroupEdited")
         self.w.bind("close", self.closeWindowCB)
 
@@ -164,13 +163,29 @@ class ProofDrawer:
         #                              "Print",
         #                              callback=self.testerCB)
 
-    def _trackInspectorWindow(self, info):
+    def _uiEnabled(self, onOff=True):
+        """
+        A master switch for all editable UI elements
+        """
+        self.w.proofGroups.enable(onOff)
+        self.w.fontsList.enable(onOff)
+        self.w.presetsList.enable(onOff)
+        self.w.editPresets.enable(onOff)
+        self.w.editPresets.enable(onOff)
+        self.w.inspectGroup.enable(onOff)
+        self.w.moveGroupUP.enable(onOff)
+        self.w.moveGroupDN.enable(onOff)
+        self.w.removeGroup.enable(onOff)
+        self.w.additionalGroups.enable(onOff)
+        self.w.addGroup.enable(onOff)
+
+    def _inspectorClosed(self, info):
         """
         Prevent more than one inspector window
         from being opened.
         """
-        self.inspectorOpen = False
-    
+        self._uiEnabled(True)
+
     def _updateProofGroup(self, info):
         """
         Update the proof groups list to reflect
@@ -184,7 +199,6 @@ class ProofDrawer:
     def _refreshOrder(self):
         """
         Simple method to refresh the order number.
-        Private because user doesn't directly interact with it.
         """
         newOrder = 1
         for item in self.w.proofGroups:
@@ -197,16 +211,20 @@ class ProofDrawer:
         value prior to new input, then using it
         if user tries to input an illegal character
         """
-        print(sender.get())
-        # # "last" is newly-typed character
-        # allButLast = sender.get()[:-1]
-        # try:
-        #     float(sender.get())
+        selectionIndex = sender.getSelection()[0]
+        editedGroup = self.w.proofGroups[selectionIndex]
 
-        #     # Get rid of whitespaces immediately
-        #     sender.set(sender.get().strip())
-        # except ValueError:
-        #     sender.set(allButLast)
+        for key, value in editedGroup.items():
+            if key != "type size" and key != "leading":
+                continue
+
+            if value:
+                # Store everything up to newly-typed character
+                allButLast = value[:-1]
+                try:
+                    float(value)
+                except ValueError:
+                    editedGroup[key] = allButLast
 
     def fontButtonCB(self, sender):
         # pass
@@ -218,7 +236,7 @@ class ProofDrawer:
         Open new window that lets user inspect and further edit
         selected group.
         """
-        if self.inspectorOpen or not self.w.proofGroups.getSelection():
+        if not self.w.proofGroups.getSelection():
             return
 
         self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
@@ -226,7 +244,7 @@ class ProofDrawer:
 
         self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
-        self.inspectorOpen = True
+        self._uiEnabled(False)
 
     def moveGroupCB(self, sender):
         """
@@ -237,7 +255,7 @@ class ProofDrawer:
         in a temp variable, deleting from the groups list,
         and then re-inserting in the index before or after.
         """
-        if not self.w.proofGroups:
+        if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
 
         direction = sender.getTitle()
@@ -264,7 +282,7 @@ class ProofDrawer:
         """
         Delete selected and refresh order number
         """
-        if not self.w.proofGroups:
+        if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
 
         selectionIndex = self.w.proofGroups.getSelection()[0]
