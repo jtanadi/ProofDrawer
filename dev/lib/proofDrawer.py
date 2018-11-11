@@ -1,7 +1,8 @@
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils import helperFunctions as hf
 from utils.proofPreset import ProofPreset
-from proofGroupInspector import ProofGroupInspector
+
+from windows.proofGroupInspector import ProofGroupInspector
 
 from mojo.events import addObserver, removeObserver
 from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
@@ -118,6 +119,7 @@ class ProofDrawer:
                                     rowHeight=18,
                                     items=proofGroupsList,
                                     columnDescriptions=listForList,
+                                    allowsSorting=False,
                                     allowsMultipleSelection=False,
                                     editCallback=self._checkFloat)
 
