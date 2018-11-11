@@ -150,6 +150,7 @@ class ProofDrawer:
         self.w.additionalGroups = List((left + 3, row, listWidth, 150),
                                        rowHeight=17,
                                        items=self.additionalGroupsList,
+                                       allowsSorting=False,
                                        allowsMultipleSelection=False)
 
         self.w.addGroup = Button((buttonGroup1Left, row + 60, 30, 20),
