@@ -13,7 +13,12 @@ class ProofDrawer:
         self.fonts = ["Font 1", "Font 2"]
         self.presets = ["Preset 1", "Preset 2"]
 
-        self.proofGroupInspector = None
+        # Initialize and open inspector, but hide the window.
+        # Inspector is shown and hidden, but only closed when
+        # ProofDrawer is closed.
+        self.proofGroupInspector = ProofGroupInspector()
+        self.proofGroupInspector.w.open()
+        self.proofGroupInspector.w.hide()
         self.editedGroupIndex = None
 
         # These lists should be imported from json preset file
@@ -32,8 +37,8 @@ class ProofDrawer:
 
     def _buildUI(self, proofGroupsList):
         editPresetsImgPath = os.path.join(currentFilePath,\
-                                          "..", "resources",\
-                                          "editPresetsIcon.pdf")
+                                            "..", "resources",\
+                                            "editPresetsIcon.pdf")
 
         listForList = [
             {
@@ -82,11 +87,11 @@ class ProofDrawer:
         self.w = Window((width, 600), "Proof Drawer")
 
         self.w.fontText = TextBox((left, row, textWidth, textHeight),
-                                  "Font:",
-                                  alignment="right")
+                                    "Font:",
+                                    alignment="right")
         self.w.fontsList = PopUpButton((popUpLeft, row, -10, textHeight),
-                                       items=self.fonts,
-                                       callback=self.fontButtonCB)
+                                        items=self.fonts,
+                                        callback=self.fontButtonCB)
 
         row += 30
         self.w.presetText = TextBox((left, row, textWidth, textHeight),
@@ -95,13 +100,13 @@ class ProofDrawer:
 
         
         self.w.presetsList = PopUpButton((popUpLeft, row, presetsPopUpWidth, textHeight),
-                                         items=self.presets,
-                                         callback=self.testerCB)
+                                            items=self.presets,
+                                            callback=self.testerCB)
 
         self.w.editPresets = ImageButton((width - 38, row, 22, 22),
-                                         imagePath=editPresetsImgPath,
-                                         bordered=False,
-                                         callback=self.testerCB)
+                                            imagePath=editPresetsImgPath,
+                                            bordered=False,
+                                            callback=self.testerCB)
 
 
         row += 35
@@ -109,11 +114,11 @@ class ProofDrawer:
 
         row += 15
         self.w.proofGroups = List((left + 3, row, listWidth, 255),
-                                  rowHeight=18,
-                                  items=proofGroupsList,
-                                  columnDescriptions=listForList,
-                                  allowsMultipleSelection=False,
-                                  editCallback=self._checkFloat)
+                                    rowHeight=18,
+                                    items=proofGroupsList,
+                                    columnDescriptions=listForList,
+                                    allowsMultipleSelection=False,
+                                    editCallback=self._checkFloat)
 
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
@@ -141,13 +146,13 @@ class ProofDrawer:
 
         row += 10
         self.w.additionalGroupsText = TextBox((left, row, -10, 20),
-                                              "Add more proof groups:")
+                                                "Add more proof groups:")
 
         row += 25
         self.w.additionalGroups = List((left + 3, row, listWidth, 150),
-                                       rowHeight=17,
-                                       items=self.additionalGroupsList,
-                                       allowsMultipleSelection=False)
+                                        rowHeight=17,
+                                        items=self.additionalGroupsList,
+                                        allowsMultipleSelection=False)
 
         self.w.addGroup = Button((buttonGroup1Left, row + 60, 30, 20),
                             "+",
@@ -162,6 +167,7 @@ class ProofDrawer:
         # self.w.printButton = Button((additionalWidth + 20, row, -10, 20),
         #                              "Print",
         #                              callback=self.testerCB)
+
 
     def _uiEnabled(self, onOff=True):
         """
@@ -233,8 +239,8 @@ class ProofDrawer:
 
     def inspectGroupCB(self, sender):
         """
-        Open new window that lets user inspect and further edit
-        selected group.
+        Show proof group inspector so user can inspect and
+        further edit selected proof group.
         """
         if not self.w.proofGroups.getSelection():
             return
@@ -242,8 +248,8 @@ class ProofDrawer:
         self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
         selectedGroup = self.w.proofGroups[self.editedGroupIndex]
 
-        self.proofGroupInspector = ProofGroupInspector(selectedGroup)
-        self.proofGroupInspector.w.open()
+        self.proofGroupInspector.setProofGroup(selectedGroup)
+        self.proofGroupInspector.w.show()
         self._uiEnabled(False)
 
     def moveGroupCB(self, sender):
@@ -308,10 +314,13 @@ class ProofDrawer:
 
     def closeWindowCB(self, sender):
         """
-        On close, save the state of the current preset.
+        On close, close all auxiliary windows,
+        save the state of the current preset,
+        and remove all observers.
         """
-        listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
+        self.proofGroupInspector.w.close()
 
+        listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
         newPresetPath = os.path.join(currentFilePath, "..", "resources",\
                                      "presets", "newTestPreset.json")
         writeJSONpreset(newPresetPath, listToWrite)
