@@ -52,7 +52,7 @@ class ProofDrawer:
             {
                 "title": "Type size",
                 "width": 70,
-                "editable": True
+                "editable": True,
             },
             {
                 "title": "Leading",
@@ -109,12 +109,12 @@ class ProofDrawer:
         self.w.line1 = HorizontalLine((left, row, -10, 1))
 
         row += 15
-        self.w.proofGroups = List((left, row, listWidth, 255),
+        self.w.proofGroups = List((left + 3, row, listWidth, 255),
                                   rowHeight=18,
                                   items=proofGroupsList,
                                   columnDescriptions=listForList,
                                   allowsMultipleSelection=False,
-                                  enableDelete=True)
+                                  editCallback=self._checkFloat)
 
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
@@ -145,7 +145,7 @@ class ProofDrawer:
                                               "Add more proof groups:")
 
         row += 25
-        self.w.additionalGroups = List((left, row, listWidth, 150),
+        self.w.additionalGroups = List((left + 3, row, listWidth, 150),
                                        rowHeight=17,
                                        items=self.additionalGroupsList,
                                        allowsMultipleSelection=False)
@@ -191,6 +191,23 @@ class ProofDrawer:
             item["order"] = newOrder
             newOrder += 1
 
+    def _checkFloat(self, sender):
+        """
+        Make sure users don't input non-floats by capturing
+        value prior to new input, then using it
+        if user tries to input an illegal character
+        """
+        print(sender.get())
+        # # "last" is newly-typed character
+        # allButLast = sender.get()[:-1]
+        # try:
+        #     float(sender.get())
+
+        #     # Get rid of whitespaces immediately
+        #     sender.set(sender.get().strip())
+        # except ValueError:
+        #     sender.set(allButLast)
+
     def fontButtonCB(self, sender):
         # pass
         selectedFont = self.fonts[sender.get()]
@@ -220,6 +237,9 @@ class ProofDrawer:
         in a temp variable, deleting from the groups list,
         and then re-inserting in the index before or after.
         """
+        if not self.w.proofGroups:
+            return
+
         direction = sender.getTitle()
         selectionIndex = self.w.proofGroups.getSelection()[0]
 
@@ -244,6 +264,9 @@ class ProofDrawer:
         """
         Delete selected and refresh order number
         """
+        if not self.w.proofGroups:
+            return
+
         selectionIndex = self.w.proofGroups.getSelection()[0]
         del self.w.proofGroups[selectionIndex]
         self._refreshOrder()
@@ -272,7 +295,7 @@ class ProofDrawer:
         listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
         newPresetPath = os.path.join(currentFilePath, "..", "resources",\
-                                     "presets", "newPreset.json")
+                                     "presets", "newTestPreset.json")
         writeJSONpreset(newPresetPath, listToWrite)
 
         removeObserver(self, "comInspectorClosed")
