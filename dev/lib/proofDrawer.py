@@ -271,9 +271,9 @@ class ProofDrawer:
         """
         listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
-        newPresetPath = os.path.join(currentFilePath, "..", "resources", "newPreset.json")
-        # turn this back on later
-        # writeJSONpreset(newPresetPath, listToWrite)
+        newPresetPath = os.path.join(currentFilePath, "..", "resources",\
+                                     "presets", "newPreset.json")
+        writeJSONpreset(newPresetPath, listToWrite)
 
         removeObserver(self, "comInspectorClosed")
         removeObserver(self, "comProofGroupEdited")
