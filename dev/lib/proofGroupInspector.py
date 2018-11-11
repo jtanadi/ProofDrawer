@@ -51,13 +51,14 @@ class ProofGroupInspector:
         self.w.contentsEdit = TextEditor((leftEditText, row, -10, 150))
 
         row += 160
-        self.w.okButton = Button((leftEditText, row, 138, 20),
-                                 "OK",
-                                 callback=self.okCB)
-        leftEditText += 147
         self.w.cancelButton = Button((leftEditText, row, 138, 20),
                                      "Cancel",
                                      callback=self.cancelCB)
+        
+        leftEditText += 147
+        self.w.okButton = Button((leftEditText, row, 138, 20),
+                                 "OK",
+                                 callback=self.okCB)
 
         self.w.setDefaultButton(self.w.okButton)
 
