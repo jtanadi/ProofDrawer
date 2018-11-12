@@ -7,21 +7,26 @@ class XMLtagError(Exception):
 
 class ProofPreset:
     """
-    A proof preset for ProofDrawer().
+    A proof preset object for ProofDrawer().
+
+    Only top-most structure exists when initialized:
+    {"name": presetName, "groups": []}
 
     Use ProofPreset.importProof(proofGroups, tagName)
-    to turn an XML-tagged proof string into a preset.
+    to turn an XML-tagged proofGroups object (string or list)
+    into a preset.
 
     proofGroups is a collection of proof groups,
-    each should be structured like:
+    and they should be structured like:
     <group>
     UC, numerals
     ABCDEFGHIJKLMNOPQRSTUVWXYZ
     0123456789
     </group>
-
-    On import, the groups are converted into a List:
-    [<group>, "UC, numerals", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "0123456789"]
+    <group>
+    lc
+    abcdefghijklmnopqrstuvwxyz
+    </group>
 
     ProofPreset.getPreset() will return a preset object
     that can be saved as a JSON file.
@@ -40,20 +45,29 @@ class ProofPreset:
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                     "0123456789"
                 ]
+            },
+            {
+                "group": "lc",
+                "order": 2,
+                "type size": 12,
+                "leading": 14,
+                "print": False,
+                "contents": [
+                    "abcefghijklmnopqrstuvwxyz"
+                ]
             }
         ]
     }
     """
-    def __init__(self, presetName):
+    def __init__(self, presetName="myPreset"):
         """
         Initialize an empty ProofPreset object
-        presetName is string.
         """
         self.preset = {}
         self.preset["name"] = presetName
         self.preset["groups"] = []
 
-        self.inputList = None
+        self.proofGroups = None
         self.tagName = None
 
     def _cleanList(self, listToClean):
@@ -73,9 +87,9 @@ class ProofPreset:
         """
         Make sure object has opening & closing tags at all
         """
-        if not "<%s>" % self.tagName in self.inputList\
-        and "</%s>" % self.tagName in self.inputList:
-            raise XMLtagError("Tags should be <tag>content here</tag>")
+        if not "<%s>" % self.tagName in self.proofGroups\
+        and "</%s>" % self.tagName in self.proofGroups:
+            raise XMLtagError("tagName not in imported proofGroup")
 
     def _checkXMLtagsSequence(self):
         """
@@ -99,41 +113,7 @@ class ProofPreset:
         if openTagCount != closeTagCount:
             raise XMLtagError("Not all tags are paired")
 
-    def importProof(self, proofGroups, tagName):
-        """
-        Import collection of proof groups and perform
-        some basic cleaning and validation
-
-        proofGroups can be a string or list
-        
-        tagName is a string—the tag used in to separate
-        groups in proofGroups.
-        For example, tagName for <group>proof</group> is "group"
-        """
-        if proofGroups is str:
-            proofGroups = proofGroups.split("\n")
-
-        self.inputList = self._cleanList(proofGroups)
-        self.tagName = tagName
-
-        self._checkForTags()
-        self._checkXMLtagsSequence()
-
-    def getTags(self):
-        """
-        Return a list of tags only
-        """
-        if not self.tagName:
-            return None
-        return [item for item in self.inputList if self._isTag(item)]
-
-    def getNonTags(self):
-        """
-        Return a list of non tags
-        """
-        return [item for item in self.inputList if not self._isTag(item)]
-
-    def getPresetList(self):
+    def _convertGroups(self):
         """
         Return a list of dicts from proofDoc formatted like so:
         [{tagName: group title, "contents": [content1, content2, etc.]}]
@@ -146,7 +126,7 @@ class ProofPreset:
         ABCDEFGHIJKLMNOPQRSTUVWXYZ
         </group>
         """
-        if not self.inputList:
+        if not self.proofGroups:
             return []
 
         # Check if tags are in sequence before anything else
@@ -156,7 +136,7 @@ class ProofPreset:
         startGroup = False
         order = 1
 
-        for line in self.inputList:
+        for line in self.proofGroups:
             # Open tag: initialize and move on
             if "<%s>" % self.tagName in line:
                 group = {}
@@ -185,21 +165,58 @@ class ProofPreset:
 
         return presetList    
 
+    def importProof(self, proofGroups, tagName):
+        """
+        Import collection of proof groups and perform
+        some basic cleaning and validation
+
+        proofGroups can be a string or list
+
+        tagName is a string: the tag used in to separate
+        groups in proofGroups.
+        For example, tagName for <group>proof</group> is "group"
+        """
+        if not tagName:
+            raise XMLtagError("Please specify tag name")
+
+        if isinstance(proofGroups, str):
+            proofGroups = proofGroups.split("\n")
+
+        self.proofGroups = self._cleanList(proofGroups)
+
+        self.tagName = tagName
+
+        self._checkForTags()
+        self._checkXMLtagsSequence()
+        self.preset["groups"] = self._convertGroups()
+
+    def getTags(self):
+        """
+        Return a list of tags only
+        """
+        if not self.tagName:
+            return None
+        return [item for item in self.proofGroups if self._isTag(item)]
+
+    def getProofGroups(self):
+        return self.proofGroups
+
     def getPreset(self):
-        self.preset["groups"] = self.getPresetList()
         return self.preset
 
 
 if __name__ == "__main__":
-    import os.path
+    # import os.path
 
-    fileDir = os.path.dirname(__file__)
-    testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
+    # fileDir = os.path.dirname(__file__)
+    # testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
 
-    with open(testFileDir, "r") as testFile:
-        readList = testFile.readlines()
+    # with open(testFileDir, "r") as testFile:
+    #     readList = testFile.readlines()
 
     # Simple testing:
+    testString = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
+    # testList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
     preset = ProofPreset("myPreset")
-    preset.importProof(readList, "group")
+    preset.importProof(testString, "group")
     print(preset.getPreset())
