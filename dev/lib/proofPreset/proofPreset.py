@@ -204,17 +204,31 @@ class ProofPreset:
         """
         Import a proof preset (eg. from JSON file).
 
+        presetToImport is a dictionary that will be validated
+        before the full thing is imported.
+
         If NOT overwriting, raise an error when there's
         already a stored preset["groups].
-
-        Perform some validation before full import.
         """
         if not overwrite and self.preset["groups"]:
             raise ProofPresetError("There's already a preset in here")
 
-
         # validate imported preset
+        if not presetToImport["name"]:
+            raise ProofPresetError("Imported preset has no name")
+        elif not presetToImport["groups"]:
+            raise ProofPresetError("Imported preset has no groups")
+
+        keysToValidate = ["group", "order", "type size",\
+                          "leading", "print", "contents"]
+
+        for group in presetToImport["groups"]:
+            for key in keysToValidate:
+                if not group[key]:
+                    raise ProofPresetError("Imported preset is missing %s" % key)
+
         # import preset
+        self.preset = presetToImport
 
     def getName(self):
         """
