@@ -10,7 +10,7 @@ from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
 import os.path
 
 class ProofDrawer:
-    def __init__(self, proofGroupsList):
+    def __init__(self, inputPreset):
         self.fonts = ["Font 1", "Font 2"]
         self.presets = ["Preset 1", "Preset 2"]
 
@@ -22,17 +22,21 @@ class ProofDrawer:
         # or the extension looks at the resources folder for presets
         
         # Testing importing list
-        self.additionalGroupsList = hf.getValuesFromListOfDicts(proofGroupsList, "group")
+        presetGroups = inputPreset.getPreset()["groups"]
+        self.additionalGroupsList = hf.getValuesFromListOfDicts(\
+                                       presetGroups,
+                                       "group")
+
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
         self.ignoreCheckFloat = False
 
-        self._buildUI(proofGroupsList)
+        self._buildUI(presetGroups)
 
         addObserver(self, "_inspectorClosed", "comInspectorClosed")
         addObserver(self, "_updateProofGroup", "comProofGroupEdited")
         self.w.bind("close", self.closeWindowCB)
 
-    def _buildUI(self, proofGroupsList):
+    def _buildUI(self, proofGroups):
         editPresetsImgPath = os.path.join(currentFilePath,\
                                           "..", "resources",\
                                           "editPresetsIcon.pdf")
@@ -112,7 +116,7 @@ class ProofDrawer:
         row += 15
         self.w.proofGroups = List((left + 3, row, listWidth, 255),
                                   rowHeight=18,
-                                  items=proofGroupsList,
+                                  items=proofGroups,
                                   columnDescriptions=listForList,
                                   allowsSorting=False,
                                   allowsMultipleSelection=False,
@@ -361,6 +365,7 @@ if __name__ == "__main__":
     with open(proofFilePath, "r") as proofFile:
         proofList = proofFile.readlines()
 
-    preset = ProofPreset(proofList, "group")
-    proofDrawer = ProofDrawer(preset.getPreset())
+    preset = ProofPreset("preset")
+    preset.importProof(proofList, "group")
+    proofDrawer = ProofDrawer(preset)
     proofDrawer.w.open()
