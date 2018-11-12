@@ -333,7 +333,8 @@ class ProofDrawer:
         """
         On close, save the state of the current preset.
         """
-        self.proofGroupInspector.w.close()
+        if self.proofGroupInspector:
+            self.proofGroupInspector.w.close()
 
         listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
