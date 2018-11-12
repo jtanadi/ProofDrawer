@@ -131,7 +131,7 @@ class ProofPreset:
         if openTagCount != closeTagCount:
             raise XMLtagError("Not all tags are paired")
 
-    def _convertGroups(self):
+    def _makePresetGroups(self):
         """
         Return list of preset groups,
         converted from proofGroups
@@ -170,7 +170,7 @@ class ProofPreset:
             else:
                 group["contents"].append(line)
 
-        return presetList    
+        return presetList
 
     def importProof(self, proofGroups, tagName):
         """
@@ -195,7 +195,7 @@ class ProofPreset:
         self._checkForTags()
         self._checkXMLtagsSequence()
 
-        self.preset["groups"] = self._convertGroups()
+        self.preset["groups"] = self._makePresetGroups()
 
     def getGroups(self):
         """
@@ -222,6 +222,25 @@ class ProofPreset:
         return returnGroups
 
     def getPreset(self):
+        """
+        Return JSON-able preset in the following format:
+        {
+            "name": presetName,
+            "groups": [
+                {
+                    "group": "UC, numerals",
+                    "order": 1,
+                    "type size": 12,
+                    "leading": 14,
+                    "print": True,
+                    "contents": [
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "0123456789"
+                    ]
+                }
+            ]
+        }
+        """
         return self.preset
 
 
