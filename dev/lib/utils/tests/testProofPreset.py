@@ -11,11 +11,11 @@ class ProofPresetTest(unittest.TestCase):
         fileDir = os.path.dirname(__file__)
         testFileDir = os.path.join(fileDir, "resources", "proofDocTest.txt")
 
-        testFile = open(testFileDir, "r")
-        testList = testFile.readlines()
-        testFile.close()
+        with open(testFileDir, "r") as testFile:
+            testList = testFile.readlines()
 
-        self.testPreset = ProofPreset(testList, "group")
+        self.testPreset = ProofPreset("myPreset")
+        self.testPreset.importProof(testList, "group")
 
     def test_baseGetTags(self):
         """
@@ -43,100 +43,50 @@ class ProofPresetTest(unittest.TestCase):
         Base case for ProofPreset.parseProofDoc()
         """
         testProof = self.testPreset.getPreset()
-        expected = [
-            {
-                "group": "UC, lc, numerals",
-                "order": 1,
-                "type size": "",
-                "leading": "",
-                "print": False,
-                "contents": [
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                    "abcdefghijklmnopqrstuvwxyz",
-                    "0123456789"
-                ]
-            },
-            {
-                "group": "UC control",
-                "order": 2,
-                "type size": "",
-                "leading": "",
-                "print": False,
-                "contents": [
-                    "|H| |O| HOHOHOHO",
-                    "|A| HAHAHAOAOAOA",
-                    "|B| HBHBHBOBOBOB",
-                    "|C| HCHCHCOCOCOC"
-                ]
-            },
-            {
-                "group": "lc control",
-                "order": 3,
-                "type size": "",
-                "leading": "",
-                "print": False,
-                "contents": [
-                    "|n| |o| nononono",
-                    "|a| nananaoaoaoa",
-                    "|b| nbnbnbobobob",
-                    "|c| ncncncocococ"
-                ]
-            }
-        ]
-        self.assertEqual(testProof, expected)
-
-    def test_checkForTagsNoClose(self):
-        """
-        Fail ProofPreset._checkForTags(): no closing tags
-        """
-        inputList = ["<group>", "<group>", "<group>"]
-        with self.assertRaises(XMLtagError):
-            testProof = ProofPreset(inputList, "group")
-
-    def test_checkSequenceNested(self):
-        """
-        Fail ProofPreset._checkXMLtagsSequence()
-        if tags are nested (<tag><tag></tag></tag>).
-        """
-        inputList = ["<group>", "<group>", "</group>", "</group>"]
-        with self.assertRaises(XMLtagError):
-            testProof = ProofPreset(inputList, "group")
-    
-    def test_checkSequenceLessClose(self):
-        """
-        Fail ProofPreset._checkXMLtagsSequence()
-        If 2 opens and 1 close
-        """
-        inputList = ["<group>", "</group>", "<group>"]
-        with self.assertRaises(XMLtagError):
-            testProof = ProofPreset(inputList, "group")
-
-    def test_checkSequenceLessOpen(self):
-        """
-        Fail ProofPreset._checkXMLtagsSequence()
-        If 1 open and 2 closes
-        """
-        inputList = ["<group>", "</group>", "</group>"]
-        with self.assertRaises(XMLtagError):
-            testProof = ProofPreset(inputList, "group")
-
-    def test_checkSequenceBadPairs(self):
-        """
-        Fail ProofPreset._checkXMLtagsSequence()
-        If open/close/close/open
-        """
-        inputList = ["<group>", "</group>", "</group>", "<group>"]
-        with self.assertRaises(XMLtagError):
-            testProof = ProofPreset(inputList, "group")    
-
-    def test_checkSequenceStartWithClose(self):
-        """
-        Fail ProofPreset._checkXMLtagsSequence()
-        If close/open/close/open
-        """
-        inputList = ["</group>", "<group>", "</group>", "<group>"]
-        with self.assertRaises(XMLtagError):
-            testProof = ProofPreset(inputList, "group")    
+        expected = {
+            "name": "myPreset",
+            "groups": [
+                {
+                    "group": "UC, lc, numerals",
+                    "order": 1,
+                    "type size": "",
+                    "leading": "",
+                    "print": False,
+                    "contents": [
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "abcdefghijklmnopqrstuvwxyz",
+                        "0123456789"
+                    ]
+                },
+                {
+                    "group": "UC control",
+                    "order": 2,
+                    "type size": "",
+                    "leading": "",
+                    "print": False,
+                    "contents": [
+                        "|H| |O| HOHOHOHO",
+                        "|A| HAHAHAOAOAOA",
+                        "|B| HBHBHBOBOBOB",
+                        "|C| HCHCHCOCOCOC"
+                    ]
+                },
+                {
+                    "group": "lc control",
+                    "order": 3,
+                    "type size": "",
+                    "leading": "",
+                    "print": False,
+                    "contents": [
+                        "|n| |o| nononono",
+                        "|a| nananaoaoaoa",
+                        "|b| nbnbnbobobob",
+                        "|c| ncncncocococ"
+                    ]
+                }
+            ]
+        }
+        self.assertEqual(testProof, expected) 
 
 
 if __name__ == "__main__":
