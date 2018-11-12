@@ -26,12 +26,6 @@ class ProofPresetTest(unittest.TestCase):
                     "</group>", "<group>", "</group>"]
         self.assertEqual(tagsList, expected)
 
-    def test_baseReturnAllButTags(self):
-        """
-        Base case for ProofPreset.returnAllButTags()
-        """
-        pass
-
     def test_baseCleanList(self):
         dirtyList = ["item\n", "\n", "\nnext", "\n\n"]
         cleanList = self.testPreset._cleanList(dirtyList)
@@ -86,7 +80,29 @@ class ProofPresetTest(unittest.TestCase):
                 }
             ]
         }
-        self.assertEqual(testProof, expected) 
+        self.assertEqual(testProof, expected)
+
+    def test_baseImportString(self):
+        testString = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
+        expected = {
+            "name": "myPreset",
+            "groups": [
+                {
+                    "group": "UC",
+                    "order": 1,
+                    "type size": "",
+                    "leading": "",
+                    "print": False,
+                    "contents": [
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    ]
+                }
+            ]
+        }
+        strTestPreset = ProofPreset()
+        strTestPreset.importProof(testString, "group")
+        actual = strTestPreset.getPreset()
+        self.assertEqual(actual, expected)
 
 
 if __name__ == "__main__":
