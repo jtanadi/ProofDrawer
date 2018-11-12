@@ -5,6 +5,9 @@ Proof preset-related stuff in here
 class XMLtagError(Exception):
     pass
 
+class ProofPresetError(Exception):
+    pass
+
 class ProofPreset:
     """
     A proof preset object for ProofDrawer().
@@ -196,6 +199,29 @@ class ProofPreset:
         self._checkXMLtagsSequence()
 
         self.preset["groups"] = self._makePresetGroups()
+
+    def importPreset(self, presetToImport, overwrite=False):
+        """
+        Import a proof preset (eg. from JSON file).
+
+        If NOT overwriting, raise an error when there's
+        already a stored preset["groups].
+
+        Perform some validation before full import.
+        """
+        if not overwrite and self.preset["groups"]:
+            raise ProofPresetError("There's already a preset in here")
+
+
+        # validate imported preset
+        # import preset
+
+    def getName(self):
+        """
+        Return Preset name
+        """
+        if self.preset["name"]:
+            return self.preset["name"]
 
     def getGroups(self):
         """

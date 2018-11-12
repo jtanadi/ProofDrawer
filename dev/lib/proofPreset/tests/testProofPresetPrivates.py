@@ -3,7 +3,7 @@ Fail ProofPreset private methods & make sure
 XMLtagError is raised everytime
 """
 
-from utils.proofPreset import ProofPreset, XMLtagError
+from proofPreset.proofPreset import ProofPreset, XMLtagError
 import unittest
 import os.path
 

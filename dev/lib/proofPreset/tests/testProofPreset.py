@@ -2,7 +2,7 @@
 Test ProofPreset object
 """
 
-from utils.proofPreset import ProofPreset, XMLtagError
+from proofPreset.proofPreset import ProofPreset
 import unittest
 import os.path
 
