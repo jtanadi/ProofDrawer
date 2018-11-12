@@ -1,6 +1,6 @@
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils import helperFunctions as hf
-from utils.proofPreset import ProofPreset
+from proofPreset.proofPreset import ProofPreset
 
 from windows.proofGroupInspector import ProofGroupInspector
 
@@ -258,6 +258,7 @@ class ProofDrawer:
 
         self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
+        self.proofGroupInspector.w.center()
         self.proofGroupInspector.w.makeKey()
         self._uiEnabled(False)
 
@@ -367,5 +368,7 @@ if __name__ == "__main__":
 
     preset = ProofPreset("preset")
     preset.importProof(proofList, "group")
+    
     proofDrawer = ProofDrawer(preset)
     proofDrawer.w.open()
+    proofDrawer.w.center()
