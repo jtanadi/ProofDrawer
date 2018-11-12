@@ -28,10 +28,20 @@ class ProofPreset:
     abcdefghijklmnopqrstuvwxyz
     </group>
 
-    ProofPreset.getPreset() will return a preset object
-    that can be saved as a JSON file.
+    ProofPreset.getGroups() will return the groups,
+    formatted as a list of dicts:
+    [
+        {
+            "group": "UC, numerals",
+            "contents": [
+                "ABCEFGHIJKLMNOPQRSTUVWXYZ,
+                "0123456789"
+            ]
+        }
+    ]
 
-    Final preset object's structure:
+    ProofPreset.getPreset() will return a preset object
+    that can be saved as a JSON file:
     {
         "name": presetName,
         "groups": [
@@ -83,6 +93,14 @@ class ProofPreset:
         """
         return item == "<%s>" % self.tagName or item == "</%s>" % self.tagName
 
+    def _getTags(self):
+        """
+        Return a list of tags
+        """
+        if not self.tagName:
+            return None
+        return [item for item in self.proofGroups if self._isTag(item)]
+
     def _checkForTags(self):
         """
         Make sure object has opening & closing tags at all
@@ -100,7 +118,7 @@ class ProofPreset:
         openTagCount = 0
         closeTagCount = 0
 
-        for tag in self.getTags():
+        for tag in self._getTags():
             if openTag and tag == "<%s>" % self.tagName:
                 openTagCount += 1
                 openTag = False # Next is supposed to be close tag
@@ -178,14 +196,6 @@ class ProofPreset:
         self._checkXMLtagsSequence()
 
         self.preset["groups"] = self._convertGroups()
-
-    def getTags(self):
-        """
-        Return a list of tags only
-        """
-        if not self.tagName:
-            return self.tagName
-        return [item for item in self.proofGroups if self._isTag(item)]
 
     def getGroups(self):
         """

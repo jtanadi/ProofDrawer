@@ -21,7 +21,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         Base case for ProofPreset.getTags()
         """
-        tagsList = self.testPreset.getTags()
+        tagsList = self.testPreset._getTags()
         expected = ["<group>", "</group>", "<group>",
                     "</group>", "<group>", "</group>"]
         self.assertEqual(tagsList, expected)
