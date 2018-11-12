@@ -82,6 +82,39 @@ class ProofPresetTest(unittest.TestCase):
         }
         self.assertEqual(testProof, expected)
 
+    def test_baseGetGroups(self):
+        actual = self.testPreset.getGroups()
+        expected = [
+            {
+                "group": "UC, lc, numerals",
+                "contents": [
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                    "abcdefghijklmnopqrstuvwxyz",
+                    "0123456789"
+                ]
+            },
+            {
+                "group": "UC control",
+                "contents": [
+                    "|H| |O| HOHOHOHO",
+                    "|A| HAHAHAOAOAOA",
+                    "|B| HBHBHBOBOBOB",
+                    "|C| HCHCHCOCOCOC"
+                ]
+            },
+            {
+                "group": "lc control",
+                "contents": [
+                    "|n| |o| nononono",
+                    "|a| nananaoaoaoa",
+                    "|b| nbnbnbobobob",
+                    "|c| ncncncocococ"
+                ]
+            }
+        ]
+
+        self.assertEqual(actual, expected)
+
     def test_baseImportString(self):
         testString = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
         expected = {

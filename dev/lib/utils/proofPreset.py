@@ -115,22 +115,11 @@ class ProofPreset:
 
     def _convertGroups(self):
         """
-        Return a list of dicts from proofDoc formatted like so:
-        [{tagName: group title, "contents": [content1, content2, etc.]}]
-        tagName is the tag it should look out for.
-
-        Proof doc should be written like example below.
-        First line after opening tag is the title.
-        <group>
-        UC, lc, and numerals
-        ABCDEFGHIJKLMNOPQRSTUVWXYZ
-        </group>
+        Return list of preset groups,
+        converted from proofGroups
         """
         if not self.proofGroups:
             return []
-
-        # Check if tags are in sequence before anything else
-        self._checkXMLtagsSequence()
 
         presetList = []
         startGroup = False
@@ -183,11 +172,11 @@ class ProofPreset:
             proofGroups = proofGroups.split("\n")
 
         self.proofGroups = self._cleanList(proofGroups)
-
         self.tagName = tagName
 
         self._checkForTags()
         self._checkXMLtagsSequence()
+
         self.preset["groups"] = self._convertGroups()
 
     def getTags(self):
@@ -195,28 +184,47 @@ class ProofPreset:
         Return a list of tags only
         """
         if not self.tagName:
-            return None
+            return self.tagName
         return [item for item in self.proofGroups if self._isTag(item)]
 
-    def getProofGroups(self):
-        return self.proofGroups
+    def getGroups(self):
+        """
+        Return list of proof groups, without the preset info
+        [
+            {
+                "group": UC,
+                "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            },
+            {
+                "group": lc,
+                "contents": "abcdefghijklmnopqrstuvwxyz"
+            }
+        ]
+        """
+        returnGroups = []
+        for group in self.preset["groups"]:
+            tempDict = {}
+            tempDict[self.tagName] = group[self.tagName]
+            tempDict["contents"] = group["contents"]
+
+            returnGroups.append(tempDict)
+
+        return returnGroups
 
     def getPreset(self):
         return self.preset
 
 
 if __name__ == "__main__":
-    # import os.path
+    import os.path
 
-    # fileDir = os.path.dirname(__file__)
-    # testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
+    fileDir = os.path.dirname(__file__)
+    testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
 
-    # with open(testFileDir, "r") as testFile:
-    #     readList = testFile.readlines()
+    with open(testFileDir, "r") as testFile:
+        readList = testFile.readlines()
 
     # Simple testing:
-    testString = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
-    # testList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
     preset = ProofPreset("myPreset")
-    preset.importProof(testString, "group")
+    preset.importProof(readList, "group")
     print(preset.getPreset())
