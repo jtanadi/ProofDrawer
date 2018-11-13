@@ -15,7 +15,7 @@ class ProofPresetTest(unittest.TestCase):
             testList = testFile.readlines()
 
         self.testPreset = ProofPreset("myPreset")
-        self.testPreset.importProof(testList, "group")
+        self.testPreset.importProof(testList)
 
     def test_baseGetTags(self):
         """
@@ -32,7 +32,18 @@ class ProofPresetTest(unittest.TestCase):
         expected = ["item", "next"]
         self.assertEqual(cleanList, expected)
 
-    def test_baseParseProofDoc(self):
+    def test_getName(self):
+        actual = self.testPreset.getName()
+        self.assertEqual(actual, "myPreset")
+
+    def test_rename(self):
+        newName = "funTimes"
+        self.testPreset.renamePreset(newName)
+        actual = self.testPreset.getName()
+
+        self.assertEqual(newName, actual)
+
+    def test_baseGetPreset(self):
         """
         Base case for ProofPreset.parseProofDoc()
         """
@@ -133,7 +144,7 @@ class ProofPresetTest(unittest.TestCase):
             ]
         }
         strTestPreset = ProofPreset()
-        strTestPreset.importProof(testString, "group")
+        strTestPreset.importProof(testString)
         actual = strTestPreset.getPreset()
         self.assertEqual(actual, expected)
 

@@ -15,7 +15,7 @@ class ProofPreset:
     Only top-most structure exists when initialized:
     {"name": presetName, "groups": []}
 
-    Use ProofPreset.importProof(proofGroups, tagName)
+    Use ProofPreset.importProof(proofGroups)
     to turn an XML-tagged proofGroups object (string or list)
     into a preset.
 
@@ -81,7 +81,6 @@ class ProofPreset:
         self.preset["groups"] = []
 
         self.proofGroups = None
-        self.tagName = None
 
     def _cleanList(self, listToClean):
         """
@@ -94,23 +93,21 @@ class ProofPreset:
         """
         Return if item is tag (open or close)
         """
-        return item == "<%s>" % self.tagName or item == "</%s>" % self.tagName
+        return item == "<group>" or item == "</group>"
 
     def _getTags(self):
         """
         Return a list of tags
         """
-        if not self.tagName:
-            return None
         return [item for item in self.proofGroups if self._isTag(item)]
 
     def _checkForTags(self):
         """
         Make sure object has opening & closing tags at all
         """
-        if not "<%s>" % self.tagName in self.proofGroups\
-        and "</%s>" % self.tagName in self.proofGroups:
-            raise XMLtagError("tagName not in imported proofGroup")
+        if "<group>" not in self.proofGroups and \
+        "</group>" not in self.proofGroups:
+            raise XMLtagError("<group> tags not in imported proofGroup")
 
     def _checkXMLtagsSequence(self):
         """
@@ -122,10 +119,10 @@ class ProofPreset:
         closeTagCount = 0
 
         for tag in self._getTags():
-            if openTag and tag == "<%s>" % self.tagName:
+            if openTag and tag == "<group>":
                 openTagCount += 1
                 openTag = False # Next is supposed to be close tag
-            elif not openTag and tag == "</%s>" % self.tagName:
+            elif not openTag and tag == "</group>":
                 closeTagCount += 1
                 openTag = True # Next is supposed to be open tag
             else:
@@ -148,19 +145,19 @@ class ProofPreset:
 
         for line in self.proofGroups:
             # Open tag: initialize and move on
-            if "<%s>" % self.tagName in line:
+            if "<group>" in line:
                 group = {}
                 startGroup = True
                 continue
 
             # Close tag: add group to presetList and move on
-            elif "</%s>" % self.tagName in line:
+            elif "</group>" in line:
                 presetList.append(group)
                 continue
 
-            # Title line: add title to group[self.tagName] and initialize presets
+            # Title line: add title to group["group"] and initialize presets
             if startGroup:
-                group[self.tagName] = line.strip()
+                group["group"] = line.strip()
                 group["order"] = order
                 group["type size"] = ""
                 group["leading"] = ""
@@ -175,25 +172,65 @@ class ProofPreset:
 
         return presetList
 
-    def importProof(self, proofGroups, tagName):
+    def renamePreset(self, newName):
+        """
+        Rename preset
+        """
+        self.preset["name"] = newName
+
+    def addGroup(self, newGroup, overwrite=False):
+        """
+        Add one group. (Keep loop outside.)
+
+        newGroup is a dict that AT LEAST contains a name,
+        but can include other preset items:
+        {
+            "group": "new group dict",
+            "type size": 12,
+            "leading": 14,
+            "print": False,
+            "contents": "abcde"
+        }
+
+        If NOT overwriting, raise an error when
+        newGroup exactly matches another group. 
+        """
+        # if not isinstance(newGroup, dict):
+        #     raise TypeError("newGroup has to be a dictionary")
+        # elif not newGroup[self.tagName]:
+        #     raise ProofPresetError("newGroup needs a name (tagName)")
+
+        # if not overwrite and 
+        
+        # for group in self.preset["groups"]:
+
+        pass
+
+    def removeGroup(self, groupName):
+        """
+        Remove group.
+
+        groupName is a string. If it doesn't exist,
+        raise an error.
+        """
+        if groupName not in self.preset["groups"]:
+            raise ProofPresetError("Group doesn't exist")
+
+        for group in self.preset["groups"]:
+            if group["group"] == groupName:
+                del group
+
+    def importProof(self, proofToImport):
         """
         Import collection of proof groups and perform
         some basic cleaning and validation
 
-        proofGroups can be a string or list
-
-        tagName is a string: the tag used in to separate
-        groups in proofGroups.
-        For example, tagName for <group>proof</group> is "group"
+        proofToImport can be a string or list
         """
-        if not tagName:
-            raise XMLtagError("Please specify tag name")
+        if isinstance(proofToImport, str):
+            proofToImport = proofToImport.split("\n")
 
-        if isinstance(proofGroups, str):
-            proofGroups = proofGroups.split("\n")
-
-        self.proofGroups = self._cleanList(proofGroups)
-        self.tagName = tagName
+        self.proofGroups = self._cleanList(proofToImport)
 
         self._checkForTags()
         self._checkXMLtagsSequence()
@@ -234,8 +271,7 @@ class ProofPreset:
         """
         Return Preset name
         """
-        if self.preset["name"]:
-            return self.preset["name"]
+        return self.preset["name"]
 
     def getGroups(self):
         """
@@ -254,7 +290,7 @@ class ProofPreset:
         returnGroups = []
         for group in self.preset["groups"]:
             tempDict = {}
-            tempDict[self.tagName] = group[self.tagName]
+            tempDict["group"] = group["group"]
             tempDict["contents"] = group["contents"]
 
             returnGroups.append(tempDict)
@@ -295,5 +331,5 @@ if __name__ == "__main__":
 
     # Simple testing:
     preset = ProofPreset("myPreset")
-    preset.importProof(readList, "group")
+    preset.importProof(readList)
     print(preset.getPreset())
