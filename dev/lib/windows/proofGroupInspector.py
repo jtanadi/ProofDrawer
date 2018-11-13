@@ -20,14 +20,14 @@ class ProofGroupInspector:
                       "21", "24", "36", "48", "60", "72"]
 
         self.w = FloatingWindow((400, 275),
-                                "Edit Proof Group: %s" % self.proofGroup["group"])
+                                "Edit Proof Group: %s" % self.proofGroup["name"])
 
         self.w.groupName = TextBox((left, row + 2, textboxWidth, 20),
                                    "Group name:",
                                    alignment="right")
 
         self.w.groupNameEdit = EditText((leftEditText, row, -10, 22),
-                                        self.proofGroup["group"])
+                                        self.proofGroup["name"])
 
         row += 33
         self.w.typeSize = TextBox((left, row + 2, textboxWidth, 20),
@@ -106,7 +106,7 @@ class ProofGroupInspector:
         Get everything from fields, save in self.newProofGroup dict,
         post events (pass the new group to observer), and close window
         """
-        self.newProofGroup["group"] = self.w.groupNameEdit.get().strip()
+        self.newProofGroup["name"] = self.w.groupNameEdit.get().strip()
         self.newProofGroup["type size"] = self.w.typeSizeEdit.get()
         self.newProofGroup["leading"] = self.w.leadingEdit.get()
         self.newProofGroup["contents"] = self._makeCleanList(self.w.contentsEdit.get())
@@ -121,7 +121,7 @@ class ProofGroupInspector:
 if __name__ == "__main__":
     # Test basic functions
     tempProofGroup = {
-        "group": "UC, lc, numerals",
+        "name": "UC, lc, numerals",
         "order": 1,
         "type size": 10,
         "leading": 18,

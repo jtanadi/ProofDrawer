@@ -367,7 +367,7 @@ if __name__ == "__main__":
         proofList = proofFile.readlines()
 
     preset = ProofPreset("preset")
-    preset.importProof(proofList)
+    preset.importFromXML(proofList)
     
     proofDrawer = ProofDrawer(preset)
     proofDrawer.w.open()
