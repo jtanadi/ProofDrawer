@@ -25,7 +25,7 @@ class ProofDrawer:
         presetGroups = inputPreset.getPreset()["groups"]
         self.additionalGroupsList = hf.getValuesFromListOfDicts(\
                                        presetGroups,
-                                       "group")
+                                       "name")
 
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
         self.ignoreCheckFloat = False
@@ -50,7 +50,7 @@ class ProofDrawer:
             },
             {
                 "title": "Group name",
-                "key": "group",
+                "key": "name",
                 "width": 160,
                 "editable": True
             },
@@ -325,7 +325,7 @@ class ProofDrawer:
         self.ignoreCheckFloat = True
         for index in selectionIndices:
             proofRow = {
-                "group": self.additionalGroupsList[index],
+                "name": self.additionalGroupsList[index],
                 "order": len(self.w.proofGroups) + 1,
                 "type size": "",
                 "leading": "",

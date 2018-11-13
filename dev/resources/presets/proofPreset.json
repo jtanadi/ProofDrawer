@@ -1,41 +1,41 @@
 [
   {
-    "group": "UC",
+    "name": "UC",
     "type size": 96,
     "leading": 112,
     "print": 1,
     "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   },
   {
-    "group": "lc, numerals, punctuations",
+    "name": "lc, numerals, punctuations",
     "type size": 96,
     "leading": 112,
     "print": 1,
     "contents": "abcdefghijklmnopqrstuvwxyz0123456789;:,."
   },
   {
-    "group": "Charset",
+    "name": "Charset",
     "type size": 48,
     "leading": 52,
     "print": 1,
     "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789;:,."
   },
   {
-    "group": "UC between control chars",
+    "name": "UC between control chars",
     "type size": 10,
     "leading": 12,
     "print": 1,
     "contents": "|H| |O| HHHOHOHHOOOHOHOO\n|A| HHHAHAHHOHOAOAOA"
   },
   {
-    "group": "lc between control chars",
+    "name": "lc between control chars",
     "type size": 10,
     "leading": 12,
     "print": 1,
     "contents": "|n| |o| nnnononnooononoo\n|a| nnnanannonoaoaoa"
   },
   {
-    "group": "Numerals between control chars",
+    "name": "Numerals between control chars",
     "type size": 10,
     "leading": 12,
     "print": 1,

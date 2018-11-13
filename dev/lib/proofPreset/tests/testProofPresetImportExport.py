@@ -6,7 +6,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset = ProofPreset("testPreset")
 
     def test_addGroup(self):
-        groupToAdd = {"group": "new test", "contents": "abcde"}
+        groupToAdd = {"name": "new test", "contents": "abcde"}
         self.testPreset.addGroup(groupToAdd)
 
         expected = self.testPreset.getGroups()
