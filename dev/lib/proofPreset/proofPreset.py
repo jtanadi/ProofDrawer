@@ -35,7 +35,7 @@ class ProofPreset:
     formatted as a list of dicts:
     [
         {
-            "group": "UC, numerals",
+            "name": "UC, numerals",
             "contents": [
                 "ABCEFGHIJKLMNOPQRSTUVWXYZ,
                 "0123456789"
@@ -49,7 +49,7 @@ class ProofPreset:
         "name": presetName,
         "groups": [
             {
-                "group": "UC, numerals",
+                "name": "UC, numerals",
                 "order": 1,
                 "type size": 12,
                 "leading": 14,
@@ -60,7 +60,7 @@ class ProofPreset:
                 ]
             },
             {
-                "group": "lc",
+                "name": "lc",
                 "order": 2,
                 "type size": 12,
                 "leading": 14,
@@ -155,7 +155,7 @@ class ProofPreset:
                 presetList.append(group)
                 continue
 
-            # Title line: add title to group["group"] and initialize presets
+            # Title line: add title to group["name"] and initialize presets
             if startGroup:
                 group["name"] = line.strip()
                 group["order"] = order
@@ -185,7 +185,7 @@ class ProofPreset:
         newGroup is a dict that AT LEAST contains a name,
         but can include other preset items:
         {
-            "group": "new group dict",
+            "name": "new group dict",
             "type size": 12,
             "leading": 14,
             "print": False,
@@ -217,7 +217,7 @@ class ProofPreset:
             raise ProofPresetError("Group doesn't exist")
 
         for group in self.preset["groups"]:
-            if group["group"] == groupName:
+            if group["name"] == groupName:
                 del group
 
     def importProof(self, proofToImport):
@@ -256,7 +256,7 @@ class ProofPreset:
         elif not presetToImport["groups"]:
             raise ProofPresetError("Imported preset has no groups")
 
-        keysToValidate = ["group", "order", "type size",\
+        keysToValidate = ["name", "order", "type size",\
                           "leading", "print", "contents"]
 
         for group in presetToImport["groups"]:
@@ -304,7 +304,7 @@ class ProofPreset:
             "name": presetName,
             "groups": [
                 {
-                    "group": "UC, numerals",
+                    "name": "UC, numerals",
                     "order": 1,
                     "type size": 12,
                     "leading": 14,
