@@ -1,4 +1,4 @@
-from utils.proofPreset import ProofPreset
+from proofPreset.proofPreset import ProofPreset
 
 from vanilla import Sheet, TextBox, Button, EditText,\
                     Box, Window
