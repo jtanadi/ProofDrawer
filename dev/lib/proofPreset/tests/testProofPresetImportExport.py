@@ -7,11 +7,15 @@ class TestImportExport(unittest.TestCase):
 
     def test_addGroup(self):
         groupToAdd = {"name": "new test", "contents": "abcde"}
+        expectedPreset = {
+            "name": "testPreset",
+            "groups": [groupToAdd]
+        }
         self.testPreset.addGroup(groupToAdd)
 
-        expected = self.testPreset.getGroups()
+        actual = self.testPreset.getPreset()
 
-        self.assertIn(groupToAdd, expected)
+        self.assertEqual(expectedPreset, actual)
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

@@ -190,16 +190,25 @@ class ProofPreset:
         If NOT overwriting, add the group even though
         name is the same as another group 
         """
-        # if not isinstance(newGroup, dict):
-        #     raise TypeError("newGroup has to be a dictionary")
-        # elif not newGroup[self.tagName]:
-        #     raise ProofPresetError("newGroup needs a name (tagName)")
+        if not isinstance(newGroup, dict):
+            raise TypeError("newGroup has to be a dictionary")
+        elif not newGroup["name"]:
+            raise ProofPresetError("newGroup needs a name")
 
-        # if not overwrite and 
-        
-        # for group in self.preset["groups"]:
+        keysToValidate = ["name", "order", "type size",\
+                          "leading", "print", "contents"]
 
-        pass
+        # Add missing keys
+        for key in keysToValidate:
+            if key not in newGroup.keys():
+                if key == "print":
+                    newGroup[key] = False
+                elif key == "contents":
+                    newGroup[key] = []
+                else:
+                    newGroup[key] = ""
+
+        self.preset["groups"].append(newGroup)
 
     def removeGroup(self, groupName):
         """
