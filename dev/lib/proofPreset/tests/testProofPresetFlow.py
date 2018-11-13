@@ -13,7 +13,7 @@ with open(proofFileDir, "r") as proofFile:
     proofList = proofFile.readlines()
 
 proofPreset = ProofPreset("proofPreset1")
-proofPreset.importProof(proofList)
+proofPreset.importFromXML(proofList)
 presetList = proofPreset.getPreset()
 
 presetFileDir = os.path.join(currentDir, "resources", "proofPresetTest.json")

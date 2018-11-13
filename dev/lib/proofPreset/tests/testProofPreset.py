@@ -15,7 +15,7 @@ class ProofPresetTest(unittest.TestCase):
             testList = testFile.readlines()
 
         self.testPreset = ProofPreset("myPreset")
-        self.testPreset.importProof(testList)
+        self.testPreset.importFromXML(testList)
 
     def test_baseGetTags(self):
         """
@@ -144,7 +144,7 @@ class ProofPresetTest(unittest.TestCase):
             ]
         }
         strTestPreset = ProofPreset()
-        strTestPreset.importProof(testString)
+        strTestPreset.importFromXML(testString)
         actual = strTestPreset.getPreset()
         self.assertEqual(actual, expected)
 

@@ -89,17 +89,12 @@ class ProofPreset:
         """
         return [item.strip() for item in listToClean if item.strip()]
 
-    def _isTag(self, item):
-        """
-        Return if item is tag (open or close)
-        """
-        return item == "<group>" or item == "</group>"
-
     def _getTags(self):
         """
         Return a list of tags
         """
-        return [item for item in self.proofGroups if self._isTag(item)]
+        return [item for item in self.proofGroups\
+        if item == "<group>" or item == "</group>"]
 
     def _checkForTags(self):
         """
@@ -220,17 +215,21 @@ class ProofPreset:
             if group["name"] == groupName:
                 del group
 
-    def importProof(self, proofToImport):
+    def importFromXML(self, objToImport):
         """
-        Import collection of proof groups and perform
-        some basic cleaning and validation
+        Import XML-tagged string or list, and perform
+        some basic cleaning and validation.
 
-        proofToImport can be a string or list
+        If objToImport is a string:
+        "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
+
+        if objToImport is a list:
+        ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
         """
-        if isinstance(proofToImport, str):
-            proofToImport = proofToImport.split("\n")
+        if isinstance(objToImport, str):
+            objToImport = objToImport.split("\n")
 
-        self.proofGroups = self._cleanList(proofToImport)
+        self.proofGroups = self._cleanList(objToImport)
 
         self._checkForTags()
         self._checkXMLtagsSequence()

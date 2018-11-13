@@ -2,7 +2,7 @@
   "name": "proofPreset1",
   "groups": [
     {
-      "group": "UC, lc, numerals",
+      "name": "UC, lc, numerals",
       "order": 1,
       "type size": "",
       "leading": "",
@@ -14,7 +14,7 @@
       ]
     },
     {
-      "group": "UC control",
+      "name": "UC control",
       "order": 2,
       "type size": "",
       "leading": "",
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "group": "lc control",
+      "name": "lc control",
       "order": 3,
       "type size": "",
       "leading": "",

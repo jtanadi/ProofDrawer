@@ -17,7 +17,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         inputList = ["<group>", "<group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            self.testPreset.importProof(inputList)
+            self.testPreset.importFromXML(inputList)
 
     def test_checkSequenceNested(self):
         """
@@ -26,7 +26,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         inputList = ["<group>", "<group>", "</group>", "</group>"]
         with self.assertRaises(XMLtagError):
-            self.testPreset.importProof(inputList)
+            self.testPreset.importFromXML(inputList)
     
     def test_checkSequenceLessClose(self):
         """
@@ -35,7 +35,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         inputList = ["<group>", "</group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            self.testPreset.importProof(inputList)
+            self.testPreset.importFromXML(inputList)
 
     def test_checkSequenceLessOpen(self):
         """
@@ -44,7 +44,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         inputList = ["<group>", "</group>", "</group>"]
         with self.assertRaises(XMLtagError):
-            self.testPreset.importProof(inputList)
+            self.testPreset.importFromXML(inputList)
 
     def test_checkSequenceBadPairs(self):
         """
@@ -53,7 +53,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         inputList = ["<group>", "</group>", "</group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            self.testPreset.importProof(inputList)
+            self.testPreset.importFromXML(inputList)
 
     def test_checkSequenceStartWithClose(self):
         """
@@ -62,7 +62,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         inputList = ["</group>", "<group>", "</group>", "<group>"]
         with self.assertRaises(XMLtagError):
-            self.testPreset.importProof(inputList)
+            self.testPreset.importFromXML(inputList)
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
