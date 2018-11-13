@@ -52,7 +52,7 @@ class ProofPresetTest(unittest.TestCase):
             "name": "myPreset",
             "groups": [
                 {
-                    "group": "UC, lc, numerals",
+                    "name": "UC, lc, numerals",
                     "order": 1,
                     "type size": "",
                     "leading": "",
@@ -64,7 +64,7 @@ class ProofPresetTest(unittest.TestCase):
                     ]
                 },
                 {
-                    "group": "UC control",
+                    "name": "UC control",
                     "order": 2,
                     "type size": "",
                     "leading": "",
@@ -77,7 +77,7 @@ class ProofPresetTest(unittest.TestCase):
                     ]
                 },
                 {
-                    "group": "lc control",
+                    "name": "lc control",
                     "order": 3,
                     "type size": "",
                     "leading": "",
@@ -97,7 +97,7 @@ class ProofPresetTest(unittest.TestCase):
         actual = self.testPreset.getGroups()
         expected = [
             {
-                "group": "UC, lc, numerals",
+                "name": "UC, lc, numerals",
                 "contents": [
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                     "abcdefghijklmnopqrstuvwxyz",
@@ -105,7 +105,7 @@ class ProofPresetTest(unittest.TestCase):
                 ]
             },
             {
-                "group": "UC control",
+                "name": "UC control",
                 "contents": [
                     "|H| |O| HOHOHOHO",
                     "|A| HAHAHAOAOAOA",
@@ -114,7 +114,7 @@ class ProofPresetTest(unittest.TestCase):
                 ]
             },
             {
-                "group": "lc control",
+                "name": "lc control",
                 "contents": [
                     "|n| |o| nononono",
                     "|a| nananaoaoaoa",
@@ -132,7 +132,7 @@ class ProofPresetTest(unittest.TestCase):
             "name": "myPreset",
             "groups": [
                 {
-                    "group": "UC",
+                    "name": "UC",
                     "order": 1,
                     "type size": "",
                     "leading": "",

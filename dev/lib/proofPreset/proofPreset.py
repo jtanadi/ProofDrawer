@@ -157,7 +157,7 @@ class ProofPreset:
 
             # Title line: add title to group["group"] and initialize presets
             if startGroup:
-                group["group"] = line.strip()
+                group["name"] = line.strip()
                 group["order"] = order
                 group["type size"] = ""
                 group["leading"] = ""
@@ -192,8 +192,8 @@ class ProofPreset:
             "contents": "abcde"
         }
 
-        If NOT overwriting, raise an error when
-        newGroup exactly matches another group. 
+        If NOT overwriting, add the group even though
+        name is the same as another group 
         """
         # if not isinstance(newGroup, dict):
         #     raise TypeError("newGroup has to be a dictionary")
@@ -278,22 +278,22 @@ class ProofPreset:
         Return list of proof groups, without the preset info
         [
             {
-                "group": UC,
+                "name": UC,
                 "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             },
             {
-                "group": lc,
+                "name": lc,
                 "contents": "abcdefghijklmnopqrstuvwxyz"
             }
         ]
         """
         returnGroups = []
         for group in self.preset["groups"]:
-            tempDict = {}
-            tempDict["group"] = group["group"]
-            tempDict["contents"] = group["contents"]
+            tempGroup = {}
+            tempGroup["name"] = group["name"]
+            tempGroup["contents"] = group["contents"]
 
-            returnGroups.append(tempDict)
+            returnGroups.append(tempGroup)
 
         return returnGroups
 
