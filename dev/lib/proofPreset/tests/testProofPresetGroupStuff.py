@@ -1,4 +1,4 @@
-from proofPreset import ProofPreset
+from proofPreset import ProofPreset, ProofPresetError
 import unittest
 
 class TestImportExport(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(groupToAdd)
         actual = self.testPreset.getPreset()
         self.assertDictEqual(expectedPreset, actual)
-        
+
     def test_overwriteGroup(self):
         """
         Add one group and then overwrite with anoter
@@ -77,15 +77,18 @@ class TestImportExport(unittest.TestCase):
 
         self.assertDictEqual(actual, expected)
 
-    def test_addTwoGroupsOfSameName(self):
+    def test_addGroupsOfSameName(self):
         """
-        Add one group and then another with the same name
+        Add more than one group of the same name
         (no overwrite)
         """
         firstGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
         self.testPreset.addGroup(firstGroup)
 
         secondGroup = {"name": "new group", "type size": 8, "leading": 10, "print": True}
+        self.testPreset.addGroup(secondGroup)
+
+        secondGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
         self.testPreset.addGroup(secondGroup)
 
         actual = self.testPreset.getPreset()
@@ -101,19 +104,38 @@ class TestImportExport(unittest.TestCase):
                     "contents": ["abcde"]
                 },
                 {
-                    "name": "new group",
+                    "name": "new group-1",
                     "order": "",
                     "type size": 8,
                     "leading": 10,
                     "print": True,
                     "contents": []
+                },
+                {
+                    "name": "new group-2",
+                    "order": "",
+                    "type size": "",
+                    "leading": "",
+                    "print": True,
+                    "contents": ["fghij"]
                 }
             ]
         }
 
         self.assertDictEqual(actual, expected)
 
-    def test_addAndRemoveGroups(self):
+    def test_addGroupNoName(self):
+        """
+        Fail addGroup if no name specified
+        """
+        newGroup = {"type size": 6}
+        with self.assertRaises(ProofPresetError):
+            self.testPreset.addGroup(newGroup)
+
+    def test_addAndRemoveGroup(self):
+        """
+        Base case removing a group
+        """
         newGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
         self.testPreset.addGroup(newGroup)
         self.testPreset.removeGroup("new group")
@@ -125,6 +147,54 @@ class TestImportExport(unittest.TestCase):
         }
 
         self.assertEqual(actual, expected)
+
+    def test_addAndRemoveGroup2(self):
+        """
+        Add more than 1 group with the same name
+        and remove one group
+        """
+        newGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
+        newGroup1 = {"name": "new group", "type size": 8}
+        newGroup2 = {"name": "new group", "leading": 3}
+        self.testPreset.addGroup(newGroup)
+        self.testPreset.addGroup(newGroup1)
+        self.testPreset.addGroup(newGroup2)
+        
+        self.testPreset.removeGroup("new group")
+
+        actual = self.testPreset.getPreset()
+        expected = {
+            "name": "testPreset",
+            "groups": [
+                {
+                    "name": "new group-1",
+                    "order": "",
+                    "type size": 8,
+                    "leading": "",
+                    "print": False,
+                    "contents": []
+                },
+                {
+                    "name": "new group-2",
+                    "order": "",
+                    "type size": "",
+                    "leading": 3,
+                    "print": False,
+                    "contents": []
+                }
+            ]
+        }
+
+        self.assertEqual(actual, expected)
+
+    def test_failRemoveGroup(self):
+        """
+        Raise error when trying to remove group
+        that doesn't exist
+        """
+        with self.assertRaises(ProofPresetError):
+            self.testPreset.removeGroup("new group")
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

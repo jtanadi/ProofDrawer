@@ -84,8 +84,10 @@ class ProofPreset:
 
         self.proofGroups = None
 
+        self.nameCopyIndex = 1
         self.keysInGroup = ["name", "order", "type size",\
                             "leading", "print", "contents"]
+
 
     def _cleanList(self, listToClean):
         """
@@ -93,6 +95,20 @@ class ProofPreset:
         Only include non-empty items in returned list
         """
         return [item.strip() for item in listToClean if item.strip()]
+
+    def _addMissingKeysToGroup(self, groupToAddKeysTo):
+        """
+        Add missing keys to group passed in
+        This method directly affects group passed in
+        """
+        for key in self.keysInGroup:
+            if key not in groupToAddKeysTo.keys():
+                if key == "print":
+                    groupToAddKeysTo[key] = False
+                elif key == "contents":
+                    groupToAddKeysTo[key] = []
+                else:
+                    groupToAddKeysTo[key] = ""
 
     def _getTags(self):
         """
@@ -247,29 +263,26 @@ class ProofPreset:
             "contents": "abcde"
         }
 
-        If NOT overwriting, add the group even though
-        name is the same as another group
+        If NOT overwriting, add "index" to end of name:
+        newGroup, newGroup-1, newGroup-2
         """
         if not isinstance(groupToAdd, dict):
             raise TypeError("groupToAdd has to be a dictionary")
-        elif not groupToAdd["name"]:
+        elif "name" not in groupToAdd.keys():
             raise ProofPresetError("groupToAdd needs a name")
 
         # Copy so we're not referencing the dict being passed in
         newGroup = copy.deepcopy(groupToAdd)
 
         # Add missing keys
-        for key in self.keysInGroup:
-            if key not in newGroup.keys():
-                if key == "print":
-                    newGroup[key] = False
-                elif key == "contents":
-                    newGroup[key] = []
-                else:
-                    newGroup[key] = ""
-
+        self._addMissingKeysToGroup(newGroup)
+        
         # Not overwriting: just add to groups
         if not overwrite:
+            if newGroup["name"] in self.getGroupNames():
+                newGroup["name"] += "-%s" % self.nameCopyIndex
+                self.nameCopyIndex += 1
+
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
@@ -286,8 +299,6 @@ class ProofPreset:
 
         groupName is a string. If it doesn't exist,
         raise an error.
-
-        What happens when there's more than one groupName?
         """
         if groupName not in self.getGroupNames():
             raise ProofPresetError("Group doesn't exist")
@@ -308,9 +319,11 @@ class ProofPreset:
         ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
         """
         if isinstance(xmlTaggedObj, str):
-            xmlTaggedObj = xmlTaggedObj.split("\n")
+            newObj = xmlTaggedObj.split("\n")
+        elif isinstance(xmlTaggedObj, list):
+            newObj = copy.deepcopy(xmlTaggedObj)
 
-        self.proofGroups = self._cleanList(xmlTaggedObj)
+        self.proofGroups = self._cleanList(newObj)
 
         if not self.proofGroups:
             raise ProofPresetError("List is empty!")
@@ -345,14 +358,7 @@ class ProofPreset:
 
         # Add missing stuff
         for group in newPreset["groups"]:
-            for key in self.keysInGroup:
-                if not group[key]:
-                    if key == "print":
-                        group[key] = False
-                    elif key == "contents":
-                        group[key] = []
-                    else:
-                        group[key] = ""
+            self._addMissingKeysToGroup(group)
 
         # import preset
         self.preset = newPreset
