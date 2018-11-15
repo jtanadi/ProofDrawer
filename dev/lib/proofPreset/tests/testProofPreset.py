@@ -2,7 +2,7 @@
 Test ProofPreset object
 """
 
-from proofPreset.proofPreset import ProofPreset
+from proofPreset import ProofPreset
 import unittest
 import os.path
 

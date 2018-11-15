@@ -2,7 +2,7 @@
 Test work flow...
 """
 
-from proofPreset.proofPreset import ProofPreset
+from proofPreset import ProofPreset
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 import os.path
 

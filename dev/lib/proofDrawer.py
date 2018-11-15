@@ -1,6 +1,6 @@
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils import helperFunctions as hf
-from proofPreset.proofPreset import ProofPreset
+from proofPreset import ProofPreset
 
 from windows.proofGroupInspector import ProofGroupInspector
 

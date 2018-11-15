@@ -1,4 +1,4 @@
-from proofPreset.proofPreset import ProofPreset
+from proofPreset import ProofPreset
 import unittest
 
 class TestImportExport(unittest.TestCase):
