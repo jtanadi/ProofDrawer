@@ -1,3 +1,12 @@
+"""
+Main window of Proof Drawer
+
+STILL NEED TO BE DONE:
+- This window should only be a "representation" of ProofPreset object.
+- All interactions should affect the ProofPreset object that it's representing
+  (ie. ProofPreset has methods that the users affect through UI)
+"""
+
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils import helperFunctions as hf
 from proofPreset import ProofPreset
@@ -23,9 +32,7 @@ class ProofDrawer:
         
         # Testing importing list
         presetGroups = inputPreset.getPreset()["groups"]
-        self.additionalGroupsList = hf.getValuesFromListOfDicts(\
-                                       presetGroups,
-                                       "name")
+        self.additionalGroupsList = inputPreset.getGroupNames()
 
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
         self.ignoreCheckFloat = False
