@@ -188,7 +188,7 @@ class ProofPreset:
         }
 
         If NOT overwriting, add the group even though
-        name is the same as another group 
+        name is the same as another group
         """
         if not isinstance(newGroup, dict):
             raise TypeError("newGroup has to be a dictionary")
