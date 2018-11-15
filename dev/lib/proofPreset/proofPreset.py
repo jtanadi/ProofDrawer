@@ -82,6 +82,9 @@ class ProofPreset:
 
         self.proofGroups = None
 
+        self.keysInGroup = ["name", "order", "type size",\
+                            "leading", "print", "contents"]
+
     def _cleanList(self, listToClean):
         """
         Get rid of leading and trailing whitespaces all at once
@@ -131,9 +134,6 @@ class ProofPreset:
         Return list of preset groups,
         converted from proofGroups
         """
-        if not self.proofGroups:
-            return []
-
         presetList = []
         startGroup = False
         order = 1
@@ -195,11 +195,8 @@ class ProofPreset:
         elif not newGroup["name"]:
             raise ProofPresetError("newGroup needs a name")
 
-        keysToValidate = ["name", "order", "type size",\
-                          "leading", "print", "contents"]
-
         # Add missing keys
-        for key in keysToValidate:
+        for key in self.keysInGroup:
             if key not in newGroup.keys():
                 if key == "print":
                     newGroup[key] = False
@@ -208,7 +205,17 @@ class ProofPreset:
                 else:
                     newGroup[key] = ""
 
-        self.preset["groups"].append(newGroup)
+        # Not overwriting: just add to groups
+        if not overwrite:
+            self.preset["groups"].append(newGroup)
+        # Overwriting: find existing group with same name,
+        # and iterate through keys to copy data from newGroup
+        else:
+            for group in self.proofGroups:
+                if group["name"] == newGroup["name"]:
+                    for key in self.keysInGroup:
+                        group[key] = newGroup[key]
+
 
     def removeGroup(self, groupName):
         """
@@ -224,21 +231,24 @@ class ProofPreset:
             if group["name"] == groupName:
                 del group
 
-    def importFromXML(self, objToImport):
+    def importFromXML(self, xmlTaggedObj):
         """
         Import XML-tagged string or list, and perform
         some basic cleaning and validation.
 
-        If objToImport is a string:
+        If xmlTaggedObj is a string:
         "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
 
-        if objToImport is a list:
+        if xmlTaggedObj is a list:
         ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
         """
-        if isinstance(objToImport, str):
-            objToImport = objToImport.split("\n")
+        if isinstance(xmlTaggedObj, str):
+            xmlTaggedObj = xmlTaggedObj.split("\n")
 
-        self.proofGroups = self._cleanList(objToImport)
+        self.proofGroups = self._cleanList(xmlTaggedObj)
+
+        if not self.proofGroups:
+            raise ProofPresetError("List is empty!")
 
         self._checkForTags()
         self._checkXMLtagsSequence()
@@ -249,28 +259,31 @@ class ProofPreset:
         """
         Import a proof preset (eg. from JSON file).
 
-        presetToImport is a dictionary that will be validated
-        before the full thing is imported.
+        presetToImport is a dictionary. Whenever a group
+        in presetToImport is missing a setting, add it
+        with empty values.
 
         If NOT overwriting, raise an error when there's
-        already a stored preset["groups].
+        already a stored preset["groups"].
         """
         if not overwrite and self.preset["groups"]:
-            raise ProofPresetError("There's already a preset in here")
+            raise ProofPresetError("There's already a preset in here.")
 
-        # validate imported preset
+        # Validate imported preset
         if not presetToImport["name"]:
             raise ProofPresetError("Imported preset has no name")
         elif not presetToImport["groups"]:
             raise ProofPresetError("Imported preset has no groups")
 
-        keysToValidate = ["name", "order", "type size",\
-                          "leading", "print", "contents"]
-
         for group in presetToImport["groups"]:
-            for key in keysToValidate:
+            for key in self.keysInGroup:
                 if not group[key]:
-                    raise ProofPresetError("Imported preset is missing %s" % key)
+                    if key == "print":
+                        group[key] = False
+                    elif key == "contents":
+                        group[key] = []
+                    else:
+                        group[key] = ""
 
         # import preset
         self.preset = presetToImport
@@ -339,5 +352,5 @@ if __name__ == "__main__":
 
     # Simple testing:
     preset = ProofPreset("myPreset")
-    preset.importProof(readList)
+    preset.importFromXML(readList)
     print(preset.getPreset())
