@@ -11,7 +11,7 @@ class TestImportExport(unittest.TestCase):
         """
         groupToAdd = {
             "name": "UC, lc",
-            "order": 3,
+            "order": "",
             "type size": 12,
             "leading": 14,
             "print": True,

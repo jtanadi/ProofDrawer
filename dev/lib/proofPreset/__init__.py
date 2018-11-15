@@ -3,6 +3,7 @@ Proof preset-related stuff in here
 """
 
 import copy
+import json
 
 class XMLtagError(Exception):
     pass
@@ -81,6 +82,7 @@ class ProofPreset:
         self.preset = {}
         self.preset["name"] = presetName
         self.preset["groups"] = []
+        self.groupOrder = 1
 
         self.proofGroups = None
 
@@ -99,10 +101,15 @@ class ProofPreset:
     def _addMissingKeysToGroup(self, groupToInspect):
         """
         Return new dict with missing keys added
+        If any group order is missing, reorder the whole thing
         """
+        # needToReorder = False
         dictWithAddedKeys = {}
         for key in self.keysInGroup:
             if key not in groupToInspect:
+                # if key == "order":
+                #     needToReorder = True
+                #     dictWithAddedKeys[key] = 0
                 if key == "print":
                     dictWithAddedKeys[key] = False
                 elif key == "contents":
@@ -111,6 +118,11 @@ class ProofPreset:
                     dictWithAddedKeys[key] = ""
             else:
                 dictWithAddedKeys[key] = groupToInspect[key]
+
+        # if needToReorder:
+        #     for group in self.preset["groups"]:
+        #         group["order"] = self.groupOrder
+        #         self.groupOrder += 1
 
         return dictWithAddedKeys
 
@@ -180,6 +192,7 @@ class ProofPreset:
                 continue
 
             # Title line: add title to group["name"] and initialize presets
+            # This is a little shorter than iterating & using if statements...
             if startGroup:
                 group["name"] = line.strip()
                 group["order"] = order
@@ -214,9 +227,11 @@ class ProofPreset:
         """
         return [group["name"] for group in self.preset["groups"]]
 
-    def getGroups(self):
+    def getGroups(self, verbose=True):
         """
-        Return list of proof groups, without the preset info
+        Return list of ProofPreset groups.
+
+        If NOT verbose, return without preset info:
         [
             {
                 "name": UC,
@@ -228,19 +243,26 @@ class ProofPreset:
             }
         ]
         """
-        returnGroups = []
-        for group in self.preset["groups"]:
-            tempGroup = {}
-            tempGroup["name"] = group["name"]
-            tempGroup["contents"] = group["contents"]
+        if not verbose:
+            returnGroups = []
+            for group in self.preset["groups"]:
+                tempGroup = {}
+                tempGroup["name"] = group["name"]
+                tempGroup["contents"] = group["contents"]
 
-            returnGroups.append(tempGroup)
+                returnGroups.append(tempGroup)
+            
+        else:
+            returnGroups = copy.deepcopy(self.preset["groups"])
 
         return returnGroups
 
-    def getPreset(self):
+    def getPreset(self, jsonFormat=False):
         """
-        Return JSON-able preset in the following format:
+        Return preset, either as Py dict, or when
+        jsonFormat is True, as a JSON object.
+
+        Object structure:
         {
             "name": presetName,
             "groups": [
@@ -258,6 +280,8 @@ class ProofPreset:
             ]
         }
         """
+        if jsonFormat:
+            return json.dumps(self.preset, indent=2)
         return self.preset
 
     def addGroup(self, groupToAdd, overwrite=False):
@@ -345,9 +369,20 @@ class ProofPreset:
 
         self.preset["groups"] = self._makePresetGroups()
 
+    def importFromJSON(self, jsonObj, overwrite=False):
+        """
+        Import JSON object and convert to ProofPreset
+        The overwrite behaviour is the same as ProofPreset.importPreset()
+
+        This method doesn't read files
+        """
+        presetFromJSON = json.loads(jsonObj)
+        self.importPreset(presetFromJSON, overwrite)
+
     def importPreset(self, presetToImport, overwrite=False):
         """
-        Import a proof preset (eg. from JSON file).
+        Import a WHOLE ProofPreset (py dict).
+        To import from JSON, use ProofPreset.importFromJSON()
 
         presetToImport is a dictionary. Whenever a group
         in presetToImport is missing a setting, add it
@@ -375,6 +410,7 @@ class ProofPreset:
 
         # import preset
         self.preset = newPreset
+
 
 if __name__ == "__main__":
     import os.path
