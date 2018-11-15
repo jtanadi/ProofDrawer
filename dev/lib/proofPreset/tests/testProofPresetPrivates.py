@@ -1,6 +1,5 @@
 """
-Fail ProofPreset private methods & make sure
-XMLtagError is raised everytime
+Test ProofPreset private methods
 """
 
 from proofPreset import ProofPreset, XMLtagError
@@ -63,6 +62,28 @@ class ProofPresetTest(unittest.TestCase):
         inputList = ["</group>", "<group>", "</group>", "<group>"]
         with self.assertRaises(XMLtagError):
             self.testPreset.importFromXML(inputList)
+
+    def test_removeUnnecessaryKeys(self):
+        newGroup = {"name": "tester", "boinger": False}
+        actual = self.testPreset._removeUnneededKeysInGroup(newGroup)
+        expected = {"name": "tester"}
+
+        self.assertEqual(actual, expected)
+
+    def test_addMissingKeys(self):
+        newGroup = {"name": "tester"}
+        actual = self.testPreset._addMissingKeysToGroup(newGroup)
+        expected = {
+            "name": "tester",
+            "order": "",
+            "type size": "",
+            "leading": "",
+            "print": False,
+            "contents": []
+            }
+
+        self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

@@ -96,19 +96,30 @@ class ProofPreset:
         """
         return [item.strip() for item in listToClean if item.strip()]
 
-    def _addMissingKeysToGroup(self, groupToAddKeysTo):
+    def _addMissingKeysToGroup(self, groupToInspect):
         """
-        Add missing keys to group passed in
-        This method directly affects group passed in
+        Return new dict with missing keys added
         """
+        dictWithAddedKeys = {}
         for key in self.keysInGroup:
-            if key not in groupToAddKeysTo.keys():
+            if key not in groupToInspect:
                 if key == "print":
-                    groupToAddKeysTo[key] = False
+                    dictWithAddedKeys[key] = False
                 elif key == "contents":
-                    groupToAddKeysTo[key] = []
+                    dictWithAddedKeys[key] = []
                 else:
-                    groupToAddKeysTo[key] = ""
+                    dictWithAddedKeys[key] = ""
+            else:
+                dictWithAddedKeys[key] = groupToInspect[key]
+
+        return dictWithAddedKeys
+
+    def _removeUnneededKeysInGroup(self, groupToInspect):
+        """
+        Return new dict with only keys in self.keysInGroup
+        """
+        return {key:value for key, value in groupToInspect.items()\
+                if key in self.keysInGroup}
 
     def _getTags(self):
         """
@@ -274,9 +285,10 @@ class ProofPreset:
         # Copy so we're not referencing the dict being passed in
         newGroup = copy.deepcopy(groupToAdd)
 
-        # Add missing keys
-        self._addMissingKeysToGroup(newGroup)
-        
+        # Remove unnecessary keys & add missing keys
+        newGroup = self._removeUnneededKeysInGroup(newGroup)
+        newGroup = self._addMissingKeysToGroup(newGroup)
+
         # Not overwriting: just add to groups
         if not overwrite:
             if newGroup["name"] in self.getGroupNames():
@@ -295,7 +307,7 @@ class ProofPreset:
 
     def removeGroup(self, groupName):
         """
-        Remove group.
+        Remove group. Group is returned (bc of .pop())
 
         groupName is a string. If it doesn't exist,
         raise an error.
@@ -305,7 +317,7 @@ class ProofPreset:
 
         for index, group in enumerate(self.preset["groups"]):
             if group["name"] == groupName:
-                del self.preset["groups"][index]
+                return self.preset["groups"].pop(index)
 
     def importFromXML(self, xmlTaggedObj):
         """
@@ -356,9 +368,10 @@ class ProofPreset:
         # Copy so we're not changing imported object later
         newPreset = copy.deepcopy(presetToImport)
 
-        # Add missing stuff
+        # Remove unneeded keys & add missing keys
         for group in newPreset["groups"]:
-            self._addMissingKeysToGroup(group)
+            group = self._removeUnneededKeysInGroup(group)
+            group = self._addMissingKeysToGroup(group)
 
         # import preset
         self.preset = newPreset

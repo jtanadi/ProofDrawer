@@ -85,13 +85,14 @@ class TestImportExport(unittest.TestCase):
         firstGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
         self.testPreset.addGroup(firstGroup)
 
-        secondGroup = {"name": "new group", "type size": 8, "leading": 10, "print": True}
+        secondGroup = {"name": "new group", "type size": 8, "leading": 10, "boing": True}
         self.testPreset.addGroup(secondGroup)
 
         secondGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
         self.testPreset.addGroup(secondGroup)
 
         actual = self.testPreset.getPreset()
+
         expected = {
             "name": "testPreset",
             "groups": [
@@ -108,7 +109,7 @@ class TestImportExport(unittest.TestCase):
                     "order": "",
                     "type size": 8,
                     "leading": 10,
-                    "print": True,
+                    "print": False,
                     "contents": []
                 },
                 {
@@ -159,7 +160,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(newGroup)
         self.testPreset.addGroup(newGroup1)
         self.testPreset.addGroup(newGroup2)
-        
+
         self.testPreset.removeGroup("new group")
 
         actual = self.testPreset.getPreset()
