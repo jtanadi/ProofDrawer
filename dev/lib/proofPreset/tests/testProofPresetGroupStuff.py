@@ -113,5 +113,18 @@ class TestImportExport(unittest.TestCase):
 
         self.assertDictEqual(actual, expected)
 
+    def test_addAndRemoveGroups(self):
+        newGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
+        self.testPreset.addGroup(newGroup)
+        self.testPreset.removeGroup("new group")
+
+        actual = self.testPreset.getPreset()
+        expected = {
+            "name": "testPreset",
+            "groups": []
+        }
+
+        self.assertEqual(actual, expected)
+
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

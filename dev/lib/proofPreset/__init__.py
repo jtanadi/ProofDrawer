@@ -175,6 +175,64 @@ class ProofPreset:
         """
         self.preset["name"] = newName
 
+    def getPresetName(self):
+        """
+        Return Preset name
+        """
+        return self.preset["name"]
+
+    def getGroupNames(self):
+        """
+        Return a list of all group names
+        """
+        return [group["name"] for group in self.preset["groups"]]
+
+    def getGroups(self):
+        """
+        Return list of proof groups, without the preset info
+        [
+            {
+                "name": UC,
+                "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            },
+            {
+                "name": lc,
+                "contents": "abcdefghijklmnopqrstuvwxyz"
+            }
+        ]
+        """
+        returnGroups = []
+        for group in self.preset["groups"]:
+            tempGroup = {}
+            tempGroup["name"] = group["name"]
+            tempGroup["contents"] = group["contents"]
+
+            returnGroups.append(tempGroup)
+
+        return returnGroups
+
+    def getPreset(self):
+        """
+        Return JSON-able preset in the following format:
+        {
+            "name": presetName,
+            "groups": [
+                {
+                    "name": "UC, numerals",
+                    "order": 1,
+                    "type size": 12,
+                    "leading": 14,
+                    "print": True,
+                    "contents": [
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "0123456789"
+                    ]
+                }
+            ]
+        }
+        """
+        return self.preset
+
     def addGroup(self, groupToAdd, overwrite=False):
         """
         Add one group. (Keep loop outside.)
@@ -228,13 +286,15 @@ class ProofPreset:
 
         groupName is a string. If it doesn't exist,
         raise an error.
+
+        What happens when there's more than one groupName?
         """
-        if groupName not in self.preset["groups"]:
+        if groupName not in self.getGroupNames():
             raise ProofPresetError("Group doesn't exist")
 
-        for group in self.preset["groups"]:
+        for index, group in enumerate(self.preset["groups"]):
             if group["name"] == groupName:
-                del group
+                del self.preset["groups"][index]
 
     def importFromXML(self, xmlTaggedObj):
         """
@@ -296,59 +356,6 @@ class ProofPreset:
 
         # import preset
         self.preset = newPreset
-
-    def getName(self):
-        """
-        Return Preset name
-        """
-        return self.preset["name"]
-
-    def getGroups(self):
-        """
-        Return list of proof groups, without the preset info
-        [
-            {
-                "name": UC,
-                "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            },
-            {
-                "name": lc,
-                "contents": "abcdefghijklmnopqrstuvwxyz"
-            }
-        ]
-        """
-        returnGroups = []
-        for group in self.preset["groups"]:
-            tempGroup = {}
-            tempGroup["name"] = group["name"]
-            tempGroup["contents"] = group["contents"]
-
-            returnGroups.append(tempGroup)
-
-        return returnGroups
-
-    def getPreset(self):
-        """
-        Return JSON-able preset in the following format:
-        {
-            "name": presetName,
-            "groups": [
-                {
-                    "name": "UC, numerals",
-                    "order": 1,
-                    "type size": 12,
-                    "leading": 14,
-                    "print": True,
-                    "contents": [
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                        "0123456789"
-                    ]
-                }
-            ]
-        }
-        """
-        return self.preset
-
 
 if __name__ == "__main__":
     import os.path
