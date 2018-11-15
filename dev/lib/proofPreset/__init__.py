@@ -2,6 +2,8 @@
 Proof preset-related stuff in here
 """
 
+import copy
+
 class XMLtagError(Exception):
     pass
 
@@ -173,11 +175,11 @@ class ProofPreset:
         """
         self.preset["name"] = newName
 
-    def addGroup(self, newGroup, overwrite=False):
+    def addGroup(self, groupToAdd, overwrite=False):
         """
         Add one group. (Keep loop outside.)
 
-        newGroup is a dict that AT LEAST contains a name,
+        groupToAdd is a dict that AT LEAST contains a name,
         but can include other preset items:
         {
             "name": "new group dict",
@@ -190,10 +192,13 @@ class ProofPreset:
         If NOT overwriting, add the group even though
         name is the same as another group
         """
-        if not isinstance(newGroup, dict):
-            raise TypeError("newGroup has to be a dictionary")
-        elif not newGroup["name"]:
-            raise ProofPresetError("newGroup needs a name")
+        if not isinstance(groupToAdd, dict):
+            raise TypeError("groupToAdd has to be a dictionary")
+        elif not groupToAdd["name"]:
+            raise ProofPresetError("groupToAdd needs a name")
+
+        # Copy so we're not referencing the dict being passed in
+        newGroup = copy.deepcopy(groupToAdd)
 
         # Add missing keys
         for key in self.keysInGroup:
@@ -208,14 +213,14 @@ class ProofPreset:
         # Not overwriting: just add to groups
         if not overwrite:
             self.preset["groups"].append(newGroup)
-        # Overwriting: find existing group with same name,
-        # and iterate through keys to copy data from newGroup
-        else:
-            for group in self.proofGroups:
-                if group["name"] == newGroup["name"]:
-                    for key in self.keysInGroup:
-                        group[key] = newGroup[key]
 
+        # Overwriting: find existing group with same name,
+        # and copy newGroup to saved group
+        else:
+            for group in self.preset["groups"]:
+                if group["name"] == newGroup["name"]:
+                    for key in group:
+                        group[key] = newGroup[key]
 
     def removeGroup(self, groupName):
         """
@@ -275,7 +280,11 @@ class ProofPreset:
         elif not presetToImport["groups"]:
             raise ProofPresetError("Imported preset has no groups")
 
-        for group in presetToImport["groups"]:
+        # Copy so we're not changing imported object later
+        newPreset = copy.deepcopy(presetToImport)
+
+        # Add missing stuff
+        for group in newPreset["groups"]:
             for key in self.keysInGroup:
                 if not group[key]:
                     if key == "print":
@@ -286,7 +295,7 @@ class ProofPreset:
                         group[key] = ""
 
         # import preset
-        self.preset = presetToImport
+        self.preset = newPreset
 
     def getName(self):
         """
