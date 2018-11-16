@@ -53,7 +53,6 @@ class ProofPreset:
         "groups": [
             {
                 "name": "UC, numerals",
-                "order": 1,
                 "type size": 12,
                 "leading": 14,
                 "print": True,
@@ -64,7 +63,6 @@ class ProofPreset:
             },
             {
                 "name": "lc",
-                "order": 2,
                 "type size": 12,
                 "leading": 14,
                 "print": False,
@@ -82,13 +80,12 @@ class ProofPreset:
         self.preset = {}
         self.preset["name"] = presetName
         self.preset["groups"] = []
-        self.groupOrder = 1
 
         self.proofGroups = None
 
         self.nameCopyIndex = 1
-        self.keysInGroup = ["name", "order", "type size",\
-                            "leading", "print", "contents"]
+        self.keysInGroup = ["name", "type size", "leading",\
+                            "print", "contents"]
 
 
     def _cleanList(self, listToClean):
@@ -97,30 +94,6 @@ class ProofPreset:
         Only include non-empty items in returned list
         """
         return [item.strip() for item in listToClean if item.strip()]
-
-    def _addOrderToGroup(self, groupToAddOrderTo):
-        """
-        Add order number to group.
-        """
-        groupToAddOrderTo["order"] = self.groupOrder
-        self.groupOrder += 1
-
-    def _reorderAllGroups(self):
-        """
-        Restart group order numbering and reorder
-        all groups in preset
-        """
-        self.groupOrder = 1
-        for group in self.preset["groups"]:
-            group["order"] = self.groupOrder
-            self.groupOrder += 1
-
-    def _sortGroupsByOrder(self):
-        """
-        Sort groups by their order number,
-        in case imported preset is all over the place
-        """
-        self.preset["groups"].sort(key=lambda k: k["order"])
 
     def _addMissingKeysToGroup(self, groupToProcess):
         """
@@ -192,7 +165,6 @@ class ProofPreset:
         """
         presetList = []
         startGroup = False
-        self.groupOrder = 1
 
         for line in self.proofGroups:
             # Open tag: initialize and move on
@@ -210,13 +182,11 @@ class ProofPreset:
             # This is a little shorter than iterating & using if statements...
             if startGroup:
                 group["name"] = line.strip()
-                group["order"] = self.groupOrder
                 group["type size"] = ""
                 group["leading"] = ""
                 group["print"] = False
                 group["contents"] = []
                 startGroup = False # not the start of group anymore
-                self.groupOrder += 1
 
             # Middle of block: just add line to group["contents"]
             else:
@@ -283,7 +253,6 @@ class ProofPreset:
             "groups": [
                 {
                     "name": "UC, numerals",
-                    "order": 1,
                     "type size": 12,
                     "leading": 14,
                     "print": True,
@@ -314,7 +283,8 @@ class ProofPreset:
         }
 
         groupToAdd will always be added to the END of
-        the groups list, so specifying order is unnecessary
+        the groups list. For anything more precise, 
+        use py list methods on self.preset["groups"]
 
         If NOT overwriting, add "index" to end of name:
         newGroup, newGroup-1, newGroup-2
@@ -337,7 +307,6 @@ class ProofPreset:
                 newGroup["name"] += "-%s" % self.nameCopyIndex
                 self.nameCopyIndex += 1
 
-            self._addOrderToGroup(newGroup)
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
@@ -346,17 +315,14 @@ class ProofPreset:
             for group in self.preset["groups"]:
                 if group["name"] == newGroup["name"]:
                     for key in group:
-                        if key != "order":
-                            group[key] = newGroup[key]
+                        group[key] = newGroup[key]
 
     def removeGroup(self, groupToRemove):
         """
         Remove group by name or index.
 
         groupToRemove can be a str or int, and must
-        be a valid name or valid order number.
-
-        ProofPreset groups are re-ordered after removal.
+        be a valid name or valid index.
         """
         if isinstance(groupToRemove, str):
             if groupToRemove not in self.getGroupNames():
@@ -367,13 +333,9 @@ class ProofPreset:
                     del self.preset["groups"][index]
 
         elif isinstance(groupToRemove, int):
-            if groupToRemove > len(self.preset["groups"]):
-                raise ProofPresetError("Order is out of range")
-
-            # Order is index + 1
-            del self.preset["groups"][groupToRemove - 1]
-
-        self._reorderAllGroups()
+            if groupToRemove > len(self.preset["groups"] - 1):
+                raise ProofPresetError("Group doesn't exist")
+            del self.preset["groups"][groupToRemove]
 
     def importFromXML(self, xmlTaggedObj):
         """
@@ -442,8 +404,6 @@ class ProofPreset:
 
         # Import preset, sort by group order, and reorder
         self.preset = newPreset
-        self._sortGroupsByOrder()
-        self._reorderAllGroups()
 
 
 if __name__ == "__main__":
