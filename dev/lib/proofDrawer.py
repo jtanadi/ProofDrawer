@@ -83,6 +83,10 @@ class ProofDrawer:
             if "key" not in item.keys():
                 item["key"] = item["title"].lower()
 
+        # Add order number for our list
+        for index, group in enumerate(proofGroups):
+            group["order"] = index + 1
+
         width = 425
         left = 10
         row = 10
