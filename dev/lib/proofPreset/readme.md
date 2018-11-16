@@ -29,10 +29,10 @@ Preset objects are nested collections (lists and dicts) and have this structure:
 }
 ```
 
-At initialization, a `ProofPreset()` object only has `name` (`"myPreset"` by default, unless passed in by user) and `groups`, which is an empty `list`.
+At initialization, a `ProofPreset()` object only has `name` (`"myPreset"` by default, unless passed in by user) and `groups`, which is an empty list.
 
 ## Public Methods
-A Preset object comes with a handful of public methods. These methods are "plugged-in" to the `ProofDrawer()` UI
+A Preset object comes with a handful of public methods. These methods are "plugged-in" to the `ProofDrawer()` UI.
 
 ### Getting Stuff
 Users have access to all data through `ProofDrawer()`, either through the main window or its auxiliary windows (Proof Inspector, Preset Inspector).
@@ -40,7 +40,16 @@ Users have access to all data through `ProofDrawer()`, either through the main w
 The only thing that `ProofDrawer()` generates on its own is each group's "order" number, which is simply that group's index within `ProofPreset["groups"]` + 1.
 
 #### getPresetName()
+Return name of Preset object
 ```python
-ProofPreset("My First Preset").getPresetName()
+myFirstPreset = ProofPreset("My First Preset")
+myFirstPreset.getPresetName()
+>>> "My First Preset"
+```
+
+#### `getGroups(verbose=True)`
+Return a list of groups. 
+```python
+
 ```
 
