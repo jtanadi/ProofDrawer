@@ -2,6 +2,8 @@
 Proof preset-related stuff in here
 """
 
+from proofPreset import utils
+
 import copy
 import json
 
@@ -81,19 +83,11 @@ class ProofPreset:
         self.preset["name"] = presetName
         self.preset["groups"] = []
 
-        self.proofGroups = None
+        self.xmlGroups = None
 
         self.nameCopyIndex = 1
         self.keysInGroup = ["name", "type size", "leading",\
                             "print", "contents"]
-
-
-    def _cleanList(self, listToClean):
-        """
-        Get rid of leading and trailing whitespaces all at once
-        Only include non-empty items in returned list
-        """
-        return [item.strip() for item in listToClean if item.strip()]
 
     def _addMissingKeysToGroup(self, groupToProcess):
         """
@@ -125,15 +119,15 @@ class ProofPreset:
         """
         Return a list of tags
         """
-        return [item for item in self.proofGroups\
+        return [item for item in self.xmlGroups\
         if item == "<group>" or item == "</group>"]
 
     def _checkForTags(self):
         """
         Make sure object has opening & closing tags at all
         """
-        if "<group>" not in self.proofGroups and \
-        "</group>" not in self.proofGroups:
+        if "<group>" not in self.xmlGroups and \
+        "</group>" not in self.xmlGroups:
             raise XMLtagError("<group> tags not in imported proofGroup")
 
     def _checkXMLtagsSequence(self):
@@ -158,7 +152,7 @@ class ProofPreset:
         if openTagCount != closeTagCount:
             raise XMLtagError("Not all tags are paired")
 
-    def _makePresetGroups(self):
+    def _makePresetGroupsFromXML(self):
         """
         Return list of preset groups,
         converted from proofGroups
@@ -166,7 +160,7 @@ class ProofPreset:
         presetList = []
         startGroup = False
 
-        for line in self.proofGroups:
+        for line in self.xmlGroups:
             # Open tag: initialize and move on
             if "<group>" in line:
                 group = {}
@@ -236,7 +230,7 @@ class ProofPreset:
                 tempGroup["contents"] = group["contents"]
 
                 returnGroups.append(tempGroup)
-            
+
         else:
             returnGroups = copy.deepcopy(self.preset["groups"])
 
@@ -283,7 +277,7 @@ class ProofPreset:
         }
 
         groupToAdd will always be added to the END of
-        the groups list. For anything more precise, 
+        the groups list. For anything more precise,
         use py list methods on self.preset["groups"]
 
         If NOT overwriting, add "index" to end of name:
@@ -353,15 +347,15 @@ class ProofPreset:
         elif isinstance(xmlTaggedObj, list):
             newObj = copy.deepcopy(xmlTaggedObj)
 
-        self.proofGroups = self._cleanList(newObj)
+        self.xmlGroups = utils.cleanList(newObj)
 
-        if not self.proofGroups:
+        if not self.xmlGroups:
             raise ProofPresetError("List is empty!")
 
         self._checkForTags()
         self._checkXMLtagsSequence()
 
-        self.preset["groups"] = self._makePresetGroups()
+        self.preset["groups"] = self._makePresetGroupsFromXML()
 
     def importFromJSON(self, jsonObj, overwrite=False):
         """
