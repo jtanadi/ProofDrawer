@@ -98,39 +98,54 @@ class ProofPreset:
         """
         return [item.strip() for item in listToClean if item.strip()]
 
-    def _addMissingKeysToGroup(self, groupToInspect):
+    def _addOrderToGroup(self, groupToAddOrderTo):
+        """
+        Add order number to group.
+        """
+        groupToAddOrderTo["order"] = self.groupOrder
+        self.groupOrder += 1
+
+    def _reorderAllGroups(self):
+        """
+        Restart group order numbering and reorder
+        all groups in preset
+        """
+        self.groupOrder = 1
+        for group in self.preset["groups"]:
+            group["order"] = self.groupOrder
+            self.groupOrder += 1
+
+    def _sortGroupsByOrder(self):
+        """
+        Sort groups by their order number,
+        in case imported preset is all over the place
+        """
+        self.preset["groups"].sort(key=lambda k: k["order"])
+
+    def _addMissingKeysToGroup(self, groupToProcess):
         """
         Return new dict with missing keys added
-        If any group order is missing, reorder the whole thing
         """
-        # needToReorder = False
         dictWithAddedKeys = {}
+
         for key in self.keysInGroup:
-            if key not in groupToInspect:
-                # if key == "order":
-                #     needToReorder = True
-                #     dictWithAddedKeys[key] = 0
+            if key in groupToProcess:
+                dictWithAddedKeys[key] = groupToProcess[key]
+            else:
                 if key == "print":
                     dictWithAddedKeys[key] = False
                 elif key == "contents":
                     dictWithAddedKeys[key] = []
                 else:
                     dictWithAddedKeys[key] = ""
-            else:
-                dictWithAddedKeys[key] = groupToInspect[key]
-
-        # if needToReorder:
-        #     for group in self.preset["groups"]:
-        #         group["order"] = self.groupOrder
-        #         self.groupOrder += 1
 
         return dictWithAddedKeys
 
-    def _removeUnneededKeysInGroup(self, groupToInspect):
+    def _removeUnneededKeysInGroup(self, groupToProcess):
         """
         Return new dict with only keys in self.keysInGroup
         """
-        return {key:value for key, value in groupToInspect.items()\
+        return {key:value for key, value in groupToProcess.items()\
                 if key in self.keysInGroup}
 
     def _getTags(self):
@@ -177,7 +192,7 @@ class ProofPreset:
         """
         presetList = []
         startGroup = False
-        order = 1
+        self.groupOrder = 1
 
         for line in self.proofGroups:
             # Open tag: initialize and move on
@@ -195,13 +210,13 @@ class ProofPreset:
             # This is a little shorter than iterating & using if statements...
             if startGroup:
                 group["name"] = line.strip()
-                group["order"] = order
+                group["order"] = self.groupOrder
                 group["type size"] = ""
                 group["leading"] = ""
                 group["print"] = False
                 group["contents"] = []
                 startGroup = False # not the start of group anymore
-                order += 1
+                self.groupOrder += 1
 
             # Middle of block: just add line to group["contents"]
             else:
@@ -298,6 +313,9 @@ class ProofPreset:
             "contents": "abcde"
         }
 
+        groupToAdd will always be added to the END of
+        the groups list, so specifying order is unnecessary
+
         If NOT overwriting, add "index" to end of name:
         newGroup, newGroup-1, newGroup-2
         """
@@ -319,6 +337,7 @@ class ProofPreset:
                 newGroup["name"] += "-%s" % self.nameCopyIndex
                 self.nameCopyIndex += 1
 
+            self._addOrderToGroup(newGroup)
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
@@ -327,21 +346,34 @@ class ProofPreset:
             for group in self.preset["groups"]:
                 if group["name"] == newGroup["name"]:
                     for key in group:
-                        group[key] = newGroup[key]
+                        if key != "order":
+                            group[key] = newGroup[key]
 
-    def removeGroup(self, groupName):
+    def removeGroup(self, groupToRemove):
         """
-        Remove group. Group is returned (bc of .pop())
+        Remove group by name or index.
 
-        groupName is a string. If it doesn't exist,
-        raise an error.
+        groupToRemove can be a str or int, and must
+        be a valid name or valid order number.
+
+        ProofPreset groups are re-ordered after removal.
         """
-        if groupName not in self.getGroupNames():
-            raise ProofPresetError("Group doesn't exist")
+        if isinstance(groupToRemove, str):
+            if groupToRemove not in self.getGroupNames():
+                raise ProofPresetError("Group doesn't exist")
 
-        for index, group in enumerate(self.preset["groups"]):
-            if group["name"] == groupName:
-                return self.preset["groups"].pop(index)
+            for index, group in enumerate(self.preset["groups"]):
+                if group["name"] == groupToRemove:
+                    del self.preset["groups"][index]
+
+        elif isinstance(groupToRemove, int):
+            if groupToRemove > len(self.preset["groups"]):
+                raise ProofPresetError("Order is out of range")
+
+            # Order is index + 1
+            del self.preset["groups"][groupToRemove - 1]
+
+        self._reorderAllGroups()
 
     def importFromXML(self, xmlTaggedObj):
         """
@@ -388,7 +420,7 @@ class ProofPreset:
         in presetToImport is missing a setting, add it
         with empty values.
 
-        If NOT overwriting, raise an error when there's
+        If overwrite is False, raise an error when there's
         already a stored preset["groups"].
         """
         if not overwrite and self.preset["groups"]:
@@ -408,8 +440,10 @@ class ProofPreset:
             group = self._removeUnneededKeysInGroup(group)
             group = self._addMissingKeysToGroup(group)
 
-        # import preset
+        # Import preset, sort by group order, and reorder
         self.preset = newPreset
+        self._sortGroupsByOrder()
+        self._reorderAllGroups()
 
 
 if __name__ == "__main__":

@@ -33,13 +33,13 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(cleanList, expected)
 
     def test_getName(self):
-        actual = self.testPreset.getName()
+        actual = self.testPreset.getPresetName()
         self.assertEqual(actual, "myPreset")
 
     def test_rename(self):
         newName = "funTimes"
         self.testPreset.renamePreset(newName)
-        actual = self.testPreset.getName()
+        actual = self.testPreset.getPresetName()
 
         self.assertEqual(newName, actual)
 
@@ -93,8 +93,8 @@ class ProofPresetTest(unittest.TestCase):
         }
         self.assertEqual(testProof, expected)
 
-    def test_baseGetGroups(self):
-        actual = self.testPreset.getGroups()
+    def test_baseGetGroupsNotVerbose(self):
+        actual = self.testPreset.getGroups(verbose=False)
         expected = [
             {
                 "name": "UC, lc, numerals",
@@ -126,6 +126,51 @@ class ProofPresetTest(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    def test_baseGetGroups(self):
+        actual = self.testPreset.getGroups(verbose=True)
+        expected = [
+            {
+                "name": "UC, lc, numerals",
+                "order": 1,
+                "type size": "",
+                "leading": "",
+                "print": False,
+                "contents": [
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                    "abcdefghijklmnopqrstuvwxyz",
+                    "0123456789"
+                ]
+            },
+            {
+                "name": "UC control",
+                "order": 2,
+                "type size": "",
+                "leading": "",
+                "print": False,
+                "contents": [
+                    "|H| |O| HOHOHOHO",
+                    "|A| HAHAHAOAOAOA",
+                    "|B| HBHBHBOBOBOB",
+                    "|C| HCHCHCOCOCOC"
+                ]
+            },
+            {
+                "name": "lc control",
+                "order": 3,
+                "type size": "",
+                "leading": "",
+                "print": False,
+                "contents": [
+                    "|n| |o| nononono",
+                    "|a| nananaoaoaoa",
+                    "|b| nbnbnbobobob",
+                    "|c| ncncncocococ"
+                ]
+            }
+        ]
+
+        self.assertEqual(actual, expected)
+
     def test_baseImportString(self):
         testString = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
         expected = {
@@ -146,6 +191,75 @@ class ProofPresetTest(unittest.TestCase):
         strTestPreset = ProofPreset()
         strTestPreset.importFromXML(testString)
         actual = strTestPreset.getPreset()
+        self.assertEqual(actual, expected)
+
+    def test_importPresetWrongOrder(self):
+        """
+        Import a new preset whose orders are
+        all over the place
+        """
+        newPreset = {
+            "name": "new preset",
+            "groups": [
+                {
+                    "name": "group three",
+                    "order": 30,
+                    "type size": "",
+                    "leading": "",
+                    "print": False,
+                    "contents": []
+                },
+                {
+                    "name": "group two",
+                    "order": 20,
+                    "type size": 12,
+                    "leading": 14,
+                    "print": True,
+                    "contents": ["abc"]
+                },
+                {
+                    "name": "group one",
+                    "order": 15,
+                    "type size": 10,
+                    "leading": 12,
+                    "print": True,
+                    "contents": ["def"]
+                }
+            ]
+        }
+        self.testPreset.importPreset(newPreset, overwrite=True)
+
+        actual = self.testPreset.getPreset()
+        expected = {
+            "name": "new preset",
+            "groups": [
+                {
+                    "name": "group one",
+                    "order": 1,
+                    "type size": 10,
+                    "leading": 12,
+                    "print": True,
+                    "contents": ["def"]
+                },
+                {
+                    "name": "group two",
+                    "order": 2,
+                    "type size": 12,
+                    "leading": 14,
+                    "print": True,
+                    "contents": ["abc"]
+                },
+                {
+                    "name": "group three",
+                    "order": 3,
+                    "type size": "",
+                    "leading": "",
+                    "print": False,
+                    "contents": []
+                }
+            ]
+        }
+
         self.assertEqual(actual, expected)
 
 

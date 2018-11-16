@@ -11,7 +11,7 @@ class TestImportExport(unittest.TestCase):
         """
         groupToAdd = {
             "name": "UC, lc",
-            "order": "",
+            "order": 3, # This should be ignored because ProofPreset is empty right now
             "type size": 12,
             "leading": 14,
             "print": True,
@@ -22,7 +22,19 @@ class TestImportExport(unittest.TestCase):
         }
         expectedPreset = {
             "name": "testPreset",
-            "groups": [groupToAdd]
+            "groups": [
+                {
+                    "name": "UC, lc",
+                    "order": 1,
+                    "type size": 12,
+                    "leading": 14,
+                    "print": True,
+                    "contents": [
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "abcdefghijklmnopqrstuvwxyz"
+                    ]
+                }
+            ]
         }
         self.testPreset.addGroup(groupToAdd)
         actual = self.testPreset.getPreset()
@@ -38,7 +50,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new test",
-                    "order": "",
+                    "order": 1,
                     "type size": "",
                     "leading": "",
                     "print": False,
@@ -66,7 +78,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group",
-                    "order": "",
+                    "order": 1,
                     "type size": 8,
                     "leading": 10,
                     "print": False,
@@ -88,8 +100,8 @@ class TestImportExport(unittest.TestCase):
         secondGroup = {"name": "new group", "type size": 8, "leading": 10, "boing": True}
         self.testPreset.addGroup(secondGroup)
 
-        secondGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
-        self.testPreset.addGroup(secondGroup)
+        thirdGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
+        self.testPreset.addGroup(thirdGroup)
 
         actual = self.testPreset.getPreset()
 
@@ -98,7 +110,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group",
-                    "order": "",
+                    "order": 1,
                     "type size": 2,
                     "leading": "",
                     "print": False,
@@ -106,7 +118,7 @@ class TestImportExport(unittest.TestCase):
                 },
                 {
                     "name": "new group-1",
-                    "order": "",
+                    "order": 2,
                     "type size": 8,
                     "leading": 10,
                     "print": False,
@@ -114,7 +126,7 @@ class TestImportExport(unittest.TestCase):
                 },
                 {
                     "name": "new group-2",
-                    "order": "",
+                    "order": 3,
                     "type size": "",
                     "leading": "",
                     "print": True,
@@ -169,7 +181,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group-1",
-                    "order": "",
+                    "order": 1,
                     "type size": 8,
                     "leading": "",
                     "print": False,
@@ -177,7 +189,7 @@ class TestImportExport(unittest.TestCase):
                 },
                 {
                     "name": "new group-2",
-                    "order": "",
+                    "order": 2,
                     "type size": "",
                     "leading": 3,
                     "print": False,
