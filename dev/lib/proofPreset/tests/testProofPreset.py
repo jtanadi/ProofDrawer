@@ -17,21 +17,6 @@ class ProofPresetTest(unittest.TestCase):
         self.testPreset = ProofPreset("myPreset")
         self.testPreset.importFromXML(testList)
 
-    def test_baseGetTags(self):
-        """
-        Base case for ProofPreset.getTags()
-        """
-        tagsList = self.testPreset._getTags()
-        expected = ["<group>", "</group>", "<group>",
-                    "</group>", "<group>", "</group>"]
-        self.assertEqual(tagsList, expected)
-
-    def test_baseCleanList(self):
-        dirtyList = ["item\n", "\n", "\nnext", "\n\n"]
-        cleanList = self.testPreset._cleanList(dirtyList)
-        expected = ["item", "next"]
-        self.assertEqual(cleanList, expected)
-
     def test_getName(self):
         actual = self.testPreset.getPresetName()
         self.assertEqual(actual, "myPreset")

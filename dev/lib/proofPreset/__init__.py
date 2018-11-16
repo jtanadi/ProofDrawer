@@ -3,15 +3,10 @@ Proof preset-related stuff in here
 """
 
 from proofPreset import utils
+from proofPreset.errors import ProofPresetError
 
 import copy
 import json
-
-class XMLtagError(Exception):
-    pass
-
-class ProofPresetError(Exception):
-    pass
 
 class ProofPreset:
     """
@@ -114,43 +109,6 @@ class ProofPreset:
         """
         return {key:value for key, value in groupToProcess.items()\
                 if key in self.keysInGroup}
-
-    def _getTags(self):
-        """
-        Return a list of tags
-        """
-        return [item for item in self.xmlGroups\
-        if item == "<group>" or item == "</group>"]
-
-    def _checkForTags(self):
-        """
-        Make sure object has opening & closing tags at all
-        """
-        if "<group>" not in self.xmlGroups and \
-        "</group>" not in self.xmlGroups:
-            raise XMLtagError("<group> tags not in imported proofGroup")
-
-    def _checkXMLtagsSequence(self):
-        """
-        Make sure open tags have closing ones:
-        [<tag>, </tag>, <tag>, </tag>]
-        """
-        openTag = True
-        openTagCount = 0
-        closeTagCount = 0
-
-        for tag in self._getTags():
-            if openTag and tag == "<group>":
-                openTagCount += 1
-                openTag = False # Next is supposed to be close tag
-            elif not openTag and tag == "</group>":
-                closeTagCount += 1
-                openTag = True # Next is supposed to be open tag
-            else:
-                raise XMLtagError("Incorrect <tag></tag> sequence")
-
-        if openTagCount != closeTagCount:
-            raise XMLtagError("Not all tags are paired")
 
     def _makePresetGroupsFromXML(self):
         """
@@ -352,8 +310,8 @@ class ProofPreset:
         if not self.xmlGroups:
             raise ProofPresetError("List is empty!")
 
-        self._checkForTags()
-        self._checkXMLtagsSequence()
+        utils.checkForTags(self.xmlGroups, "group")
+        utils.checkXMLtagsSequence(self.xmlGroups, "group")
 
         self.preset["groups"] = self._makePresetGroupsFromXML()
 
