@@ -171,12 +171,12 @@ class ProofPreset:
         If NOT verbose, return without preset info:
         [
             {
-                "name": UC,
-                "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "name": "UC",
+                "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
             },
             {
-                "name": lc,
-                "contents": "abcdefghijklmnopqrstuvwxyz"
+                "name": "lc",
+                "contents": ["abcdefghijklmnopqrstuvwxyz"]
             }
         ]
         """
