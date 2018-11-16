@@ -53,7 +53,6 @@ class ProofPresetTest(unittest.TestCase):
             "groups": [
                 {
                     "name": "UC, lc, numerals",
-                    "order": 1,
                     "type size": "",
                     "leading": "",
                     "print": False,
@@ -65,7 +64,6 @@ class ProofPresetTest(unittest.TestCase):
                 },
                 {
                     "name": "UC control",
-                    "order": 2,
                     "type size": "",
                     "leading": "",
                     "print": False,
@@ -78,7 +76,6 @@ class ProofPresetTest(unittest.TestCase):
                 },
                 {
                     "name": "lc control",
-                    "order": 3,
                     "type size": "",
                     "leading": "",
                     "print": False,
@@ -131,7 +128,6 @@ class ProofPresetTest(unittest.TestCase):
         expected = [
             {
                 "name": "UC, lc, numerals",
-                "order": 1,
                 "type size": "",
                 "leading": "",
                 "print": False,
@@ -143,7 +139,6 @@ class ProofPresetTest(unittest.TestCase):
             },
             {
                 "name": "UC control",
-                "order": 2,
                 "type size": "",
                 "leading": "",
                 "print": False,
@@ -156,7 +151,6 @@ class ProofPresetTest(unittest.TestCase):
             },
             {
                 "name": "lc control",
-                "order": 3,
                 "type size": "",
                 "leading": "",
                 "print": False,
@@ -178,7 +172,6 @@ class ProofPresetTest(unittest.TestCase):
             "groups": [
                 {
                     "name": "UC",
-                    "order": 1,
                     "type size": "",
                     "leading": "",
                     "print": False,
@@ -191,75 +184,6 @@ class ProofPresetTest(unittest.TestCase):
         strTestPreset = ProofPreset()
         strTestPreset.importFromXML(testString)
         actual = strTestPreset.getPreset()
-        self.assertEqual(actual, expected)
-
-    def test_importPresetWrongOrder(self):
-        """
-        Import a new preset whose orders are
-        all over the place
-        """
-        newPreset = {
-            "name": "new preset",
-            "groups": [
-                {
-                    "name": "group three",
-                    "order": 30,
-                    "type size": "",
-                    "leading": "",
-                    "print": False,
-                    "contents": []
-                },
-                {
-                    "name": "group two",
-                    "order": 20,
-                    "type size": 12,
-                    "leading": 14,
-                    "print": True,
-                    "contents": ["abc"]
-                },
-                {
-                    "name": "group one",
-                    "order": 15,
-                    "type size": 10,
-                    "leading": 12,
-                    "print": True,
-                    "contents": ["def"]
-                }
-            ]
-        }
-        self.testPreset.importPreset(newPreset, overwrite=True)
-
-        actual = self.testPreset.getPreset()
-        expected = {
-            "name": "new preset",
-            "groups": [
-                {
-                    "name": "group one",
-                    "order": 1,
-                    "type size": 10,
-                    "leading": 12,
-                    "print": True,
-                    "contents": ["def"]
-                },
-                {
-                    "name": "group two",
-                    "order": 2,
-                    "type size": 12,
-                    "leading": 14,
-                    "print": True,
-                    "contents": ["abc"]
-                },
-                {
-                    "name": "group three",
-                    "order": 3,
-                    "type size": "",
-                    "leading": "",
-                    "print": False,
-                    "contents": []
-                }
-            ]
-        }
-
         self.assertEqual(actual, expected)
 
 

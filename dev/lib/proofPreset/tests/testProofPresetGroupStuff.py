@@ -11,7 +11,7 @@ class TestImportExport(unittest.TestCase):
         """
         groupToAdd = {
             "name": "UC, lc",
-            "order": 3, # This should be ignored because ProofPreset is empty right now
+            "order": 3, # This should be ignored because it's not something we care about
             "type size": 12,
             "leading": 14,
             "print": True,
@@ -25,7 +25,6 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "UC, lc",
-                    "order": 1,
                     "type size": 12,
                     "leading": 14,
                     "print": True,
@@ -50,7 +49,6 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new test",
-                    "order": 1,
                     "type size": "",
                     "leading": "",
                     "print": False,
@@ -78,7 +76,6 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group",
-                    "order": 1,
                     "type size": 8,
                     "leading": 10,
                     "print": False,
@@ -110,7 +107,6 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group",
-                    "order": 1,
                     "type size": 2,
                     "leading": "",
                     "print": False,
@@ -118,7 +114,6 @@ class TestImportExport(unittest.TestCase):
                 },
                 {
                     "name": "new group-1",
-                    "order": 2,
                     "type size": 8,
                     "leading": 10,
                     "print": False,
@@ -126,7 +121,6 @@ class TestImportExport(unittest.TestCase):
                 },
                 {
                     "name": "new group-2",
-                    "order": 3,
                     "type size": "",
                     "leading": "",
                     "print": True,
@@ -181,7 +175,6 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group-1",
-                    "order": 1,
                     "type size": 8,
                     "leading": "",
                     "print": False,
@@ -189,7 +182,6 @@ class TestImportExport(unittest.TestCase):
                 },
                 {
                     "name": "new group-2",
-                    "order": 2,
                     "type size": "",
                     "leading": 3,
                     "print": False,
