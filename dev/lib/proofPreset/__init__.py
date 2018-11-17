@@ -286,9 +286,36 @@ class ProofPreset:
 
         elif isinstance(groupToRemove, int):
             if groupToRemove < 0 or \
-            groupToRemove > len(self.preset["groups"] - 1):
+            groupToRemove > len(self.preset["groups"]) - 1:
                 raise ProofPresetError("Group doesn't exist")
             del self.preset["groups"][groupToRemove]
+
+    def moveGroup(self, currentIndex, newIndex):
+        pass
+
+    def editGroup(self, groupToEdit, **kwargs):
+        if isinstance(groupToEdit, str):
+            if groupToEdit not in self.getGroupNames():
+                raise ProofPresetError("Group doesn't exist")
+
+            for group in self.preset["groups"]:
+                if groupToEdit == group["name"]:
+                    groupToEdit = group
+
+            groupIndex = self.preset["groups"].index(groupToEdit)
+            groupToEdit = self.preset["groups"][groupIndex]
+
+        elif isinstance(groupToEdit, int):
+            if groupToEdit < 0 or \
+            groupToEdit > len(self.preset["groups"]) - 1:
+                raise ProofPresetError("Group doesn't exist")
+
+            groupToEdit = self.preset["groups"][groupToEdit]
+
+        for key, value in kwargs.items():
+            if key not in self.keysInGroup:
+                continue
+            groupToEdit[key] = value
 
     def importFromXML(self, xmlTaggedProof):
         """

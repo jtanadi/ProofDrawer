@@ -200,6 +200,32 @@ class TestImportExport(unittest.TestCase):
         with self.assertRaises(ProofPresetError):
             self.testPreset.removeGroup("new group")
 
+    def test_editGroup(self):
+        newGroup = {
+            "name": "New Group",
+            "typeSize": 12,
+            "leading": 14,
+            "print": True,
+            "contents": []
+        }
+        self.testPreset.addGroup(newGroup)
+        self.testPreset.editGroup(0, name="Even newer",
+                                  typeSize=10, leading=12,
+                                  print=False, bleep=12)
+
+        actual = self.testPreset.getGroups()
+        expected = [
+            {
+                "name": "Even newer",
+                "typeSize": 10,
+                "leading": 12,
+                "print": False,
+                "contents": []
+            }
+        ]
+
+        self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
