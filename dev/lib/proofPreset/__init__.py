@@ -289,21 +289,21 @@ class ProofPreset:
                 raise ProofPresetError("Group doesn't exist")
             del self.preset["groups"][groupToRemove]
 
-    def importFromXML(self, xmlTaggedObj):
+    def importFromXML(self, xmlTaggedProof):
         """
         Import XML-tagged string or list, and perform
         some basic cleaning and validation.
 
-        If xmlTaggedObj is a string:
+        If xmlTaggedProof is a string:
         "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
 
-        if xmlTaggedObj is a list:
+        if xmlTaggedProof is a list:
         ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
         """
-        if isinstance(xmlTaggedObj, str):
-            newObj = xmlTaggedObj.split("\n")
-        elif isinstance(xmlTaggedObj, list):
-            newObj = copy.deepcopy(xmlTaggedObj)
+        if isinstance(xmlTaggedProof, str):
+            newObj = xmlTaggedProof.split("\n")
+        elif isinstance(xmlTaggedProof, list):
+            newObj = copy.deepcopy(xmlTaggedProof)
 
         self.xmlGroups = utils.cleanList(newObj)
 
@@ -350,6 +350,7 @@ class ProofPreset:
         newPreset = copy.deepcopy(presetToImport)
 
         # Remove unneeded keys & add missing keys
+        # Maybe should clean contents?
         for group in newPreset["groups"]:
             group = self._removeUnneededKeysInGroup(group)
             group = self._addMissingKeysToGroup(group)
