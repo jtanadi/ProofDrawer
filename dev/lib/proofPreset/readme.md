@@ -2,7 +2,7 @@
 A Preset object for `ProofDrawer()`.
 
 ## Structure
-Preset objects are nested collections (lists and dicts) and have this structure:
+`ProofPreset()` objects are nested collections (lists and dicts) and have this structure:
 ```python
 {
     "name": "My Favorite Preset",
