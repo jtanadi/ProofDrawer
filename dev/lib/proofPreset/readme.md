@@ -118,7 +118,7 @@ Before fully importing, `ProofPreset()` performs some basic tasks:
 - Add missing keys. If any of the keys listed above are missing, they will be added to the group.
 
 ```python
-newPreset = {
+>>> newPreset = {
     "name": "New Preset",
     "groups": [
         {
@@ -142,42 +142,42 @@ newPreset = {
     ]
 }
 
-myPreset.importPreset(newPreset)
-myPreset.getPreset()
->>> {
-        "name": "New Preset",
-        "groups": [
-            {
-                "name": "UC",
-                "typeSize": 8,
-                "leading": "",
-                "print": False,
-                "contents": [
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                ]
-            },
-            {
-                "name": "lc",
-                "typeSize": 8,
-                "leading": "",
-                "print": True,
-                "contents": [
-                    "0123456789"
-                ]
-            }
-        ]
-    }
+>>> myPreset.importPreset(newPreset)
+>>> myPreset.getPreset()
+{
+    "name": "New Preset",
+    "groups": [
+        {
+            "name": "UC",
+            "typeSize": 8,
+            "leading": "",
+            "print": False,
+            "contents": [
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            ]
+        },
+        {
+            "name": "lc",
+            "typeSize": 8,
+            "leading": "",
+            "print": True,
+            "contents": [
+                "0123456789"
+            ]
+        }
+    ]
+}
 ```
 
 This method can be combined with `getPreset()` to make a copy of a `ProofPreset()` object. `importPreset()` uses `deepcopy()`, so the same preset isn't referenced by both objects.
 
 _Maybe implement a `copy()` method that returns a new object?_
 ```python
-preset1Data = preset1.getPreset()
+>>> preset1Data = preset1.getPreset()
 
-preset1Copy = ProofPreset() # Don't have to specify name because it'll get replaced anyway
-preset1Copy.importPreset(preset1Data) # At this point the two objects have the same name
-preset1Copy.renamePreset("Copy of preset 1") # So we should rename it
+>>> preset1Copy = ProofPreset() # Don't have to specify name because it'll get replaced anyway
+>>> preset1Copy.importPreset(preset1Data) # At this point the two objects have the same name
+>>> preset1Copy.renamePreset("Copy of preset 1") # So we should rename it
 ```
 
 ### Getting Stuff
@@ -188,82 +188,82 @@ The only thing that `ProofDrawer()` generates on its own is each group's "order"
 #### `getGroupNames()`
 Return a list of group names.
 ```python
-myPreset.getGroupNames()
->>> ["UC", "lc", "numerals"]
+>>> myPreset.getGroupNames()
+["UC", "lc", "numerals"]
 ```
 
 #### `getGroups(verbose=True)`
 Return a list of groups. By default, return all of the data associated with each group. If `verbose=False`, only return the group name and group contents.
 ```python
-myPreset.getGroups()
->>> [
+>>> myPreset.getGroups()
+[
+    {
+        "name": "UC",
+        "typeSize": 12,
+        "leading": 14,
+        "print": True,
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "lc",
+        "typeSize": 10,
+        "leading": 10,
+        "print": False,
+        "contents": ["abcdefghijklmnopqrstuvwxyz"]
+    }
+]
+
+>>> myPreset.getGroups(verbose=False)
+[
+    {
+        "name": "UC",
+        "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    },
+    {
+        "name": "lc",
+        "contents": "abcdefghijklmnopqrstuvwxyz"
+    }
+]
+```
+
+#### `getPresetName()`
+Return name of `ProofPreset()` object
+```python
+>>> myFirstPreset = ProofPreset("My First Preset")
+>>> myFirstPreset.getPresetName()
+"My First Preset"
+```
+
+#### `getPreset(jsonFormat=False)`
+Return the entire `ProofPreset()` as a Python dict. If `jsonFormat=True`, return the JSON object instead (basically a long string) with 2 spaces for indentation.
+```python
+>>> myPreset.getPreset():
+{
+    "name": "My Preset",
+    "groups": [
         {
             "name": "UC",
-            "typeSize": 12,
-            "leading": 14,
+            "typeSize": 10,
+            "leading": 12,
             "print": True,
             "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
         },
         {
             "name": "lc",
             "typeSize": 10,
-            "leading": 10,
+            "leading": 12,
             "print": False,
-            "contents": ["abcdefghijklmnopqrstuvwxyz"]
-        }
-    ]
-
-myPreset.getGroups(verbose=False)
->>> [
-        {
-            "name": "UC",
-            "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "contents": ["abcdefghijklmnopqrstuvwyxz"]
         },
         {
-            "name": "lc",
-            "contents": "abcdefghijklmnopqrstuvwxyz"
-        }
+            "name": "numerals",
+            "typeSize": 10,
+            "leading": 12,
+            "print": False,
+            "contents": ["0123456789"]
+        },
     ]
-```
-
-#### `getPresetName()`
-Return name of `ProofPreset()` object
-```python
-myFirstPreset = ProofPreset("My First Preset")
-myFirstPreset.getPresetName()
->>> "My First Preset"
-```
-
-#### `getPreset(jsonFormat=False)`
-Return the entire `ProofPreset()` as a Python dict. If `jsonFormat=True`, return the JSON object instead (basically a long string) with 2 spaces for indentation.
-```python
-myPreset.getPreset():
->>> {
-        "name": "My Preset",
-        "groups": [
-            {
-                "name": "UC",
-                "typeSize": 10,
-                "leading": 12,
-                "print": True,
-                "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-            },
-            {
-                "name": "lc",
-                "typeSize": 10,
-                "leading": 12,
-                "print": False,
-                "contents": ["abcdefghijklmnopqrstuvwyxz"]
-            },
-            {
-                "name": "numerals",
-                "typeSize": 10,
-                "leading": 12,
-                "print": False,
-                "contents": ["0123456789"]
-            },
-        ]
-    }
+}
 ```
 
 ### Editing Stuff
@@ -272,13 +272,13 @@ myPreset.getPreset():
 Rename a `ProofPreset()` object. `newName` is a string and can be anything, even if the name already exists; the `ProofPreset()` object doesn't do any checking.
 
 ```python
-newPreset = ProofPreset("New Preset")
-newPreset.getPresetName()
->>> "New Preset"
+>>> newPreset = ProofPreset("New Preset")
+>>> newPreset.getPresetName()
+"New Preset"
 
-newPreset.renamePreset("Old Preset")
-newPreset.getPresetName()
->>> "Old Preset"
+>>> newPreset.renamePreset("Old Preset")
+>>> newPreset.getPresetName()
+"Old Preset"
 ```
 
 #### `editGroup(groupToEdit, **kwargs)`
@@ -305,26 +305,25 @@ Edit a specified group. `groupToEdit` can be the name of a group or its index wi
     }
 ]
 
-myPreset.editGroup(1, "name": "numerals", "print": True, "contents")
+>>> myPreset.editGroup(1, "name": "numerals", "print": True, "contents")
 
-name="numerals", print=True, contents=["0123456789"])
-myPreset.getGroups()
->>> [
-        {
-            "name": "UC",
-            "typeSize": 10,
-            "leading": 12,
-            "print": False,
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        },
-        {
-            "name": "numerals",
-            "typeSize": 10,
-            "leading": 12,
-            "print": True,
-            "contents": ["0123456789"]
-        }
-    ]
+>>> myPreset.getGroups()
+[
+    {
+        "name": "UC",
+        "typeSize": 10,
+        "leading": 12,
+        "print": False,
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "numerals",
+        "typeSize": 10,
+        "leading": 12,
+        "print": True,
+        "contents": ["0123456789"]
+    }
+]
 ```
 
 #### `addGroup(groupToAdd, overwrite=False)`
@@ -335,58 +334,58 @@ Add a proof group to the `ProofPreset()` object. The new group is added to the e
 If `overwrite=False` and a group of the same name already exists, `ProofPreset()` will add an "index" to the end of the new group's name.
 
 ```python
-newGroup = {
+>>> newGroup = {
     "name": "Numerals"
 }
-myPreset.addGroup(newGroup)
-myPreset.getGroups()
->>> [
-        {
-            "name": "UC",
-            "typeSize": 10,
-            "leading": 12,
-            "print": True,
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
-        },
-        {
-            "name": "Numerals",
-            "typeSize": "",
-            "leading": "",
-            "print": False,
-            "contents": []
-        }
-    ]
+>>> myPreset.addGroup(newGroup)
+>>> myPreset.getGroups()
+[
+    {
+        "name": "UC",
+        "typeSize": 10,
+        "leading": 12,
+        "print": True,
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
+    },
+    {
+        "name": "Numerals",
+        "typeSize": "",
+        "leading": "",
+        "print": False,
+        "contents": []
+    }
+]
 
-secondNewGroup = {
+>>> secondNewGroup = {
     "name": "Numerals",
     "typeSize": 12,
     "contents": ["0123456789"]
 }
-myPreset.addGroup(secondNewGroup)
-myPreset.getGroups()
->>> [
-        {
-            "name": "UC",
-            "typeSize": 10,
-            "leading": 12,
-            "print": True,
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
-        },
-        {
-            "name": "Numerals",
-            "typeSize": "",
-            "leading": "",
-            "print": False,
-            "contents": []
-        },
-        {
-            "name": "Numerals-1",
-            "typeSize": 12,
-            "leading": "",
-            "print": False,
-            "contents": ["0123456789"]
-        },
-    ]
+>>> myPreset.addGroup(secondNewGroup)
+>>> myPreset.getGroups()
+[
+    {
+        "name": "UC",
+        "typeSize": 10,
+        "leading": 12,
+        "print": True,
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
+    },
+    {
+        "name": "Numerals",
+        "typeSize": "",
+        "leading": "",
+        "print": False,
+        "contents": []
+    },
+    {
+        "name": "Numerals-1",
+        "typeSize": 12,
+        "leading": "",
+        "print": False,
+        "contents": ["0123456789"]
+    },
+]
 ```
 
 #### `moveGroup(currentIndex, newIndex)`
@@ -412,26 +411,26 @@ myPreset.getGroups(verbose=False)
             "contents": ["!@#$%^&*()"]
         }
     ]
-myPreset.moveGroup(2, 1)
-myPreset.getGroups(verbose=False)
->>> [
-        {
-            "name": "UC",
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        },
-        {
-            "name": "Numerals",
-            "contents": ["0123456789"]
-        },
-        {
-            "name": "lc",
-            "contents": ["abcdeghijklmnopqrstuvwxyz"]
-        },
-        {
-            "name": "Symbols",
-            "contents": ["!@#$%^&*()"]
-        }
-    ]
+>>> myPreset.moveGroup(2, 1)
+>>> myPreset.getGroups(verbose=False)
+[
+    {
+        "name": "UC",
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "Numerals",
+        "contents": ["0123456789"]
+    },
+    {
+        "name": "lc",
+        "contents": ["abcdeghijklmnopqrstuvwxyz"]
+    },
+    {
+        "name": "Symbols",
+        "contents": ["!@#$%^&*()"]
+    }
+]
 ```
 
 #### `removeGroup(groupToRemove)`
@@ -440,40 +439,40 @@ Remove a group from the `ProofPreset()` object. `groupToRemove` can be the index
 If `groupToRemove` doesn't exist, a `ProofPresetError` is raised.
 
 ```python
-myPreset.getGroups(verbose=False)
->>> [
-        {
-            "name": "UC",
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        },
-        {
-            "name": "Numerals",
-            "contents": ["0123456789"]
-        },
-        {
-            "name": "lc",
-            "contents": ["abcdeghijklmnopqrstuvwxyz"]
-        },
-        {
-            "name": "Symbols",
-            "contents": ["!@#$%^&*()"]
-        }
-    ]
+>>> myPreset.getGroups(verbose=False)
+[
+    {
+        "name": "UC",
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "Numerals",
+        "contents": ["0123456789"]
+    },
+    {
+        "name": "lc",
+        "contents": ["abcdeghijklmnopqrstuvwxyz"]
+    },
+    {
+        "name": "Symbols",
+        "contents": ["!@#$%^&*()"]
+    }
+]
 
-myPreset.removeGroup(2)
-myPreset.getGroups(verbose=False)
->>> [
-        {
-            "name": "UC",
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        },
-        {
-            "name": "Numerals",
-            "contents": ["0123456789"]
-        },
-        {
-            "name": "Symbols",
-            "contents": ["!@#$%^&*()"]
-        }
-    ]
+>>> myPreset.removeGroup(2)
+>>> myPreset.getGroups(verbose=False)
+[
+    {
+        "name": "UC",
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "Numerals",
+        "contents": ["0123456789"]
+    },
+    {
+        "name": "Symbols",
+        "contents": ["!@#$%^&*()"]
+    }
+]
 ```
