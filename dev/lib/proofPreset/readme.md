@@ -49,7 +49,7 @@ Users can import XML-tagged strings or lists, JSON-formatted presets, or Python-
 #### `importFromXML(xmlTaggedProof)`
 Import from XML-tagged proof document. `xmlTaggedProof` can be a string or a list (depending on whether the user uses `read()` or `readlines()`).
 
-XML-tagged proof documents aren't presets, but only a list of proof "groups". Each group must be wrapped in `<group>` / `</group>` tags and the first line of each group is its group name. Each subsequent line in a group is one item in that group's `contents` list.
+XML-tagged proof documents aren't presets, but only a list of proof "groups". Each group must be wrapped in `<group>` / `</group>` tags and the first line of each group is its group name. Each subsequent line in a group is an item in that group's `contents` list.
 
 For example:
 ```
@@ -70,8 +70,9 @@ UC between control chars
 
 Before fully importing, `ProofPreset()` performs some basic cleaning & validation: 
 - Remove empty lines or list items and leading or trailing whitespaces
-- Check if tags exist at all
-- Check if tags are in correct sequence (open, close, open, close, etc.). If any part of the validation process fails, an `XMLtagError` is raised.
+- Check if both `<group>` and `</group>` tags exist at all
+- Check if tags are in correct sequence (_exactly_ open, close, open, close, etc.). The sequence can't start with a closing tag, all open tags must be closed, and no nesting is allowed.
+If any part of the validation process fails, an `XMLtagError` is raised.
 
 Because `xmlTaggedProof` isn't a preset (ie. doesn't contain other data like `type size`), `ProofPreset()` will inject empty values into each group.
 
