@@ -63,11 +63,13 @@ class ProofDrawer:
             },
             {
                 "title": "Type size",
+                "key": "typeSize",
                 "width": 70,
                 "editable": True,
             },
             {
                 "title": "Leading",
+                "key": "leadig",
                 "width": 65,
                 "editable": True
             },
@@ -77,11 +79,6 @@ class ProofDrawer:
                 "cell": CheckBoxListCell()
             }
         ]
-
-        # Auto-add key so proof drawer can match w/ preset
-        for item in listForList:
-            if "key" not in item.keys():
-                item["key"] = item["title"].lower()
 
         # Add order number for our list
         for index, group in enumerate(proofGroups):

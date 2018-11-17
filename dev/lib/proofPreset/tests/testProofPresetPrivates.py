@@ -23,7 +23,7 @@ class ProofPresetTest(unittest.TestCase):
         actual = self.testPreset._addMissingKeysToGroup(newGroup)
         expected = {
             "name": "tester",
-            "type size": "",
+            "typeSize": "",
             "leading": "",
             "print": False,
             "contents": []

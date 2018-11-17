@@ -50,7 +50,7 @@ class ProofPreset:
         "groups": [
             {
                 "name": "UC, numerals",
-                "type size": 12,
+                "typeSize": 12,
                 "leading": 14,
                 "print": True,
                 "contents": [
@@ -60,7 +60,7 @@ class ProofPreset:
             },
             {
                 "name": "lc",
-                "type size": 12,
+                "typeSize": 12,
                 "leading": 14,
                 "print": False,
                 "contents": [
@@ -81,7 +81,7 @@ class ProofPreset:
         self.xmlGroups = None
 
         self.nameCopyIndex = 1
-        self.keysInGroup = ["name", "type size", "leading",\
+        self.keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
 
     def _addMissingKeysToGroup(self, groupToProcess):
@@ -134,7 +134,7 @@ class ProofPreset:
             # This is a little shorter than iterating & using if statements...
             if startGroup:
                 group["name"] = line.strip()
-                group["type size"] = ""
+                group["typeSize"] = ""
                 group["leading"] = ""
                 group["print"] = False
                 group["contents"] = []
@@ -205,7 +205,7 @@ class ProofPreset:
             "groups": [
                 {
                     "name": "UC, numerals",
-                    "type size": 12,
+                    "typeSize": 12,
                     "leading": 14,
                     "print": True,
                     "contents": [
@@ -228,7 +228,7 @@ class ProofPreset:
         but can include other preset items:
         {
             "name": "new group dict",
-            "type size": 12,
+            "typeSize": 12,
             "leading": 14,
             "print": False,
             "contents": "abcde"

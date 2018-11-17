@@ -12,7 +12,7 @@ class TestImportExport(unittest.TestCase):
         groupToAdd = {
             "name": "UC, lc",
             "order": 3, # This should be ignored because it's not something we care about
-            "type size": 12,
+            "typeSize": 12,
             "leading": 14,
             "print": True,
             "contents": [
@@ -25,7 +25,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "UC, lc",
-                    "type size": 12,
+                    "typeSize": 12,
                     "leading": 14,
                     "print": True,
                     "contents": [
@@ -49,7 +49,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new test",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": "",
                     "print": False,
                     "contents": ["abcde"]
@@ -64,10 +64,10 @@ class TestImportExport(unittest.TestCase):
         """
         Add one group and then overwrite with anoter
         """
-        firstGroup = {"name": "new group", "type size": 2}
+        firstGroup = {"name": "new group", "typeSize": 2}
         self.testPreset.addGroup(firstGroup)
 
-        secondGroup = {"name": "new group", "type size": 8, "leading": 10}
+        secondGroup = {"name": "new group", "typeSize": 8, "leading": 10}
         self.testPreset.addGroup(secondGroup, overwrite=True)
 
         actual = self.testPreset.getPreset()
@@ -76,7 +76,7 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group",
-                    "type size": 8,
+                    "typeSize": 8,
                     "leading": 10,
                     "print": False,
                     "contents": []
@@ -91,10 +91,10 @@ class TestImportExport(unittest.TestCase):
         Add more than one group of the same name
         (no overwrite)
         """
-        firstGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
+        firstGroup = {"name": "new group", "typeSize": 2, "contents": ["abcde"]}
         self.testPreset.addGroup(firstGroup)
 
-        secondGroup = {"name": "new group", "type size": 8, "leading": 10, "boing": True}
+        secondGroup = {"name": "new group", "typeSize": 8, "leading": 10, "boing": True}
         self.testPreset.addGroup(secondGroup)
 
         thirdGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
@@ -107,21 +107,21 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group",
-                    "type size": 2,
+                    "typeSize": 2,
                     "leading": "",
                     "print": False,
                     "contents": ["abcde"]
                 },
                 {
                     "name": "new group-1",
-                    "type size": 8,
+                    "typeSize": 8,
                     "leading": 10,
                     "print": False,
                     "contents": []
                 },
                 {
                     "name": "new group-2",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": "",
                     "print": True,
                     "contents": ["fghij"]
@@ -135,7 +135,7 @@ class TestImportExport(unittest.TestCase):
         """
         Fail addGroup if no name specified
         """
-        newGroup = {"type size": 6}
+        newGroup = {"typeSize": 6}
         with self.assertRaises(ProofPresetError):
             self.testPreset.addGroup(newGroup)
 
@@ -143,7 +143,7 @@ class TestImportExport(unittest.TestCase):
         """
         Base case removing a group
         """
-        newGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
+        newGroup = {"name": "new group", "typeSize": 2, "contents": ["abcde"]}
         self.testPreset.addGroup(newGroup)
         self.testPreset.removeGroup("new group")
 
@@ -160,8 +160,8 @@ class TestImportExport(unittest.TestCase):
         Add more than 1 group with the same name
         and remove one group
         """
-        newGroup = {"name": "new group", "type size": 2, "contents": ["abcde"]}
-        newGroup1 = {"name": "new group", "type size": 8}
+        newGroup = {"name": "new group", "typeSize": 2, "contents": ["abcde"]}
+        newGroup1 = {"name": "new group", "typeSize": 8}
         newGroup2 = {"name": "new group", "leading": 3}
         self.testPreset.addGroup(newGroup)
         self.testPreset.addGroup(newGroup1)
@@ -175,14 +175,14 @@ class TestImportExport(unittest.TestCase):
             "groups": [
                 {
                     "name": "new group-1",
-                    "type size": 8,
+                    "typeSize": 8,
                     "leading": "",
                     "print": False,
                     "contents": []
                 },
                 {
                     "name": "new group-2",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": 3,
                     "print": False,
                     "contents": []

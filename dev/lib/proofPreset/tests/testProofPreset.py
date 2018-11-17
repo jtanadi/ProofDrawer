@@ -38,7 +38,7 @@ class ProofPresetTest(unittest.TestCase):
             "groups": [
                 {
                     "name": "UC, lc, numerals",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": "",
                     "print": False,
                     "contents": [
@@ -49,7 +49,7 @@ class ProofPresetTest(unittest.TestCase):
                 },
                 {
                     "name": "UC control",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": "",
                     "print": False,
                     "contents": [
@@ -61,7 +61,7 @@ class ProofPresetTest(unittest.TestCase):
                 },
                 {
                     "name": "lc control",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": "",
                     "print": False,
                     "contents": [
@@ -113,7 +113,7 @@ class ProofPresetTest(unittest.TestCase):
         expected = [
             {
                 "name": "UC, lc, numerals",
-                "type size": "",
+                "typeSize": "",
                 "leading": "",
                 "print": False,
                 "contents": [
@@ -124,7 +124,7 @@ class ProofPresetTest(unittest.TestCase):
             },
             {
                 "name": "UC control",
-                "type size": "",
+                "typeSize": "",
                 "leading": "",
                 "print": False,
                 "contents": [
@@ -136,7 +136,7 @@ class ProofPresetTest(unittest.TestCase):
             },
             {
                 "name": "lc control",
-                "type size": "",
+                "typeSize": "",
                 "leading": "",
                 "print": False,
                 "contents": [
@@ -157,7 +157,7 @@ class ProofPresetTest(unittest.TestCase):
             "groups": [
                 {
                     "name": "UC",
-                    "type size": "",
+                    "typeSize": "",
                     "leading": "",
                     "print": False,
                     "contents": [

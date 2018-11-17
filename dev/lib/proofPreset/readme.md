@@ -9,7 +9,7 @@ A Preset object for `ProofDrawer()`.
     "groups" [
         {
             "name": "UC, lc",
-            "type size": 10,
+            "typeSize": 10,
             "leading": 12,
             "print": True,
             "contents": [
@@ -19,7 +19,7 @@ A Preset object for `ProofDrawer()`.
         },
         {
             "name": "Numerals, symbols",
-            "type size": 10,
+            "typeSize": 10,
             "leading": 12,
             "print": False,
             "contents": [
@@ -75,7 +75,7 @@ Before fully importing, `ProofPreset()` performs some basic cleaning & validatio
 
 If any part of the validation process fails, an `XMLtagError` is raised.
 
-Because `xmlTaggedProof` isn't a preset (ie. doesn't contain other data like `type size`), `ProofPreset()` will inject empty values into each group.
+Because `xmlTaggedProof` isn't a preset (ie. doesn't contain other data like `typeSize`), `ProofPreset()` will inject empty values into each group.
 
 ```python
 proofStr = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
@@ -88,7 +88,7 @@ myPreset.getPreset()
         "groups": [
             {
                 "name": "UC",
-                "type size": "",
+                "typeSize": "",
                 "leading": "",
                 "print": False,
                 "contents": [
@@ -114,7 +114,7 @@ Import an entire preset from a Python dict. If `overwrite=False`, a `ProofPreset
 Imported presets must have a name and at least one group—otherwise it's just an empty preset, which is the same as what we get when we initialize `ProofPreset()`. 
 
 Before fully importing, `ProofPreset()` performs some basic tasks:
-- Remove unnecessary keys in each group. The only group keys relevant to `ProofPreset()` are `name`, `type size`, `leading`, `print`, `contents`; everything else will be removed.
+- Remove unnecessary keys in each group. The only group keys relevant to `ProofPreset()` are `name`, `typeSize`, `leading`, `print`, `contents`; everything else will be removed.
 - Add missing keys. If any of the keys listed above are missing, they will be added to the group.
 
 ```python
@@ -123,7 +123,7 @@ newPreset = {
     "groups": [
         {
             "name": "UC",
-            "type size": 8,
+            "typeSize": 8,
             "amazing": False,
             "print": False,
             "contents": [
@@ -132,7 +132,7 @@ newPreset = {
         },
         {
             "name": "lc",
-            "type size": 8,
+            "typeSize": 8,
             "amazing": True,
             "print": True,
             "contents": [
@@ -149,7 +149,7 @@ myPreset.getPreset()
         "groups": [
             {
                 "name": "UC",
-                "type size": 8,
+                "typeSize": 8,
                 "leading": "",
                 "print": False,
                 "contents": [
@@ -158,7 +158,7 @@ myPreset.getPreset()
             },
             {
                 "name": "lc",
-                "type size": 8,
+                "typeSize": 8,
                 "leading": "",
                 "print": True,
                 "contents": [
@@ -199,14 +199,14 @@ myPreset.getGroups()
 >>> [
         {
             "name": "UC",
-            "type size": 12,
+            "typeSize": 12,
             "leading": 14,
             "print": True,
             "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
         },
         {
             "name": "lc",
-            "type size": 10,
+            "typeSize": 10,
             "leading": 10,
             "print": False,
             "contents": ["abcdefghijklmnopqrstuvwxyz"]
@@ -243,21 +243,21 @@ myPreset.getPreset():
         "groups": [
             {
                 "name": "UC",
-                "type size": 10,
+                "typeSize": 10,
                 "leading": 12,
                 "print": True,
                 "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
             },
             {
                 "name": "lc",
-                "type size": 10,
+                "typeSize": 10,
                 "leading": 12,
                 "print": False,
                 "contents": ["abcdefghijklmnopqrstuvwyxz"]
             },
             {
                 "name": "numerals",
-                "type size": 10,
+                "typeSize": 10,
                 "leading": 12,
                 "print": False,
                 "contents": ["0123456789"]
@@ -281,6 +281,52 @@ newPreset.getPresetName()
 >>> "Old Preset"
 ```
 
+#### `editGroup(groupToEdit, **kwargs)`
+Edit a specified group. `groupToEdit` can be the name of a group or its index within the `groups` list.
+
+`**kwargs` will accept any `key=value` pair. If the `key` passed in isn't part of the necessary set of keys (`name`, `typeSize`, `leading`, `print`, `contents`) it will be ignored.
+
+```python
+>>> myPreset.getGroups()
+[
+    {
+        "name": "UC",
+        "typeSize": 10,
+        "leading": 12,
+        "print": False,
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "lc",
+        "typeSize": 10,
+        "leading": 12,
+        "print": False,
+        "contents": ["abcdefghijklmnopqrstuvwxyz"]
+    }
+]
+
+myPreset.editGroup(1, "name": "numerals", "print": True, "contents")
+
+name="numerals", print=True, contents=["0123456789"])
+myPreset.getGroups()
+>>> [
+        {
+            "name": "UC",
+            "typeSize": 10,
+            "leading": 12,
+            "print": False,
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        },
+        {
+            "name": "numerals",
+            "typeSize": 10,
+            "leading": 12,
+            "print": True,
+            "contents": ["0123456789"]
+        }
+    ]
+```
+
 #### `addGroup(groupToAdd, overwrite=False)`
 Add a proof group to the `ProofPreset()` object. The new group is added to the end of the `groups` list. 
 
@@ -297,14 +343,14 @@ myPreset.getGroups()
 >>> [
         {
             "name": "UC",
-            "type size": 10,
+            "typeSize": 10,
             "leading": 12,
             "print": True,
             "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
         },
         {
             "name": "Numerals",
-            "type size": "",
+            "typeSize": "",
             "leading": "",
             "print": False,
             "contents": []
@@ -313,7 +359,7 @@ myPreset.getGroups()
 
 secondNewGroup = {
     "name": "Numerals",
-    "type size": 12,
+    "typeSize": 12,
     "contents": ["0123456789"]
 }
 myPreset.addGroup(secondNewGroup)
@@ -321,21 +367,21 @@ myPreset.getGroups()
 >>> [
         {
             "name": "UC",
-            "type size": 10,
+            "typeSize": 10,
             "leading": 12,
             "print": True,
             "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
         },
         {
             "name": "Numerals",
-            "type size": "",
+            "typeSize": "",
             "leading": "",
             "print": False,
             "contents": []
         },
         {
             "name": "Numerals-1",
-            "type size": 12,
+            "typeSize": 12,
             "leading": "",
             "print": False,
             "contents": ["0123456789"]
@@ -431,5 +477,3 @@ myPreset.getGroups(verbose=False)
         }
     ]
 ```
-
-#### `editGroup(groupToEdit, name=None, typeSize=None, leading=None, contents=None)`
