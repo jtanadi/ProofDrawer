@@ -171,6 +171,7 @@ myPreset.getPreset()
 
 This method can be combined with `getPreset()` to make a copy of a `ProofPreset()` object. `importPreset()` uses `deepcopy()`, so the same preset isn't referenced by both objects.
 
+_Maybe implement a `copy()` method that returns a new object?_
 ```python
 preset1Data = preset1.getPreset()
 
@@ -178,13 +179,6 @@ preset1Copy = ProofPreset() # Don't have to specify name because it'll get repla
 preset1Copy.importPreset(preset1Data) # At this point the two objects have the same name
 preset1Copy.renamePreset("Copy of preset 1") # So we should rename it
 ```
-
-### Renaming Preset; Adding, Moving, and Removing Groups
-
-#### `renamePreset(newName)`
-#### `addGroup(groupToAdd, overwrite=False)`
-#### `moveGroup(oldIndex, newIndex)`
-#### `removeGroup(groupToRemove)`
 
 ### Getting Stuff
 Users have access to all data through `ProofDrawer()`, either through the main window or its auxiliary windows (Proof Inspector, Preset Inspector).
@@ -272,3 +266,170 @@ myPreset.getPreset():
     }
 ```
 
+### Editing Stuff
+
+#### `renamePreset(newName)`
+Rename a `ProofPreset()` object. `newName` is a string and can be anything, even if the name already exists; the `ProofPreset()` object doesn't do any checking.
+
+```python
+newPreset = ProofPreset("New Preset")
+newPreset.getPresetName()
+>>> "New Preset"
+
+newPreset.renamePreset("Old Preset")
+newPreset.getPresetName()
+>>> "Old Preset"
+```
+
+#### `addGroup(groupToAdd, overwrite=False)`
+Add a proof group to the `ProofPreset()` object. The new group is added to the end of the `groups` list. 
+
+`groupToAdd` is a Python dict with at least a `name` key. Much like when importing an entire Preset, `ProofPreset()` checks whether any necessary keys are missing (and adds them) and whether the new group has unneeded keys (and doesn't include them).
+
+If `overwrite=False` and a group of the same name already exists, `ProofPreset()` will add an "index" to the end of the new group's name.
+
+```python
+newGroup = {
+    "name": "Numerals"
+}
+myPreset.addGroup(newGroup)
+myPreset.getGroups()
+>>> [
+        {
+            "name": "UC",
+            "type size": 10,
+            "leading": 12,
+            "print": True,
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
+        },
+        {
+            "name": "Numerals",
+            "type size": "",
+            "leading": "",
+            "print": False,
+            "contents": []
+        }
+    ]
+
+secondNewGroup = {
+    "name": "Numerals",
+    "type size": 12,
+    "contents": ["0123456789"]
+}
+myPreset.addGroup(secondNewGroup)
+myPreset.getGroups()
+>>> [
+        {
+            "name": "UC",
+            "type size": 10,
+            "leading": 12,
+            "print": True,
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ]
+        },
+        {
+            "name": "Numerals",
+            "type size": "",
+            "leading": "",
+            "print": False,
+            "contents": []
+        },
+        {
+            "name": "Numerals-1",
+            "type size": 12,
+            "leading": "",
+            "print": False,
+            "contents": ["0123456789"]
+        },
+    ]
+```
+
+#### `moveGroup(currentIndex, newIndex)`
+Move group of `currentIndex` to `newIndex`.
+
+```python
+myPreset.getGroups(verbose=False)
+>>> [
+        {
+            "name": "UC",
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        },
+        {
+            "name": "lc",
+            "contents": ["abcdeghijklmnopqrstuvwxyz"]
+        },
+        {
+            "name": "Numerals",
+            "contents": ["0123456789"]
+        },
+        {
+            "name": "Symbols",
+            "contents": ["!@#$%^&*()"]
+        }
+    ]
+myPreset.moveGroup(2, 1)
+myPreset.getGroups(verbose=False)
+>>> [
+        {
+            "name": "UC",
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        },
+        {
+            "name": "Numerals",
+            "contents": ["0123456789"]
+        },
+        {
+            "name": "lc",
+            "contents": ["abcdeghijklmnopqrstuvwxyz"]
+        },
+        {
+            "name": "Symbols",
+            "contents": ["!@#$%^&*()"]
+        }
+    ]
+```
+
+#### `removeGroup(groupToRemove)`
+Remove a group from the `ProofPreset()` object. `groupToRemove` can be the index of the group within the `groups` list or the name of the group.
+
+If `groupToRemove` doesn't exist, a `ProofPresetError` is raised.
+
+```python
+myPreset.getGroups(verbose=False)
+>>> [
+        {
+            "name": "UC",
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        },
+        {
+            "name": "Numerals",
+            "contents": ["0123456789"]
+        },
+        {
+            "name": "lc",
+            "contents": ["abcdeghijklmnopqrstuvwxyz"]
+        },
+        {
+            "name": "Symbols",
+            "contents": ["!@#$%^&*()"]
+        }
+    ]
+
+myPreset.removeGroup(2)
+myPreset.getGroups(verbose=False)
+>>> [
+        {
+            "name": "UC",
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        },
+        {
+            "name": "Numerals",
+            "contents": ["0123456789"]
+        },
+        {
+            "name": "Symbols",
+            "contents": ["!@#$%^&*()"]
+        }
+    ]
+```
+
+#### `editGroup(groupToEdit, name=None, typeSize=None, leading=None, contents=None)`
