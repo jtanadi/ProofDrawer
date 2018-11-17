@@ -72,6 +72,7 @@ Before fully importing, `ProofPreset()` performs some basic cleaning & validatio
 - Remove empty lines or list items and leading or trailing whitespaces
 - Check if both `<group>` and `</group>` tags exist at all
 - Check if tags are in correct sequence (_exactly_ open, close, open, close, etc.). The sequence can't start with a closing tag, all open tags must be closed, and no nesting is allowed.
+
 If any part of the validation process fails, an `XMLtagError` is raised.
 
 Because `xmlTaggedProof` isn't a preset (ie. doesn't contain other data like `type size`), `ProofPreset()` will inject empty values into each group.
