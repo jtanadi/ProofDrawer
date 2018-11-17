@@ -237,7 +237,7 @@ Return name of `ProofPreset()` object
 #### `getPreset(jsonFormat=False)`
 Return the entire `ProofPreset()` as a Python dict. If `jsonFormat=True`, return the JSON object instead (basically a long string) with 2 spaces for indentation.
 ```python
->>> myPreset.getPreset():
+>>> myPreset.getPreset()
 {
     "name": "My Preset",
     "groups": [
@@ -284,7 +284,7 @@ Rename a `ProofPreset()` object. `newName` is a string and can be anything, even
 #### `editGroup(groupToEdit, **kwargs)`
 Edit a specified group. `groupToEdit` can be the name of a group or its index within the `groups` list.
 
-`**kwargs` will accept any `key=value` pair. If the `key` passed in isn't part of the necessary set of keys (`name`, `typeSize`, `leading`, `print`, `contents`) it will be ignored.
+`**kwargs` will accept any `key=value` pair. If the `key` passed in isn't part of the necessary set of keys (`name`, `typeSize`, `leading`, `print`, `contents`), it will be ignored.
 
 ```python
 >>> myPreset.getGroups()
@@ -306,7 +306,6 @@ Edit a specified group. `groupToEdit` can be the name of a group or its index wi
 ]
 
 >>> myPreset.editGroup(1, "name": "numerals", "print": True, "contents")
-
 >>> myPreset.getGroups()
 [
     {
