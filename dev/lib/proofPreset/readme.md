@@ -84,8 +84,8 @@ proofList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
 myPreset.importFromXML(proofList) # Either object is fine
 myPreset.getPreset()
 >>> {
-        "name": "Best Preset"
-        "groups" [
+        "name": "Best Preset",
+        "groups": [
             {
                 "name": "UC",
                 "type size": "",
@@ -108,24 +108,49 @@ This method simply converts a JSON object into a Python dictionary and passes it
 myPreset.importFromJSON(someJSONobject)
 ```
 
-### `importPreset(presetToImport, overwrite=False)`
+#### `importPreset(presetToImport, overwrite=False)`
 Import an entire preset from a Python dict. If `overwrite=False`, a `ProofPresetError` will be raised if the `ProofPreset()` object isn't empty.
 
 Imported presets must have a name and at least one group—otherwise it's just an empty preset, which is the same as what we get when we initialize `ProofPreset()`. 
 
 Before fully importing, `ProofPreset()` performs some basic tasks:
-- Remove unnecessary keys in each group. The only group keys relevant to `ProofPreset()` are `name`, `type size`, `leading`, `print`, `contents`; everything else will be removed. If one of those keys is missing, it will be added to the group.
+- Remove unnecessary keys in each group. The only group keys relevant to `ProofPreset()` are `name`, `type size`, `leading`, `print`, `contents`; everything else will be removed.
+- Add missing keys. If any of the keys listed above are missing, they will be added to the group.
 
 ```python
+newPreset = {
+    "name": "New Preset",
+    "groups": [
+        {
+            "name": "UC",
+            "type size": 8,
+            "amazing": False,
+            "print": False,
+            "contents": [
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            ]
+        },
+        {
+            "name": "lc",
+            "type size": 8,
+            "amazing": True,
+            "print": True,
+            "contents": [
+                "0123456789"
+            ]
+        }
+    ]
+}
+
 myPreset.importPreset(newPreset)
 myPreset.getPreset()
 >>> {
-        "name": "Newnew_FINAL"
-        "groups" [
+        "name": "New Preset",
+        "groups": [
             {
                 "name": "UC",
                 "type size": 8,
-                "leading": 10,
+                "leading": "",
                 "print": False,
                 "contents": [
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -134,7 +159,7 @@ myPreset.getPreset()
             {
                 "name": "lc",
                 "type size": 8,
-                "leading": 10,
+                "leading": "",
                 "print": True,
                 "contents": [
                     "0123456789"
@@ -154,7 +179,12 @@ preset1Copy.importPreset(preset1Data) # At this point the two objects have the s
 preset1Copy.renamePreset("Copy of preset 1") # So we should rename it
 ```
 
-### Adding, Moving, and Removing Groups
+### Renaming Preset; Adding, Moving, and Removing Groups
+
+#### `renamePreset(newName)`
+#### `addGroup(groupToAdd, overwrite=False)`
+#### `moveGroup(oldIndex, newIndex)`
+#### `removeGroup(groupToRemove)`
 
 ### Getting Stuff
 Users have access to all data through `ProofDrawer()`, either through the main window or its auxiliary windows (Proof Inspector, Preset Inspector).
