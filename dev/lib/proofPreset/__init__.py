@@ -285,7 +285,8 @@ class ProofPreset:
                     del self.preset["groups"][index]
 
         elif isinstance(groupToRemove, int):
-            if groupToRemove > len(self.preset["groups"] - 1):
+            if groupToRemove < 0 or \
+            groupToRemove > len(self.preset["groups"] - 1):
                 raise ProofPresetError("Group doesn't exist")
             del self.preset["groups"][groupToRemove]
 
