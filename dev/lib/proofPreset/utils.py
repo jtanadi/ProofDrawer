@@ -9,12 +9,26 @@ Should these be staticmethods?
 
 from proofPreset.errors import XMLtagError
 
-def cleanList(listToClean):
+def cleanList(listToClean, discardBefore=None, discardAfter=None):
     """
     Get rid of leading and trailing whitespaces all at once
     Only include non-empty items in returned list
     """
-    return [item.strip() for item in listToClean if item.strip()]
+    cleanList = [item.strip() for item in listToClean if item.strip()]
+
+    if discardBefore:
+        startIndex = cleanList.index(discardBefore)
+        cleanList = cleanList[startIndex:]
+
+    if discardAfter:
+        cleanList.reverse()
+        endIndex = len(cleanList) - cleanList.index(discardAfter)
+        cleanList.reverse()
+        cleanList = cleanList[:endIndex]
+
+    return cleanList
+
+
 
 def checkForTags(listOfItems, tagName):
     """
