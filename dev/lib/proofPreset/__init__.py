@@ -15,6 +15,15 @@ class ProofPreset:
 
     Only top-most structure exists when initialized:
     {"name": presetName, "groups": []}
+
+    Import proof groups or saved presets:
+    - importFromXML(xmlTaggedInput)
+    - importFromJSON(jsonInput, overwrite=False)
+    - importPyDict(pyDictInput)
+
+    Some other group methods:
+    - addGroup(self, groupToAdd, overwrite=False)
+    - 
     """
     def __init__(self, presetName="myPreset"):
         """
@@ -231,7 +240,7 @@ class ProofPreset:
             return json.dumps(self.preset, indent=2)
         return self.preset
 
-    def addGroup(self, groupToAdd, overwrite=False, _checkForCopy=True):
+    def addGroup(self, groupToAdd, overwrite=False):
         """
         Add one group. (Keep loop outside.)
 
@@ -268,8 +277,7 @@ class ProofPreset:
 
         # Not overwriting: just add to groups
         if not overwrite:
-            if _checkForCopy:
-                newGroup["name"] = self._checkForNameCopy(newGroup["name"])
+            newGroup["name"] = self._checkForNameCopy(newGroup["name"])
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
@@ -357,18 +365,18 @@ class ProofPreset:
 
             groupToEdit[key] = value
 
-    def importFromXML(self, xmlTaggedProof):
+    def importFromXML(self, xmlTaggedInput):
         """
         Import XML-tagged proof and convert to ProofPreset() object.
-        xmlTaggedProof can be a filePath, a string, or a list.
+        xmlTaggedInput can be a filePath, a string, or a list.
 
         File extensions can be .xml or .txt.
         Recognized XML tags are <group> </group>
 
-        If xmlTaggedProof is a string:
+        If xmlTaggedInput is a string:
         "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
 
-        if xmlTaggedProof is a list:
+        if xmlTaggedInput is a list:
         ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
 
         This method performs some basic cleaning & validation,
@@ -376,15 +384,15 @@ class ProofPreset:
         and everything after last </group> tag.
         """
         xmlObj = None
-        if os.path.isfile(xmlTaggedProof):
-            ext = os.path.splitext(xmlTaggedProof)[1].lower()
+        if os.path.isfile(xmlTaggedInput):
+            ext = os.path.splitext(xmlTaggedInput)[1].lower()
             if ext in (".xml", ".txt"):
-                with open(xmlTaggedProof, "r") as xmlFile:
+                with open(xmlTaggedInput, "r") as xmlFile:
                     xmlObj = xmlFile.readlines()
-        elif isinstance(xmlTaggedProof, str):
-            xmlObj = xmlTaggedProof.split("\n")
-        elif isinstance(xmlTaggedProof, list):
-            xmlObj = copy.deepcopy(xmlTaggedProof)
+        elif isinstance(xmlTaggedInput, str):
+            xmlObj = xmlTaggedInput.split("\n")
+        elif isinstance(xmlTaggedInput, list):
+            xmlObj = copy.deepcopy(xmlTaggedInput)
 
         if not xmlObj:
             raise ProofPresetError("Invalid JSON input")
@@ -425,13 +433,13 @@ class ProofPreset:
         presetFromJSON = json.loads(jsonObj)
         self.importPyDict(presetFromJSON, overwrite)
 
-    def importPyDict(self, presetToImport, overwrite=False):
+    def importPyDict(self, pyDictInput, overwrite=False):
         """
         Import a WHOLE ProofPreset (py dict).
         To import from JSON, use ProofPreset.importFromJSON()
 
-        presetToImport is a dictionary. Whenever a group
-        in presetToImport is missing a setting, add it
+        pyDictInput is a dictionary. Whenever a group
+        in pyDictInput is missing a setting, it's added
         with empty values.
 
         If overwrite is False, raise an error when there's
@@ -441,22 +449,22 @@ class ProofPreset:
             raise ProofPresetError("There's already a preset in here.")
 
         # Validate imported preset
-        if not presetToImport["name"]:
+        if not pyDictInput["name"]:
             raise ProofPresetError("Imported preset has no name")
-        elif not presetToImport["groups"]:
+        elif not pyDictInput["groups"]:
             raise ProofPresetError("Imported preset has no groups")
 
         # Copy so we're not changing imported object later
-        newPreset = copy.deepcopy(presetToImport)
+        dictPreset = copy.deepcopy(pyDictInput)
 
         # Remove unneeded keys & add missing keys
         # Maybe should clean contents?
-        for group in newPreset["groups"]:
+        for group in dictPreset["groups"]:
             group = self._removeUnneededKeysInGroup(group)
             group = self._addMissingKeysToGroup(group)
 
         # Import preset & fix groupNames
-        self.preset = newPreset
+        self.preset = dictPreset
         self._inspectAndFixGroupNames(restartCount=True)
 
 
