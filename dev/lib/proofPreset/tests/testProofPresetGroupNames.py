@@ -1,4 +1,5 @@
 from proofPreset import ProofPreset, ProofPresetError
+from collections import Counter
 import unittest
 import os.path
 
@@ -25,8 +26,6 @@ class TestGroupNames(unittest.TestCase):
         At import, duplicate names should have
         a count appended
         """
-        from collections import Counter
-
         self.proofPreset.importFromXML(self.xmlProof)
         actual = Counter(self.proofPreset.getGroupNames())
         expected = Counter([
@@ -38,6 +37,48 @@ class TestGroupNames(unittest.TestCase):
         ])
 
         self.assertEqual(actual, expected)
+
+    def test_addGroupsWithSameNames(self):
+        """
+        Add group one by one, some with
+        duplicate names.
+
+        3x "UC"
+        2x "lc"
+        1x "numerals"
+        1x "UC & lc"
+        3x "controls"
+
+        Duplicate names should have a count appended
+        """
+        ucGroup = {"name": "UC"}
+        lcGroup = {"name": "lc"}
+        numsGroup = {"name": "numerals"}
+        ucLcGroup = {"name": "UC & lc"}
+        controlsGroup = {"name": "controls"}
+
+        self.proofPreset.addGroup(ucGroup)
+        self.proofPreset.addGroup(lcGroup)
+        self.proofPreset.addGroup(numsGroup)
+        self.proofPreset.addGroup(ucLcGroup)
+        self.proofPreset.addGroup(controlsGroup)
+        self.proofPreset.addGroup(ucGroup)
+        self.proofPreset.addGroup(lcGroup)
+        self.proofPreset.addGroup(controlsGroup)
+        self.proofPreset.addGroup(ucGroup)
+        self.proofPreset.addGroup(controlsGroup)
+
+        actual = Counter(self.proofPreset.getGroupNames())
+        expected = Counter([
+            "controls", "controls-1", "controls-2",
+            "lc", "lc-1",
+            "numerals",
+            "UC", "UC-1", "UC-2",
+            "UC & lc"
+        ])
+
+        self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
