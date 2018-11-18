@@ -415,9 +415,9 @@ class ProofPreset:
     def importFromXML(self, xmlTaggedProof):
         """
         Import XML-tagged proof and convert to ProofPreset() object.
-        xmlTaggedProof can be a directory, a string, or a list.
-        
-        Dir extensions can be .xml or .txt. 
+        xmlTaggedProof can be a filePath, a string, or a list.
+
+        File extensions can be .xml or .txt.
         Recognized XML tags are <group> </group>
 
         If xmlTaggedProof is a string:
@@ -430,7 +430,8 @@ class ProofPreset:
         including ingnoring everything before first <group> tag
         and everything after last </group> tag.
         """
-        if os.path.isdir(xmlTaggedProof):
+        xmlObj = None
+        if os.path.isfile(xmlTaggedProof):
             ext = os.path.splitext(xmlTaggedProof)[1].lower()
             if ext in (".xml", ".txt"):
                 with open(xmlTaggedProof, "r") as xmlFile:
@@ -440,7 +441,12 @@ class ProofPreset:
         elif isinstance(xmlTaggedProof, list):
             xmlObj = copy.deepcopy(xmlTaggedProof)
 
-        self.xmlGroups = utils.cleanList(xmlObj)
+        if not xmlObj:
+            raise ProofPresetError("Invalid JSON input")
+
+        self.xmlGroups = utils.cleanList(xmlObj,
+                                         discardBefore="<group>",
+                                         discardAfter="</group>")
 
         if not self.xmlGroups:
             raise ProofPresetError("Imported XML object is empty")
@@ -455,12 +461,12 @@ class ProofPreset:
     def importFromJSON(self, jsonInput, overwrite=False):
         """
         Import JSON object and convert to a ProofPreset() object.
-        jsonInput can be a directory or a JSON object.
+        jsonInput can be a filePath or a JSON object.
 
         The overwrite behaviour is the same as ProofPreset.importPyDict()
         """
         jsonObj = None
-        if os.path.isdir(jsonInput):
+        if os.path.isfile(jsonInput):
             ext = os.path.splitext(jsonInput)[1].lower()
             if ext == ".json":
                 with open(jsonInput, "r") as jsonFile:
@@ -510,8 +516,6 @@ class ProofPreset:
 
 
 if __name__ == "__main__":
-    import os.path
-
     fileDir = os.path.dirname(__file__)
     testFileDir = os.path.join(fileDir, "tests", "resources", "proofDocTest.txt")
 
