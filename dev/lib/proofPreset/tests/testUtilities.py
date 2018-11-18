@@ -39,6 +39,37 @@ class TestUtilities(unittest.TestCase):
         expected = ["item", "next"]
         self.assertEqual(actual, expected)
 
+    def test_cleanListDiscardBefore(self):
+        """
+        utils.cleanList(discardBefore="<group>")
+        """
+        dirtyList = ["stuf", "here", "<group>", "item\n", "\n", "\nnext", "\n\n"]
+        
+        actual = utils.cleanList(dirtyList, discardBefore="<group>")
+        expected = ["<group>", "item", "next"]
+        self.assertEqual(actual, expected)
+    
+    def test_cleanListDiscardAfter(self):
+        """
+        utils.cleanList(discardAfter="</group>")
+        """
+        dirtyList = ["item\n", "\n", "\nnext", "\n\n", "</group>", "more", "stuff"]
+        
+        actual = utils.cleanList(dirtyList, discardAfter="</group>")
+        expected = ["item", "next", "</group>"]
+        self.assertEqual(actual, expected)
+
+    def test_cleanListDiscardBeforeAfter(self):
+        """
+        utils.cleanList(discardAfter="</group>")
+        """
+        dirtyList = ["stuf", "here", "<group>", "item\n", "\n",
+                     "\nnext", "\n\n", "</group>", "more", "stuff"]
+        
+        actual = utils.cleanList(dirtyList, discardBefore="<group>", discardAfter="</group>")
+        expected = ["<group>", "item", "next", "</group>"]
+        self.assertEqual(actual, expected)
+
     def test_checkForTagsNoClose(self):
         """
         Fail utils.checkForTags(): no closing tags

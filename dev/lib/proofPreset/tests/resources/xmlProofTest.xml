@@ -1,0 +1,29 @@
+This is a test xml file
+Everything until the first <group> should be ignored
+
+So this is space for explanation, notes etc.
+
+<group>
+UC, lc, numerals
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789
+</group>
+<group>
+UC control
+|H| |O| HOHOHOHO
+|A| HAHAHAOAOAOA
+|B| HBHBHBOBOBOB
+|C| HCHCHCOCOCOC
+</group>
+
+<group>
+lc control
+|n| |o| nononono
+|a| nananaoaoaoa
+|b| nbnbnbobobob
+|c| ncncncocococ
+</group>
+
+Everything after the last </group> will also be ignored
+so maybe a thank you letter goes here.
