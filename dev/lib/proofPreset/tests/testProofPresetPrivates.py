@@ -55,9 +55,9 @@ class ProofPresetTest(unittest.TestCase):
         for group in groupsToAdd:
             self.testPreset.addGroup(group, _checkForCopy=False)
 
-        self.testPreset._countGroupNames()
+        self.testPreset._inspectAndFixGroupNames()
 
-        actual = self.testPreset.groupNameCount
+        actual = self.testPreset._groupNameCount
         expected = {"group1": 4, "group2": 2, "group3": 3, "group4": 1, "group5": 1}
 
         self.assertEqual(actual, expected)

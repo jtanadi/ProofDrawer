@@ -15,61 +15,6 @@ class ProofPreset:
 
     Only top-most structure exists when initialized:
     {"name": presetName, "groups": []}
-
-    Use ProofPreset.importProof(proofGroups)
-    to turn an XML-tagged proofGroups object (string or list)
-    into a preset.
-
-    proofGroups is a collection of proof groups,
-    and they should be structured like:
-    <group>
-    UC, numerals
-    ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    0123456789
-    </group>
-    <group>
-    lc
-    abcdefghijklmnopqrstuvwxyz
-    </group>
-
-    ProofPreset.getGroups() will return the groups,
-    formatted as a list of dicts:
-    [
-        {
-            "name": "UC, numerals",
-            "contents": [
-                "ABCEFGHIJKLMNOPQRSTUVWXYZ,
-                "0123456789"
-            ]
-        }
-    ]
-
-    ProofPreset.getPreset() will return a preset object
-    that can be saved as a JSON file:
-    {
-        "name": presetName,
-        "groups": [
-            {
-                "name": "UC, numerals",
-                "typeSize": 12,
-                "leading": 14,
-                "print": True,
-                "contents": [
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                    "0123456789"
-                ]
-            },
-            {
-                "name": "lc",
-                "typeSize": 12,
-                "leading": 14,
-                "print": False,
-                "contents": [
-                    "abcefghijklmnopqrstuvwxyz"
-                ]
-            }
-        ]
-    }
     """
     def __init__(self, presetName="myPreset"):
         """
@@ -79,10 +24,10 @@ class ProofPreset:
         self.preset["name"] = presetName
         self.preset["groups"] = []
 
-        self.xmlGroups = None
+        self._xmlGroups = None
 
-        self.groupNameCount = {}
-        self.keysInGroup = ["name", "typeSize", "leading",\
+        self._groupNameCount = {}
+        self._keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
 
     def _addMissingKeysToGroup(self, groupToProcess):
@@ -91,7 +36,7 @@ class ProofPreset:
         """
         dictWithAddedKeys = {}
 
-        for key in self.keysInGroup:
+        for key in self._keysInGroup:
             if key in groupToProcess:
                 dictWithAddedKeys[key] = groupToProcess[key]
             else:
@@ -106,10 +51,10 @@ class ProofPreset:
 
     def _removeUnneededKeysInGroup(self, groupToProcess):
         """
-        Return new dict with only keys in self.keysInGroup
+        Return new dict with only keys in self._keysInGroup
         """
         return {key:value for key, value in groupToProcess.items()\
-                if key in self.keysInGroup}
+                if key in self._keysInGroup}
 
     def _makePresetGroupsFromXML(self):
         """
@@ -119,7 +64,7 @@ class ProofPreset:
         presetList = []
         startGroup = False
 
-        for line in self.xmlGroups:
+        for line in self._xmlGroups:
             # Open tag: initialize and move on
             if "<group>" in line:
                 group = {}
@@ -157,11 +102,11 @@ class ProofPreset:
         (ie. "original" name is always "-0"):
         groupName, groupName-1, groupName-2, etc.
 
-        When restartCount=True, self.groupNameCount -> empty dict
+        When restartCount=True, self._groupNameCount -> empty dict
         Do this when importing an entire preset
         """
         if restartCount:
-            self.groupNameCount = {}
+            self._groupNameCount = {}
 
         groupNames = self.getGroupNames()
 
@@ -169,13 +114,13 @@ class ProofPreset:
         # use list.count() instead of incrementing
         # so we can skip same names as we iterate
         for name in groupNames:
-            if name not in self.groupNameCount.keys():
+            if name not in self._groupNameCount.keys():
                 nameCount = groupNames.count(name)
-                self.groupNameCount[name] = nameCount
+                self._groupNameCount[name] = nameCount
 
         # For all names that appear more than once,
         # append a "count"
-        for countedName, value in self.groupNameCount.items():
+        for countedName, value in self._groupNameCount.items():
             if value <= 1:
                 continue
 
@@ -202,13 +147,13 @@ class ProofPreset:
         # If newName hasn't been tracked,
         # initialize key/value in dict
         if newName not in groupNames:
-            self.groupNameCount[newName] = 1
+            self._groupNameCount[newName] = 1
 
         # Else, append count to nameToReturn and
         # add increment newName count
         else:
-            nameToReturn += "-%s" % self.groupNameCount[newName]
-            self.groupNameCount[newName] += 1
+            nameToReturn += "-%s" % self._groupNameCount[newName]
+            self._groupNameCount[newName] += 1
 
         return nameToReturn
 
@@ -401,7 +346,7 @@ class ProofPreset:
             groupToEdit = self.preset["groups"][groupToEdit]
 
         for key, value in kwargs.items():
-            if key not in self.keysInGroup:
+            if key not in self._keysInGroup:
                 continue
             elif key == "name" and value in self.getGroupNames():
                 raise ValueError("Name already exists")
@@ -444,15 +389,15 @@ class ProofPreset:
         if not xmlObj:
             raise ProofPresetError("Invalid JSON input")
 
-        self.xmlGroups = utils.cleanList(xmlObj,
+        self._xmlGroups = utils.cleanList(xmlObj,
                                          discardBefore="<group>",
                                          discardAfter="</group>")
 
-        if not self.xmlGroups:
+        if not self._xmlGroups:
             raise ProofPresetError("Imported XML object is empty")
 
-        utils.checkForTags(self.xmlGroups, "group")
-        utils.checkXMLtagsSequence(self.xmlGroups, "group")
+        utils.checkForTags(self._xmlGroups, "group")
+        utils.checkXMLtagsSequence(self._xmlGroups, "group")
 
         # Main import & fix groupNames
         self.preset["groups"] = self._makePresetGroupsFromXML()
