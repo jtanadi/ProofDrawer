@@ -342,16 +342,15 @@ class ProofPreset:
         """
         if isinstance(groupToRemove, str):
             if groupToRemove not in self.getGroupNames():
-                raise ProofPresetError("Group doesn't exist")
+                raise KeyError("Group doesn't exist")
 
             for group in self.preset["groups"]:
                 if group["name"] == groupToRemove:
                     self.preset["groups"].remove(group)
 
         elif isinstance(groupToRemove, int):
-            if groupToRemove < 0 or \
-            groupToRemove > len(self.preset["groups"]) - 1:
-                raise ProofPresetError("Group doesn't exist")
+            if groupToRemove > len(self.preset["groups"]) - 1:
+                raise IndexError("Index out of range")
             del self.preset["groups"][groupToRemove]
 
     def moveGroup(self, currentIndex, newIndex):
@@ -360,12 +359,12 @@ class ProofPreset:
         """
         if not isinstance(currentIndex, int) or\
         not isinstance(newIndex, int):
-            raise ProofPresetError("Only pass in index")
+            raise TypeError("Only pass in index")
 
         if currentIndex > len(self.preset["groups"]) or\
         newIndex > len(self.preset["groups"]):
             # list.insert() doesn't raise IndexError
-            raise ProofPresetError("Index out of range")
+            raise IndexError("Index out of range")
 
         # Remove & capture currentIndex group &
         # insert into list at newIndex
@@ -386,7 +385,7 @@ class ProofPreset:
         if isinstance(groupToEdit, str):
             # Why not leave to KeyError?
             if groupToEdit not in self.getGroupNames():
-                raise ProofPresetError("Group doesn't exist")
+                raise ValueError("Group name doesn't exist")
 
             for group in self.preset["groups"]:
                 if groupToEdit == group["name"]:
@@ -394,20 +393,21 @@ class ProofPreset:
 
         elif isinstance(groupToEdit, int):
             # Why not leave to IndexError?
-            if groupToEdit < 0 or \
-            groupToEdit > len(self.preset["groups"]) - 1:
-                raise ProofPresetError("Group doesn't exist")
+            if groupToEdit > len(self.preset["groups"]) - 1:
+                raise IndexError("Index out of range")
 
             groupToEdit = self.preset["groups"][groupToEdit]
 
         for key, value in kwargs.items():
             if key not in self.keysInGroup:
                 continue
-            # Do some checks here...
-            # if name already exists, add index
+            elif kwargs["name"] in self.getGroupNames():
+                raise ValueError("Name already exists")
+            elif not isinstance(kwargs["print"], bool):
+                raise TypeError("Group print setting has to be a boolean")
+            elif not isinstance(kwargs["contents"], list):
+                raise TypeError("Group contents has to be a list")
 
-            # print has to be bool
-            # contents has to be list
             groupToEdit[key] = value
 
     def importFromXML(self, xmlTaggedProof):
@@ -429,7 +429,7 @@ class ProofPreset:
         self.xmlGroups = utils.cleanList(newObj)
 
         if not self.xmlGroups:
-            raise ProofPresetError("List is empty!")
+            raise ProofPresetError("Imported XML object is empty")
 
         utils.checkForTags(self.xmlGroups, "group")
         utils.checkXMLtagsSequence(self.xmlGroups, "group")

@@ -139,6 +139,36 @@ class TestImportExport(unittest.TestCase):
         with self.assertRaises(ProofPresetError):
             self.testPreset.addGroup(newGroup)
 
+    def test_addGroupsSameNames(self):
+        """
+        Add a few groups, some with the same name
+        """
+        # 4 group1s, 2 group2s, 3 group3s, 1 group4, 1 group5
+        groupsToAdd = [
+            {"name": "group1"},
+            {"name": "group1"},
+            {"name": "group1"},
+            {"name": "group2"},
+            {"name": "group3"},
+            {"name": "group3"},
+            {"name": "group4"},
+            {"name": "group5"},
+            {"name": "group3"},
+            {"name": "group2"},
+            {"name": "group1"}
+        ]
+
+        for group in groupsToAdd:
+            self.testPreset.addGroup(group)
+
+        actual = sorted(self.testPreset.getGroupNames())
+        expected = ["group1", "group1-1", "group1-2", "group1-3",
+                    "group2", "group2-1",
+                    "group3", "group3-1", "group3-2",
+                    "group4", "group5"]
+
+        self.assertEqual(actual, expected)
+
     def test_addAndRemoveGroup(self):
         """
         Base case removing a group
@@ -235,7 +265,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(group2)
         self.testPreset.addGroup(group3)
 
-        self.testPreset.moveGroup(2, 1)
+        self.testPreset.moveGroup("group1", 1)
         actual = self.testPreset.getGroups(verbose=False)
 
         expected = [
@@ -261,6 +291,25 @@ class TestImportExport(unittest.TestCase):
             {"name": "group2", "contents": ["fghij"]},
             {"name": "group3", "contents": ["klmno"]},
             {"name": "group1", "contents": ["abcde"]},
+        ]
+
+        self.assertEqual(actual, expected)
+
+    def test_moveGroupRandom1(self):
+        group1 = {"name": "group1", "contents": ["abcde"]}
+        group2 = {"name": "group2", "contents": ["fghij"]}
+        group3 = {"name": "group3", "contents": ["klmno"]}
+        self.testPreset.addGroup(group1)
+        self.testPreset.addGroup(group2)
+        self.testPreset.addGroup(group3)
+
+        self.testPreset.moveGroup(-1, 1)
+        actual = self.testPreset.getGroups(verbose=False)
+
+        expected = [
+            {"name": "group1", "contents": ["abcde"]},
+            {"name": "group3", "contents": ["klmno"]},
+            {"name": "group2", "contents": ["fghij"]},
         ]
 
         self.assertEqual(actual, expected)
