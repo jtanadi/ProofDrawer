@@ -80,7 +80,7 @@ class ProofPreset:
 
         self.xmlGroups = None
 
-        self.nameCopyIndex = {} # Remember the number of times each name appears
+        self.groupNameCount = {}
         self.keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
 
@@ -146,19 +146,69 @@ class ProofPreset:
 
         return presetList
 
-    def _trackGroupNames(self):
+    def _inspectAndFixGroupNames(self, restartCount=False):
         """
-        Start a base count of each group name
+        On fresh XML, JSON, or preset import, count how many
+        times the same group name appears. If more than once,
+        append a "count" to all but the first group.
+
+        Counts start at "-0", but those are never shown
+        (ie. "original" name is always "-0"):
+        groupName, groupName-1, groupName-2, etc.
+
+        When restartCount=True, self.groupNameCount -> empty dict
+        Do this when importing an entire preset
+        """
+        if restartCount:
+            self.groupNameCount = {}
+
+        groupNames = self.getGroupNames()
+
+        # Do an overall count of all groupNames
+        # use list.count() instead of incrementing
+        # so we can skip same names as we iterate
+        for name in groupNames:
+            if name not in self.groupNameCount.keys():
+                nameCount = groupNames.count(name)
+                self.groupNameCount[name] = nameCount
+
+        # For all names that appear more than once,
+        # append a "count"
+        for countedName, value in self.groupNameCount.items():
+            if value <= 1:
+                continue
+
+            # Start count at 0 but don't append "-0"
+            nameCount = 0
+            for group in self.preset["groups"]:
+                if group["name"] == countedName:
+                    if nameCount == 0:
+                        continue
+                    group["name"] += "-%s" % nameCount
+                    nameCount += 1
+
+    def _checkForNameCopy(self, newName):
+        """
+        Return a "count" appended to name if name
+        already exists in the Preset groups.
+
+        groupName, groupName-1, groupName-2, etc.
         """
         groupNames = self.getGroupNames()
-        for name in groupNames:
-            nameCount = groupNames.count(name)
+        nameToReturn = newName
 
-            if not self.nameCopyIndex[name]:
-                self.nameCopyIndex[name] = nameCount
+        # If newName hasn't been tracked,
+        # initialize key/value in dict
+        if newName not in groupNames:
+            self.groupNameCount[newName] = 1
 
-        # for name, count in self.nameCopyIndex.items():
-        #     for group in self.preset["groups"]
+        # Else, append count to nameToReturn and
+        # add increment newName count
+        else:
+            nameToReturn += "-%s" % self.groupNameCount[newName]
+            self.groupNameCount[newName] += 1
+
+        return nameToReturn
 
     def renamePreset(self, newName):
         """
@@ -234,7 +284,7 @@ class ProofPreset:
             return json.dumps(self.preset, indent=2)
         return self.preset
 
-    def addGroup(self, groupToAdd, overwrite=False):
+    def addGroup(self, groupToAdd, overwrite=False, _checkForCopy=True):
         """
         Add one group. (Keep loop outside.)
 
@@ -254,6 +304,8 @@ class ProofPreset:
 
         If NOT overwriting, add "index" to end of name:
         newGroup, newGroup-1, newGroup-2
+
+        _checkForCopy is for internal testing
         """
         if not isinstance(groupToAdd, dict):
             raise TypeError("groupToAdd has to be a dictionary")
@@ -267,24 +319,17 @@ class ProofPreset:
         newGroup = self._removeUnneededKeysInGroup(newGroup)
         newGroup = self._addMissingKeysToGroup(newGroup)
 
-        # Inspect group names
-        groupName = newGroup["name"]
-        if groupName not in self.nameCopyIndex.keys():
-            self.nameCopyIndex[groupName] = 1
-
         # Not overwriting: just add to groups
         if not overwrite:
-            if groupName in self.getGroupNames():
-                newGroup["name"] += "-%s" % self.nameCopyIndex[groupName]
-                self.nameCopyIndex[groupName] += 1
-
+            if _checkForCopy:
+                newGroup["name"] = self._checkForNameCopy(newGroup["name"])
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
         # and copy newGroup to saved group
         else:
             for group in self.preset["groups"]:
-                if group["name"] == groupName:
+                if group["name"] == newGroup["name"]:
                     for key in group:
                         group[key] = newGroup[key]
 
@@ -299,9 +344,9 @@ class ProofPreset:
             if groupToRemove not in self.getGroupNames():
                 raise ProofPresetError("Group doesn't exist")
 
-            for index, group in enumerate(self.preset["groups"]):
+            for group in self.preset["groups"]:
                 if group["name"] == groupToRemove:
-                    del self.preset["groups"][index]
+                    self.preset["groups"].remove(group)
 
         elif isinstance(groupToRemove, int):
             if groupToRemove < 0 or \
@@ -316,6 +361,11 @@ class ProofPreset:
         if not isinstance(currentIndex, int) or\
         not isinstance(newIndex, int):
             raise ProofPresetError("Only pass in index")
+
+        if currentIndex > len(self.preset["groups"]) or\
+        newIndex > len(self.preset["groups"]):
+            # list.insert() doesn't raise IndexError
+            raise ProofPresetError("Index out of range")
 
         # Remove & capture currentIndex group &
         # insert into list at newIndex
@@ -355,6 +405,7 @@ class ProofPreset:
                 continue
             # Do some checks here...
             # if name already exists, add index
+
             # print has to be bool
             # contents has to be list
             groupToEdit[key] = value
@@ -383,7 +434,9 @@ class ProofPreset:
         utils.checkForTags(self.xmlGroups, "group")
         utils.checkXMLtagsSequence(self.xmlGroups, "group")
 
+        # Main import & fix groupNames
         self.preset["groups"] = self._makePresetGroupsFromXML()
+        self._inspectAndFixGroupNames()
 
     def importFromJSON(self, jsonObj, overwrite=False):
         """
@@ -425,8 +478,9 @@ class ProofPreset:
             group = self._removeUnneededKeysInGroup(group)
             group = self._addMissingKeysToGroup(group)
 
-        # Import preset, sort by group order, and reorder
+        # Import preset & fix groupNames
         self.preset = newPreset
+        self._inspectAndFixGroupNames(restartCount=True)
 
 
 if __name__ == "__main__":
