@@ -13,22 +13,26 @@ def cleanList(listToClean, discardBefore=None, discardAfter=None):
     """
     Get rid of leading and trailing whitespaces all at once
     Only include non-empty items in returned list
+
+    When discardBefore is passed in, discard everything before
+    the first instance of string.
+
+    When discardAfter is passed in, discard everything after
+    the last instance of string.
     """
-    cleanList = [item.strip() for item in listToClean if item.strip()]
+    cleanedList = [item.strip() for item in listToClean if item.strip()]
 
     if discardBefore:
-        startIndex = cleanList.index(discardBefore)
-        cleanList = cleanList[startIndex:]
+        startIndex = cleanedList.index(discardBefore)
+        cleanedList = cleanedList[startIndex:]
 
     if discardAfter:
-        cleanList.reverse()
-        endIndex = len(cleanList) - cleanList.index(discardAfter)
-        cleanList.reverse()
-        cleanList = cleanList[:endIndex]
+        cleanedList.reverse()
+        endIndex = len(cleanedList) - cleanedList.index(discardAfter)
+        cleanedList.reverse()
+        cleanedList = cleanedList[:endIndex]
 
-    return cleanList
-
-
+    return cleanedList
 
 def checkForTags(listOfItems, tagName):
     """
