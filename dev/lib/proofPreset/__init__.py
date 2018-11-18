@@ -183,6 +183,7 @@ class ProofPreset:
             for group in self.preset["groups"]:
                 if group["name"] == countedName:
                     if nameCount == 0:
+                        nameCount += 1
                         continue
                     group["name"] += "-%s" % nameCount
                     nameCount += 1
@@ -401,11 +402,11 @@ class ProofPreset:
         for key, value in kwargs.items():
             if key not in self.keysInGroup:
                 continue
-            elif kwargs["name"] in self.getGroupNames():
+            elif key == "name" and value in self.getGroupNames():
                 raise ValueError("Name already exists")
-            elif not isinstance(kwargs["print"], bool):
+            elif key == "print" and not isinstance(value, bool):
                 raise TypeError("Group print setting has to be a boolean")
-            elif not isinstance(kwargs["contents"], list):
+            elif key == "contents" and not isinstance(value, list):
                 raise TypeError("Group contents has to be a list")
 
             groupToEdit[key] = value
@@ -420,6 +421,8 @@ class ProofPreset:
 
         if xmlTaggedProof is a list:
         ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
+
+        To add: ignore everything before first <group>
         """
         if isinstance(xmlTaggedProof, str):
             newObj = xmlTaggedProof.split("\n")
