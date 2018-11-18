@@ -7,6 +7,7 @@ from proofPreset.errors import ProofPresetError
 
 import copy
 import json
+import os.path
 
 class ProofPreset:
     """
@@ -413,8 +414,11 @@ class ProofPreset:
 
     def importFromXML(self, xmlTaggedProof):
         """
-        Import XML-tagged string or list, and perform
-        some basic cleaning and validation.
+        Import XML-tagged proof and convert to ProofPreset() object.
+        xmlTaggedProof can be a directory, a string, or a list.
+        
+        Dir extensions can be .xml or .txt. 
+        Recognized XML tags are <group> </group>
 
         If xmlTaggedProof is a string:
         "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
@@ -422,14 +426,21 @@ class ProofPreset:
         if xmlTaggedProof is a list:
         ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
 
-        To add: ignore everything before first <group>
+        This method performs some basic cleaning & validation,
+        including ingnoring everything before first <group> tag
+        and everything after last </group> tag.
         """
-        if isinstance(xmlTaggedProof, str):
-            newObj = xmlTaggedProof.split("\n")
+        if os.path.isdir(xmlTaggedProof):
+            ext = os.path.splitext(xmlTaggedProof)[1].lower()
+            if ext in (".xml", ".txt"):
+                with open(xmlTaggedProof, "r") as xmlFile:
+                    xmlObj = xmlFile.readlines()
+        elif isinstance(xmlTaggedProof, str):
+            xmlObj = xmlTaggedProof.split("\n")
         elif isinstance(xmlTaggedProof, list):
-            newObj = copy.deepcopy(xmlTaggedProof)
+            xmlObj = copy.deepcopy(xmlTaggedProof)
 
-        self.xmlGroups = utils.cleanList(newObj)
+        self.xmlGroups = utils.cleanList(xmlObj)
 
         if not self.xmlGroups:
             raise ProofPresetError("Imported XML object is empty")
@@ -441,17 +452,29 @@ class ProofPreset:
         self.preset["groups"] = self._makePresetGroupsFromXML()
         self._inspectAndFixGroupNames()
 
-    def importFromJSON(self, jsonObj, overwrite=False):
+    def importFromJSON(self, jsonInput, overwrite=False):
         """
-        Import JSON object and convert to ProofPreset
-        The overwrite behaviour is the same as ProofPreset.importPreset()
+        Import JSON object and convert to a ProofPreset() object.
+        jsonInput can be a directory or a JSON object.
 
-        This method doesn't read files
+        The overwrite behaviour is the same as ProofPreset.importPyDict()
         """
+        jsonObj = None
+        if os.path.isdir(jsonInput):
+            ext = os.path.splitext(jsonInput)[1].lower()
+            if ext == ".json":
+                with open(jsonInput, "r") as jsonFile:
+                    jsonObj = jsonFile.read()
+        elif isinstance(jsonInput, str):
+            jsonObj = jsonInput
+
+        if not jsonObj:
+            raise ProofPresetError("Invalid JSON input")
+
         presetFromJSON = json.loads(jsonObj)
-        self.importPreset(presetFromJSON, overwrite)
+        self.importPyDict(presetFromJSON, overwrite)
 
-    def importPreset(self, presetToImport, overwrite=False):
+    def importPyDict(self, presetToImport, overwrite=False):
         """
         Import a WHOLE ProofPreset (py dict).
         To import from JSON, use ProofPreset.importFromJSON()
