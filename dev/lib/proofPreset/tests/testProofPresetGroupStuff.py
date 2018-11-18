@@ -226,6 +226,44 @@ class TestImportExport(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    
+    def test_moveGroupUp(self):
+        group1 = {"name": "group1", "contents": ["abcde"]}
+        group2 = {"name": "group2", "contents": ["fghij"]}
+        group3 = {"name": "group3", "contents": ["klmno"]}
+        self.testPreset.addGroup(group1)
+        self.testPreset.addGroup(group2)
+        self.testPreset.addGroup(group3)
+
+        self.testPreset.moveGroup(2, 1)
+        actual = self.testPreset.getGroups(verbose=False)
+
+        expected = [
+            {"name": "group1", "contents": ["abcde"]},
+            {"name": "group3", "contents": ["klmno"]},
+            {"name": "group2", "contents": ["fghij"]},
+        ]
+
+        self.assertEqual(actual, expected)
+
+    def test_moveGroupDown(self):
+        group1 = {"name": "group1", "contents": ["abcde"]}
+        group2 = {"name": "group2", "contents": ["fghij"]}
+        group3 = {"name": "group3", "contents": ["klmno"]}
+        self.testPreset.addGroup(group1)
+        self.testPreset.addGroup(group2)
+        self.testPreset.addGroup(group3)
+
+        self.testPreset.moveGroup(0, 2)
+        actual = self.testPreset.getGroups(verbose=False)
+
+        expected = [
+            {"name": "group2", "contents": ["fghij"]},
+            {"name": "group3", "contents": ["klmno"]},
+            {"name": "group1", "contents": ["abcde"]},
+        ]
+
+        self.assertEqual(actual, expected)
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

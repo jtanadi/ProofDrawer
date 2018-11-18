@@ -80,7 +80,7 @@ class ProofPreset:
 
         self.xmlGroups = None
 
-        self.nameCopyIndex = 1
+        self.nameCopyIndex = {} # Remember the number of times each name appears
         self.keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
 
@@ -145,6 +145,20 @@ class ProofPreset:
                 group["contents"].append(line)
 
         return presetList
+
+    def _trackGroupNames(self):
+        """
+        Start a base count of each group name
+        """
+        groupNames = self.getGroupNames()
+        for name in groupNames:
+            nameCount = groupNames.count(name)
+
+            if not self.nameCopyIndex[name]:
+                self.nameCopyIndex[name] = nameCount
+
+        # for name, count in self.nameCopyIndex.items():
+        #     for group in self.preset["groups"]
 
     def renamePreset(self, newName):
         """
@@ -253,11 +267,16 @@ class ProofPreset:
         newGroup = self._removeUnneededKeysInGroup(newGroup)
         newGroup = self._addMissingKeysToGroup(newGroup)
 
+        # Inspect group names
+        groupName = newGroup["name"]
+        if groupName not in self.nameCopyIndex.keys():
+            self.nameCopyIndex[groupName] = 1
+
         # Not overwriting: just add to groups
         if not overwrite:
-            if newGroup["name"] in self.getGroupNames():
-                newGroup["name"] += "-%s" % self.nameCopyIndex
-                self.nameCopyIndex += 1
+            if groupName in self.getGroupNames():
+                newGroup["name"] += "-%s" % self.nameCopyIndex[groupName]
+                self.nameCopyIndex[groupName] += 1
 
             self.preset["groups"].append(newGroup)
 
@@ -265,7 +284,7 @@ class ProofPreset:
         # and copy newGroup to saved group
         else:
             for group in self.preset["groups"]:
-                if group["name"] == newGroup["name"]:
+                if group["name"] == groupName:
                     for key in group:
                         group[key] = newGroup[key]
 
@@ -291,10 +310,31 @@ class ProofPreset:
             del self.preset["groups"][groupToRemove]
 
     def moveGroup(self, currentIndex, newIndex):
-        pass
+        """
+        Move group in currentIndex to newIndex.
+        """
+        if not isinstance(currentIndex, int) or\
+        not isinstance(newIndex, int):
+            raise ProofPresetError("Only pass in index")
+
+        # Remove & capture currentIndex group &
+        # insert into list at newIndex
+        currentGroup = self.preset["groups"].pop(currentIndex)
+        self.preset["groups"].insert(newIndex, currentGroup)
 
     def editGroup(self, groupToEdit, **kwargs):
+        """
+        Edit group by name or index.
+
+        groupToEdit can be a str or int, and must
+        be a valid name or valid index.
+
+        The following arguments are any key/value pairs.
+        Possible keys are: name, typeSize, leading, print, contents
+        Anything else will be ignored.
+        """
         if isinstance(groupToEdit, str):
+            # Why not leave to KeyError?
             if groupToEdit not in self.getGroupNames():
                 raise ProofPresetError("Group doesn't exist")
 
@@ -302,10 +342,8 @@ class ProofPreset:
                 if groupToEdit == group["name"]:
                     groupToEdit = group
 
-            groupIndex = self.preset["groups"].index(groupToEdit)
-            groupToEdit = self.preset["groups"][groupIndex]
-
         elif isinstance(groupToEdit, int):
+            # Why not leave to IndexError?
             if groupToEdit < 0 or \
             groupToEdit > len(self.preset["groups"]) - 1:
                 raise ProofPresetError("Group doesn't exist")
@@ -315,6 +353,10 @@ class ProofPreset:
         for key, value in kwargs.items():
             if key not in self.keysInGroup:
                 continue
+            # Do some checks here...
+            # if name already exists, add index
+            # print has to be bool
+            # contents has to be list
             groupToEdit[key] = value
 
     def importFromXML(self, xmlTaggedProof):
