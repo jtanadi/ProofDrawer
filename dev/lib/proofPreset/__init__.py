@@ -65,41 +65,28 @@ class ProofPreset:
         return {key:value for key, value in groupToProcess.items()\
                 if key in self._keysInGroup}
 
-    def _makePresetGroupsFromXML(self):
+    def _checkForNameCopy(self, newName):
         """
-        Return list of preset groups,
-        converted from proofGroups
+        Return a "count" appended to name if name
+        already exists in the Preset groups.
+
+        groupName, groupName-1, groupName-2, etc.
         """
-        presetList = []
-        startGroup = False
+        groupNames = self.getGroupNames()
+        nameToReturn = newName
 
-        for line in self._xmlGroups:
-            # Open tag: initialize and move on
-            if "<group>" in line:
-                group = {}
-                startGroup = True
-                continue
+        # If newName hasn't been tracked,
+        # initialize key/value in dict
+        if newName not in groupNames:
+            self._groupNameCount[newName] = 1
 
-            # Close tag: add group to presetList and move on
-            elif "</group>" in line:
-                presetList.append(group)
-                continue
+        # Else, append count to nameToReturn and
+        # add increment newName count
+        else:
+            nameToReturn += "-%s" % self._groupNameCount[newName]
+            self._groupNameCount[newName] += 1
 
-            # Title line: add title to group["name"] and initialize presets
-            # This is a little shorter than iterating & using if statements...
-            if startGroup:
-                group["name"] = line.strip()
-                group["typeSize"] = ""
-                group["leading"] = ""
-                group["print"] = False
-                group["contents"] = []
-                startGroup = False # not the start of group anymore
-
-            # Middle of block: just add line to group["contents"]
-            else:
-                group["contents"].append(line)
-
-        return presetList
+        return nameToReturn
 
     def _inspectAndFixGroupNames(self, restartCount=False):
         """
@@ -143,28 +130,41 @@ class ProofPreset:
                     group["name"] += "-%s" % nameCount
                     nameCount += 1
 
-    def _checkForNameCopy(self, newName):
+    def _makePresetGroupsFromXML(self):
         """
-        Return a "count" appended to name if name
-        already exists in the Preset groups.
-
-        groupName, groupName-1, groupName-2, etc.
+        Return list of preset groups,
+        converted from proofGroups
         """
-        groupNames = self.getGroupNames()
-        nameToReturn = newName
+        presetList = []
+        startGroup = False
 
-        # If newName hasn't been tracked,
-        # initialize key/value in dict
-        if newName not in groupNames:
-            self._groupNameCount[newName] = 1
+        for line in self._xmlGroups:
+            # Open tag: initialize and move on
+            if "<group>" in line:
+                group = {}
+                startGroup = True
+                continue
 
-        # Else, append count to nameToReturn and
-        # add increment newName count
-        else:
-            nameToReturn += "-%s" % self._groupNameCount[newName]
-            self._groupNameCount[newName] += 1
+            # Close tag: add group to presetList and move on
+            elif "</group>" in line:
+                presetList.append(group)
+                continue
 
-        return nameToReturn
+            # Title line: add title to group["name"] and initialize presets
+            # This is a little shorter than iterating & using if statements...
+            if startGroup:
+                group["name"] = line.strip()
+                group["typeSize"] = ""
+                group["leading"] = ""
+                group["print"] = False
+                group["contents"] = []
+                startGroup = False # not the start of group anymore
+
+            # Middle of block: just add line to group["contents"]
+            else:
+                group["contents"].append(line)
+
+        return presetList
 
     def renamePreset(self, newName):
         """
