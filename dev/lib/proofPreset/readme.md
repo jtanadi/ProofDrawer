@@ -391,25 +391,25 @@ If `overwrite=False` and a group of the same name already exists, `ProofPreset()
 Move group of `currentIndex` to `newIndex`.
 
 ```python
-myPreset.getGroups(verbose=False)
->>> [
-        {
-            "name": "UC",
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        },
-        {
-            "name": "lc",
-            "contents": ["abcdeghijklmnopqrstuvwxyz"]
-        },
-        {
-            "name": "Numerals",
-            "contents": ["0123456789"]
-        },
-        {
-            "name": "Symbols",
-            "contents": ["!@#$%^&*()"]
-        }
-    ]
+>>> myPreset.getGroups(verbose=False)
+[
+    {
+        "name": "UC",
+        "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+    },
+    {
+        "name": "lc",
+        "contents": ["abcdeghijklmnopqrstuvwxyz"]
+    },
+    {
+        "name": "Numerals",
+        "contents": ["0123456789"]
+    },
+    {
+        "name": "Symbols",
+        "contents": ["!@#$%^&*()"]
+    }
+]
 >>> myPreset.moveGroup(2, 1)
 >>> myPreset.getGroups(verbose=False)
 [
