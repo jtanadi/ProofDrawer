@@ -143,6 +143,8 @@ class TestImportExport(unittest.TestCase):
         """
         Add a few groups, some with the same name
         """
+        from collections import Counter
+
         # 4 group1s, 2 group2s, 3 group3s, 1 group4, 1 group5
         groupsToAdd = [
             {"name": "group1"},
@@ -161,11 +163,13 @@ class TestImportExport(unittest.TestCase):
         for group in groupsToAdd:
             self.testPreset.addGroup(group)
 
-        actual = sorted(self.testPreset.getGroupNames())
-        expected = ["group1", "group1-1", "group1-2", "group1-3",
-                    "group2", "group2-1",
-                    "group3", "group3-1", "group3-2",
-                    "group4", "group5"]
+        actual = Counter(self.testPreset.getGroupNames())
+        expected = Counter([
+            "group1", "group1-1", "group1-2", "group1-3",
+            "group2", "group2-1",
+            "group3", "group3-1", "group3-2",
+            "group4", "group5"
+        ])
 
         self.assertEqual(actual, expected)
 
@@ -227,7 +231,7 @@ class TestImportExport(unittest.TestCase):
         Raise error when trying to remove group
         that doesn't exist
         """
-        with self.assertRaises(ProofPresetError):
+        with self.assertRaises(KeyError):
             self.testPreset.removeGroup("new group")
 
     def test_editGroup(self):
@@ -256,7 +260,6 @@ class TestImportExport(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    
     def test_moveGroupUp(self):
         group1 = {"name": "group1", "contents": ["abcde"]}
         group2 = {"name": "group2", "contents": ["fghij"]}
@@ -265,7 +268,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(group2)
         self.testPreset.addGroup(group3)
 
-        self.testPreset.moveGroup("group1", 1)
+        self.testPreset.moveGroup(2, 1)
         actual = self.testPreset.getGroups(verbose=False)
 
         expected = [
@@ -313,6 +316,7 @@ class TestImportExport(unittest.TestCase):
         ]
 
         self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
