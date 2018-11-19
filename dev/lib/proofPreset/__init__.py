@@ -482,13 +482,15 @@ class ProofPreset:
         The overwrite behaviour is the same as ProofPreset.importPyDict()
         """
         jsonObj = None
-        if os.path.isfile(jsonInput):
-            ext = os.path.splitext(jsonInput)[1].lower()
-            if ext == ".json":
-                with open(jsonInput, "r") as jsonFile:
-                    jsonObj = jsonFile.read()
-        elif isinstance(jsonInput, str):
-            jsonObj = jsonInput
+        if isinstance(jsonInput, str):
+            if not os.path.isfile(jsonInput):
+                jsonObj = jsonInput
+
+            else:
+                ext = os.path.splitext(jsonInput)[1].lower()
+                if ext == ".json":
+                    with open(jsonInput, "r") as jsonFile:
+                        jsonObj = jsonFile.read()
 
         if not jsonObj:
             raise ProofPresetError("Invalid JSON input")
