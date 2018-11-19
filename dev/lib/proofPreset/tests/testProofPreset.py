@@ -150,6 +150,14 @@ class ProofPresetTest(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    def test_baseGetXMLGroups(self):
+        actual = self.testPreset.getXMLGroups()
+        expected = "<group>\nUC, lc, numerals\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789\n</group>\n\n"
+        expected += "<group>\nUC control\n|H| |O| HOHOHOHO\n|A| HAHAHAOAOAOA\n|B| HBHBHBOBOBOB\n|C| HCHCHCOCOCOC\n</group>\n\n"
+        expected += "<group>\nlc control\n|n| |o| nononono\n|a| nananaoaoaoa\n|b| nbnbnbobobob\n|c| ncncncocococ\n</group>"
+
+        self.assertEqual(actual, expected)
+
     def test_baseImportString(self):
         testString = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
         expected = {

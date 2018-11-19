@@ -3,19 +3,23 @@ import unittest
 import os.path
 
 fileDir = os.path.dirname(__file__)
-jsonPath = os.path.join(fileDir, "resources", "proofPresetTest.json")
-xmlPath = os.path.join(fileDir, "resources", "xmlProofTest.xml")
-txtPath = os.path.join(fileDir, "resources", "proofDocTest.txt")
 
-class TestImportExport(unittest.TestCase):
+class TestBase(unittest.TestCase):
     def setUp(self):
         self.preset = ProofPreset("myPreset")
+
+class TestImport(TestBase):
+    def setUp(self):
+        super().setUp()
+        self.jsonPath = os.path.join(fileDir, "resources", "proofPresetTest.json")
+        self.xmlPath = os.path.join(fileDir, "resources", "xmlProofTest.xml")
+        self.txtPath = os.path.join(fileDir, "resources", "proofDocTest.txt")
 
     def test_importXMLFromFile(self):
         """
         Base case: importing from xml file
         """
-        self.preset.importFromXML(xmlPath)
+        self.preset.importFromXML(self.xmlPath)
 
         actual = self.preset.getGroups(verbose=False)
         expected = [
@@ -53,7 +57,7 @@ class TestImportExport(unittest.TestCase):
         """
         Base case: import txt
         """
-        self.preset.importFromXML(txtPath)
+        self.preset.importFromXML(self.txtPath)
         actual = self.preset.getGroups(verbose=False)
         expected = [
             {
@@ -90,7 +94,7 @@ class TestImportExport(unittest.TestCase):
         """
         Base case: importing from JSON file
         """
-        self.preset.importFromJSON(jsonPath)
+        self.preset.importFromJSON(self.jsonPath)
 
         actual = self.preset.getPreset()
         expected = {
@@ -142,7 +146,7 @@ class TestImportExport(unittest.TestCase):
         (expect XML, actual JSON)
         """
         with self.assertRaises(ProofPresetError):
-            self.preset.importFromXML(jsonPath)
+            self.preset.importFromXML(self.jsonPath)
 
     def test_importJSONWrongFile(self):
         """
@@ -150,8 +154,49 @@ class TestImportExport(unittest.TestCase):
         (expect JSON, actual XML)
         """
         with self.assertRaises(ProofPresetError):
-            self.preset.importFromXML(jsonPath)
-        
+            self.preset.importFromXML(self.jsonPath)
+
+
+class TestExport(TestBase):
+    def setUp(self):
+        super().setUp()
+        self.jsonPath = os.path.join(fileDir, "resources", "jsonExportTest.json")
+        self.xmlPath = os.path.join(fileDir, "resources", "xmlExportTest.xml")
+        self.txtPath = os.path.join(fileDir, "resources", "jsonExportTest.txt")
+
+        presetGroups = [
+            {
+                "name": "UC", 
+                "typeSize": 10,
+                "leading": 12,
+                "print": True,
+                "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+            },
+            {
+                "name": "lc", 
+                "typeSize": 10,
+                "leading": 12,
+                "print": False,
+                "contents": ["abcdefghijklmnopqrstuvwxyz"]
+            },
+            {
+                "name": "numerals", 
+                "typeSize": 10,
+                "leading": 12,
+                "print": True,
+                "contents": ["0123456789"]
+            }
+        ]
+
+        for group in presetGroups:
+            self.preset.addGroup(group)
+
+    def test_exportJSONFile(self):
+        self.preset.exportToJSON(self.jsonPath)
+    
+    def test_exportXMLFile(self):
+        self.preset.exportToXML(self.xmlPath)
+
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)

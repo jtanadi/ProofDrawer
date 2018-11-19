@@ -1,0 +1,32 @@
+{
+  "name": "myPreset",
+  "groups": [
+    {
+      "name": "UC",
+      "typeSize": 10,
+      "leading": 12,
+      "print": true,
+      "contents": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      ]
+    },
+    {
+      "name": "lc",
+      "typeSize": 10,
+      "leading": 12,
+      "print": false,
+      "contents": [
+        "abcdefghijklmnopqrstuvwxyz"
+      ]
+    },
+    {
+      "name": "numerals",
+      "typeSize": 10,
+      "leading": 12,
+      "print": true,
+      "contents": [
+        "0123456789"
+      ]
+    }
+  ]
+}
