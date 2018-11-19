@@ -187,17 +187,24 @@ class ProofPreset:
         """
         self.preset["name"] = newName
 
-    def duplicatePreset(self):
+    def duplicatePreset(self, duplicateName=None):
         """
-        Return a deepcopy of this instance
-        of the ProofPreset() object, with
-        "-copy" appended to its name.
+        Return a deepcopy of this instance of the
+        ProofPreset() object. If duplicateName is
+        not given, the duplicated preset will have
+        the same name as the original, with "-copy"
+        appended to its name.
 
         The duplicated object will need to be
         captured by a variable.
         """
         duplicatePreset = copy.deepcopy(self)
-        duplicatePreset.renamePreset(self.preset["name"] + "-copy")
+
+        if duplicateName is None:
+            duplicatePreset.renamePreset(self.preset["name"] + "-copy")
+        else:
+            duplicatePreset.renamePreset(duplicateName)
+
         return duplicatePreset
 
     def getPresetName(self):
