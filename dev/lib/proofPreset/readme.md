@@ -613,6 +613,3 @@ Remove a group from the `ProofPreset()` object. `groupToRemove` can be the index
     }
 ]
 ```
-
-### TODO
-Group name counter can prob just be a `while` loop...
