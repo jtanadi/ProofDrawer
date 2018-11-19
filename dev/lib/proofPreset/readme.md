@@ -224,7 +224,10 @@ This method is a helper built on top of `getXMLGroups()`.
 >>> xmlFilePath = os.path.join(currentDir, "proof groups", "myProofGroups.xml")
 >>> myPreset.exportToXML(xmlFilePath)
 # File written in currentDir/proof groups/myProofGroups.xml
-# File content:
+```
+
+File content:
+```xml
 <group>
 UC
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -253,7 +256,10 @@ This method is a helper built ontop of `getPreset(jsonFormat=True)`.
 >>> jsonFilePath = os.path.join(currentDir, "presets", "myPreset.json")
 >>> myPreset.exportToJSON(jsonFilePath)
 # File written in currentDir/presets/myPreset.json
-# File content:
+```
+
+File content:
+```json
 {
   "name": "New Preset",
   "groups": [
