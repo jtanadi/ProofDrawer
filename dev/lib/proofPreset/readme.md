@@ -123,6 +123,8 @@ Before fully importing, `ProofPreset()` performs some basic tasks:
 - Remove unnecessary keys in each group. The only group keys relevant to `ProofPreset()` are `name`, `typeSize`, `leading`, `print`, `contents`; everything else will be removed.
 - Add missing keys. If any of the keys listed above are missing, they will be added to the group.
 
+After import, `ProofPreset()` inspects all imported group names and appends a "count" to duplicated names.
+
 ```python
 >>> newPreset = {
     "name": "New Preset",
@@ -142,7 +144,24 @@ Before fully importing, `ProofPreset()` performs some basic tasks:
             "amazing": True,
             "print": True,
             "contents": [
-                "0123456789"
+                "abcdefghijklmnopqrstuvwxyz"
+            ]
+        },
+        {
+            "name": "lc",
+            "typeSize": 10,
+            "amazing": True,
+            "print": False,
+            "contents": [
+                "abcdefghijklmnopqrstuvwxyz"
+            ]
+        },
+        {
+            "name": "lc",
+            "typeSize": 12,
+            "print": False,
+            "contents": [
+                "abcdefghijklmnopqrstuvwxyz"
             ]
         }
     ]
@@ -168,7 +187,25 @@ Before fully importing, `ProofPreset()` performs some basic tasks:
             "leading": "",
             "print": True,
             "contents": [
-                "0123456789"
+                "abcdefghijklmnopqrstuvwxyz"
+            ]
+        },
+        {
+            "name": "lc-1",
+            "typeSize": 10,
+            "leading": "",
+            "print": False,
+            "contents": [
+                "abcdefghijklmnopqrstuvwxyz"
+            ]
+        },
+        {
+            "name": "lc-2",
+            "typeSize": 12,
+            "leading": "",
+            "print": False,
+            "contents": [
+                "abcdefghijklmnopqrstuvwxyz"
             ]
         }
     ]
@@ -484,3 +521,4 @@ If `groupToRemove` doesn't exist, a `ProofPresetError` is raised.
 
 ### TODO
 Add documentation about file naming w/ counter.
+Add `duplicatePreset()` section
