@@ -371,7 +371,6 @@ Return a list of groups. By default, return all of the data associated with each
 ]
 ```
 
-
 #### `getXMLGroups()`
 Return `ProofPreset()` groups as XML-tagged groups in a string.
 
