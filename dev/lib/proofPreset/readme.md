@@ -47,7 +47,7 @@ A Preset object comes with a handful of public methods. These methods are "plugg
 Users can import XML-tagged strings or lists, JSON-formatted presets, or Python-formatted presets. Some import methods accept file paths or a python type (`str` or `list`).
 
 #### `importFromXML(xmlTaggedInput)`
-Import from XML-tagged proof document. `xmlTaggedInput` can be a file path, string, or list (eg. if user uses `read()` or `readlines()` outside of object.
+Import from XML-tagged proof document. `xmlTaggedInput` can be a file path or a `str` or `list` with XML tags (eg. if user uses `read()` or `readlines()` outside of object.
 
 XML-tagged proof documents aren't presets, but only a list of proof "groups". Each group must be wrapped in `<group>` / `</group>` tags and the first line of each group is its group name. Each subsequent line in a group is an item in that group's `contents` list.
 
