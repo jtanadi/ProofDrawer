@@ -46,61 +46,6 @@ A Preset object comes with a handful of public methods. These methods are "plugg
 ### Importing & Exporting Stuff
 Users can import XML-tagged strings or lists, JSON-formatted presets, or Python-formatted presets. Some import methods accept file paths or a python type (`str` or `list`).
 
-#### `importFromXML(xmlTaggedInput)`
-Import from XML-tagged proof document. `xmlTaggedInput` can be a file path or a `str` or `list` with XML tags (eg. if user uses `read()` or `readlines()` outside of object.
-
-XML-tagged proof documents aren't presets, but only a list of proof "groups". Each group must be wrapped in `<group>` / `</group>` tags and the first line of each group is its group name. Each subsequent line in a group is an item in that group's `contents` list.
-
-For example:
-```
-<group>
-UC
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-</group>
-
-<group>
-UC between control chars
-|H| |O| HHHOHOHOOOHO
-|A| HHHAHAAAOOOAOAAA
-|B| HHHBHBBBOOOBOBBB
-|C| HHHCHCCCOOOCOCCC
-...
-</group>
-```
-
-Before fully importing, `ProofPreset()` performs some basic cleaning & validation: 
-- Remove empty lines or list items and leading or trailing whitespaces
-- Check if both `<group>` and `</group>` tags exist at all
-- Check if tags are in correct sequence (*exactly* open, close, open, close, etc.). The sequence can't start with a closing tag, all open tags must be closed, and no nesting is allowed.
-
-If any part of the validation process fails, an `XMLtagError` is raised.
-
-Because `xmlTaggedInput` isn't a preset (ie. doesn't contain other data like `typeSize`), `ProofPreset()` will inject empty values into each group.
-
-If passing a file path, it must be to an `.xml` or `.txt` file.
-
-```python
->>> proofStr = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
->>> proofList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
-
->>> myPreset.importFromXML(proofList) # Either object is fine
->>> myPreset.getPreset()
-{
-    "name": "Best Preset",
-    "groups": [
-        {
-            "name": "UC",
-            "typeSize": "",
-            "leading": "",
-            "print": False,
-            "contents": [
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            ]
-        }
-    ]
-}
-```
-
 #### `importFromJSON(jsonInput, overwrite=False)`
 Import an entire preset from a JSON file path or a JSON-like `str` and convert it to a `ProofPreset()` object. Since each `ProofPreset()` object can only contain one preset, if `overwrite=False` and the `ProofPreset()` object isn't empty, a `ProofPresetError` will be raised.
 
@@ -212,6 +157,102 @@ After import, `ProofPreset()` inspects all imported group names and appends a "c
 }
 ```
 
+#### `importFromXML(xmlTaggedInput)`
+Import from XML-tagged proof document. `xmlTaggedInput` can be a file path or a `str` or `list` with XML tags (eg. if user uses `read()` or `readlines()` outside of object.
+
+XML-tagged proof documents aren't presets, but only a list of proof "groups". Each group must be wrapped in `<group>` / `</group>` tags and the first line of each group is its group name. Each subsequent line in a group is an item in that group's `contents` list.
+
+For example:
+```
+<group>
+UC
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+</group>
+
+<group>
+UC between control chars
+|H| |O| HHHOHOHOOOHO
+|A| HHHAHAAAOOOAOAAA
+|B| HHHBHBBBOOOBOBBB
+|C| HHHCHCCCOOOCOCCC
+...
+</group>
+```
+
+Before fully importing, `ProofPreset()` performs some basic cleaning & validation: 
+- Remove empty lines or list items and leading or trailing whitespaces
+- Check if both `<group>` and `</group>` tags exist at all
+- Check if tags are in correct sequence (*exactly* open, close, open, close, etc.). The sequence can't start with a closing tag, all open tags must be closed, and no nesting is allowed.
+
+If any part of the validation process fails, an `XMLtagError` is raised.
+
+Because `xmlTaggedInput` isn't a preset (ie. doesn't contain other data like `typeSize`), `ProofPreset()` will inject empty values into each group.
+
+If passing a file path, it must be to an `.xml` or `.txt` file.
+
+```python
+>>> proofStr = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
+>>> proofList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
+
+>>> myPreset.importFromXML(proofList) # Either object is fine
+>>> myPreset.getPreset()
+{
+    "name": "Best Preset",
+    "groups": [
+        {
+            "name": "UC",
+            "typeSize": "",
+            "leading": "",
+            "print": False,
+            "contents": [
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            ]
+        }
+    ]
+}
+```
+
+#### `exportToJSON(filePath)`
+_Should `ProofPreset()` export to a file w/ same name as preset name?_
+
+Export an entire preset to a JSON file. `filePath` must have have `.json` extension. If the file doesn't exist, it will be created.
+
+This method is a helper built ontop of `getPreset(jsonFormat=True)`.
+
+```python
+>>> currentDir = os.path.dirname(__file__)
+>>> jsonFilePath = os.path.join(currentDir, "presets", "myPreset.json")
+>>> myPreset.exportToJSON(jsonFilePath)
+# File written in currentDir/presets/myPreset.json
+```
+
+File content:
+```json
+{
+  "name": "New Preset",
+  "groups": [
+    {
+      "name": "UC",
+      "typeSize": 8,
+      "leading": "",
+      "print": false,
+      "contents": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      ]
+    }  
+    { 
+      "name": "lc",
+      "typeSize": 8,
+      "leading": "",
+      "print": true,
+      "contents": [
+        "abcdefghijklmnopqrstuvwxyz"
+      ]
+    },
+  ]
+}
+```
+
 #### `exportToXML(filePath)`
 _Should `ProofPreset()` export to a file w/ same name as preset name?_
 
@@ -244,51 +285,50 @@ numerals
 </group>
 ```
 
-#### `exportToJSON(filePath)`
-_Should `ProofPreset()` export to a file w/ same name as preset name?_
-
-Export an entire preset to a JSON file. `filePath` must have have `.json` extension. If the file doesn't exist, it will be created.
-
-This method is a helper built ontop of `getPreset(jsonFormat=True)`.
-
-```python
->>> currentDir = os.path.dirname(__file__)
->>> jsonFilePath = os.path.join(currentDir, "presets", "myPreset.json")
->>> myPreset.exportToJSON(jsonFilePath)
-# File written in currentDir/presets/myPreset.json
-```
-
-File content:
-```json
-{
-  "name": "New Preset",
-  "groups": [
-    {
-      "name": "UC",
-      "typeSize": 8,
-      "leading": "",
-      "print": False,
-      "contents": [
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      ]
-    }  
-      
-      "name": "lc",
-      "typeSize": 8,
-      "leading": "",
-      "print": True,
-      "contents": [
-        "abcdefghijklmnopqrstuvwxyz"
-      ]
-    },
-  ]
-}
-```
-
 ### Getting Stuff
 Users have access to all data through `ProofDrawer()`, either through the main window or its auxiliary windows (Proof Inspector, Preset Inspector).
 
 The only thing that `ProofDrawer()` generates on its own is each group's "order" number, which is simply that group's index within `ProofPreset["groups"]` + 1.
+
+#### `getPresetName()`
+Return name of `ProofPreset()` object
+```python
+>>> myFirstPreset = ProofPreset("My First Preset")
+>>> myFirstPreset.getPresetName()
+"My First Preset"
+```
+
+#### `getPreset(jsonFormat=False)`
+Return the entire `ProofPreset()` as a Python dict. If `jsonFormat=True`, return the JSON object instead (basically a long string) with 2 spaces for indentation.
+```python
+>>> myPreset.getPreset()
+{
+    "name": "My Preset",
+    "groups": [
+        {
+            "name": "UC",
+            "typeSize": 10,
+            "leading": 12,
+            "print": True,
+            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        },
+        {
+            "name": "lc",
+            "typeSize": 10,
+            "leading": 12,
+            "print": False,
+            "contents": ["abcdefghijklmnopqrstuvwyxz"]
+        },
+        {
+            "name": "numerals",
+            "typeSize": 10,
+            "leading": 12,
+            "print": False,
+            "contents": ["0123456789"]
+        },
+    ]
+}
+```
 
 #### `getGroupNames()`
 Return a list of group names.
@@ -331,45 +371,6 @@ Return a list of groups. By default, return all of the data associated with each
 ]
 ```
 
-#### `getPresetName()`
-Return name of `ProofPreset()` object
-```python
->>> myFirstPreset = ProofPreset("My First Preset")
->>> myFirstPreset.getPresetName()
-"My First Preset"
-```
-
-#### `getPreset(jsonFormat=False)`
-Return the entire `ProofPreset()` as a Python dict. If `jsonFormat=True`, return the JSON object instead (basically a long string) with 2 spaces for indentation.
-```python
->>> myPreset.getPreset()
-{
-    "name": "My Preset",
-    "groups": [
-        {
-            "name": "UC",
-            "typeSize": 10,
-            "leading": 12,
-            "print": True,
-            "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        },
-        {
-            "name": "lc",
-            "typeSize": 10,
-            "leading": 12,
-            "print": False,
-            "contents": ["abcdefghijklmnopqrstuvwyxz"]
-        },
-        {
-            "name": "numerals",
-            "typeSize": 10,
-            "leading": 12,
-            "print": False,
-            "contents": ["0123456789"]
-        },
-    ]
-}
-```
 
 #### `getXMLGroups()`
 Return `ProofPreset()` groups as XML-tagged groups in a string.
