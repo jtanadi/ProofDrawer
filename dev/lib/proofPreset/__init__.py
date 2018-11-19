@@ -461,8 +461,8 @@ class ProofPreset:
             raise ProofPresetError("Invalid XML input")
 
         self._xmlGroups = utils.cleanList(xmlObj,
-                                         discardBefore="<group>",
-                                         discardAfter="</group>")
+                                          discardBefore="<group>",
+                                          discardAfter="</group>")
 
         if not self._xmlGroups:
             raise ProofPresetError("Imported XML object is empty")
