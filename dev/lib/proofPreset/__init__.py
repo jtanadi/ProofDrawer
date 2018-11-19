@@ -17,11 +17,11 @@ class ProofPreset:
     {"name": presetName, "groups": []}
 
     Import / export methods:
-    - importFromXML(xmlTaggedInput)
     - importFromJSON(jsonInput, overwrite=False)
     - importPyDict(pyDictInput)
-    - exportToXML(filePath)
+    - importFromXML(xmlTaggedInput)
     - exportToJSON(filePath)
+    - exportToXML(filePath)
 
     Preset methods:
     - renamePreset()
@@ -35,9 +35,9 @@ class ProofPreset:
 
     Getters:
     - getPresetName()
+    - getPreset()
     - getGroupNames()
     - getGroups()
-    - getPreset()
     - getXMLGroups()
     """
     def __init__(self, presetName="myPreset"):
@@ -213,6 +213,32 @@ class ProofPreset:
         """
         return self.preset["name"]
 
+    def getPreset(self, jsonFormat=False):
+        """
+        Return preset, either as Py dict, or when
+        jsonFormat is True, as a JSON object.
+
+        Object structure:
+        {
+            "name": presetName,
+            "groups": [
+                {
+                    "name": "UC, numerals",
+                    "typeSize": 12,
+                    "leading": 14,
+                    "print": True,
+                    "contents": [
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "0123456789"
+                    ]
+                }
+            ]
+        }
+        """
+        if jsonFormat:
+            return json.dumps(self.preset, indent=2)
+        return self.preset
+
     def getGroupNames(self):
         """
         Return a list of all group names
@@ -248,32 +274,6 @@ class ProofPreset:
             returnGroups = copy.deepcopy(self.preset["groups"])
 
         return returnGroups
-
-    def getPreset(self, jsonFormat=False):
-        """
-        Return preset, either as Py dict, or when
-        jsonFormat is True, as a JSON object.
-
-        Object structure:
-        {
-            "name": presetName,
-            "groups": [
-                {
-                    "name": "UC, numerals",
-                    "typeSize": 12,
-                    "leading": 14,
-                    "print": True,
-                    "contents": [
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                        "0123456789"
-                    ]
-                }
-            ]
-        }
-        """
-        if jsonFormat:
-            return json.dumps(self.preset, indent=2)
-        return self.preset
 
     def getXMLGroups(self):
         """
@@ -432,55 +432,6 @@ class ProofPreset:
 
             groupToEdit[key] = value
 
-    def importFromXML(self, xmlTaggedInput):
-        """
-        Import XML-tagged proof and convert to ProofPreset() object.
-        xmlTaggedInput can be a filePath, a string, or a list.
-
-        File extensions can be .xml or .txt.
-        Recognized XML tags are <group> </group>
-
-        If xmlTaggedInput is a string:
-        "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
-
-        if xmlTaggedInput is a list:
-        ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
-
-        This method performs some basic cleaning & validation,
-        including ingnoring everything before first <group> tag
-        and everything after last </group> tag.
-        """
-        xmlObj = None
-        if isinstance(xmlTaggedInput, str):
-            if not os.path.isfile(xmlTaggedInput):
-                xmlObj = xmlTaggedInput.split("\n")
-
-            else:
-                ext = os.path.splitext(xmlTaggedInput)[1].lower()
-                if ext in (".xml", ".txt"):
-                    with open(xmlTaggedInput, "r") as xmlFile:
-                        xmlObj = xmlFile.readlines()
-
-        elif isinstance(xmlTaggedInput, list):
-            xmlObj = copy.deepcopy(xmlTaggedInput)
-
-        if not xmlObj:
-            raise ProofPresetError("Invalid XML input")
-
-        self._xmlGroups = utils.cleanList(xmlObj,
-                                          discardBefore="<group>",
-                                          discardAfter="</group>")
-
-        if not self._xmlGroups:
-            raise ProofPresetError("Imported XML object is empty")
-
-        utils.checkForTags(self._xmlGroups, "group")
-        utils.checkXMLtagsSequence(self._xmlGroups, "group")
-
-        # Main import & fix groupNames
-        self.preset["groups"] = self._makePresetGroupsFromXML()
-        self._inspectAndFixGroupNames()
-
     def importFromJSON(self, jsonInput, overwrite=False):
         """
         Import JSON object and convert to a ProofPreset() object.
@@ -539,22 +490,54 @@ class ProofPreset:
         self.preset = dictPreset
         self._inspectAndFixGroupNames(restartCount=True)
 
-    def exportToXML(self, filePath):
+    def importFromXML(self, xmlTaggedInput):
         """
-        Export groups to XML file.
+        Import XML-tagged proof and convert to ProofPreset() object.
+        xmlTaggedInput can be a filePath, a string, or a list.
 
-        filePath will be created if it doesn't exist,
-        but must have an extension of .xml or .txt
+        File extensions can be .xml or .txt.
+        Recognized XML tags are <group> </group>
 
-        This method is a helper built on top of
-        ProofPreset.getXMLGroups()
+        If xmlTaggedInput is a string:
+        "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
+
+        if xmlTaggedInput is a list:
+        ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
+
+        This method performs some basic cleaning & validation,
+        including ingnoring everything before first <group> tag
+        and everything after last </group> tag.
         """
-        ext = os.path.splitext(filePath)[1].lower()
-        if ext not in (".xml", ".txt"):
-            raise ProofPresetError("File not .xml or .txt")
+        xmlObj = None
+        if isinstance(xmlTaggedInput, str):
+            if not os.path.isfile(xmlTaggedInput):
+                xmlObj = xmlTaggedInput.split("\n")
 
-        with open(filePath, "w+") as xmlFile:
-            xmlFile.write(self.getXMLGroups())
+            else:
+                ext = os.path.splitext(xmlTaggedInput)[1].lower()
+                if ext in (".xml", ".txt"):
+                    with open(xmlTaggedInput, "r") as xmlFile:
+                        xmlObj = xmlFile.readlines()
+
+        elif isinstance(xmlTaggedInput, list):
+            xmlObj = copy.deepcopy(xmlTaggedInput)
+
+        if not xmlObj:
+            raise ProofPresetError("Invalid XML input")
+
+        self._xmlGroups = utils.cleanList(xmlObj,
+                                          discardBefore="<group>",
+                                          discardAfter="</group>")
+
+        if not self._xmlGroups:
+            raise ProofPresetError("Imported XML object is empty")
+
+        utils.checkForTags(self._xmlGroups, "group")
+        utils.checkXMLtagsSequence(self._xmlGroups, "group")
+
+        # Main import & fix groupNames
+        self.preset["groups"] = self._makePresetGroupsFromXML()
+        self._inspectAndFixGroupNames()
 
     def exportToJSON(self, filePath):
         """
@@ -572,6 +555,23 @@ class ProofPreset:
 
         with open(filePath, "w+") as jsonFile:
             jsonFile.write(self.getPreset(jsonFormat=True))
+
+    def exportToXML(self, filePath):
+        """
+        Export groups to XML file.
+
+        filePath will be created if it doesn't exist,
+        but must have an extension of .xml or .txt
+
+        This method is a helper built on top of
+        ProofPreset.getXMLGroups()
+        """
+        ext = os.path.splitext(filePath)[1].lower()
+        if ext not in (".xml", ".txt"):
+            raise ProofPresetError("File not .xml or .txt")
+
+        with open(filePath, "w+") as xmlFile:
+            xmlFile.write(self.getXMLGroups())
 
 
 if __name__ == "__main__":
