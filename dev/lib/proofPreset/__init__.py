@@ -2,12 +2,12 @@
 Proof preset-related stuff in here
 """
 
-from proofPreset import utils
-from proofPreset.errors import ProofPresetError
-
 import copy
 import json
 import os.path
+
+from proofPreset import utils
+from proofPreset.errors import ProofPresetError
 
 class ProofPreset:
     """

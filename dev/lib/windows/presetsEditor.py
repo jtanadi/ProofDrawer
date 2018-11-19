@@ -1,7 +1,6 @@
-from proofPreset import ProofPreset
-
 from vanilla import Sheet, TextBox, Button, EditText,\
                     Box, Window
+from proofPreset import ProofPreset
 
 class PresetsEditor:
     def __init__(self, mainWindow):
