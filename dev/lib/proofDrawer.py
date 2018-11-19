@@ -7,16 +7,15 @@ STILL NEED TO BE DONE:
   (ie. ProofPreset has methods that the users affect through UI)
 """
 
-from utils.readWritePreset import readJSONpreset, writeJSONpreset
-from utils import helperFunctions as hf
-from proofPreset import ProofPreset
-
-from windows.proofGroupInspector import ProofGroupInspector
-
+import os.path
 from mojo.events import addObserver, removeObserver
 from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
                     List, CheckBoxListCell, HorizontalLine
-import os.path
+
+from utils.readWritePreset import readJSONpreset, writeJSONpreset
+from utils import helperFunctions as hf
+from proofPreset import ProofPreset
+from windows.proofGroupInspector import ProofGroupInspector
 
 class ProofDrawer:
     def __init__(self, inputPreset):
