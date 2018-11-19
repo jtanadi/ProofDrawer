@@ -16,14 +16,29 @@ class ProofPreset:
     Only top-most structure exists when initialized:
     {"name": presetName, "groups": []}
 
-    Import proof groups or saved presets:
+    Import / export methods:
     - importFromXML(xmlTaggedInput)
     - importFromJSON(jsonInput, overwrite=False)
     - importPyDict(pyDictInput)
+    - exportToXML(filePath)
+    - exportToJSON(filePath)
 
-    Some other group methods:
-    - addGroup(self, groupToAdd, overwrite=False)
-    - 
+    Preset methods:
+    - renamePreset()
+    - duplicatePreset()
+
+    Group methods:
+    - addGroup(groupToAdd, overwrite=False)
+    - removeGroup(groupToRemove)
+    - moveGroup(currentIndex, newIndex)
+    - editGroup(groupToEdit)
+
+    Getters:
+    - getPresetName()
+    - getGroupNames()
+    - getGroups()
+    - getPreset()
+    - getXMLGroups()
     """
     def __init__(self, presetName="myPreset"):
         """
@@ -172,6 +187,19 @@ class ProofPreset:
         """
         self.preset["name"] = newName
 
+    def duplicatePreset(self):
+        """
+        Return a deepcopy of this instance
+        of the ProofPreset() object, with
+        "-copy" appended to its name.
+
+        The duplicated object will need to be
+        captured by a variable.
+        """
+        duplicatePreset = copy.deepcopy(self)
+        duplicatePreset.renamePreset(self.preset["name"] + "-copy")
+        return duplicatePreset
+
     def getPresetName(self):
         """
         Return Preset name
@@ -239,6 +267,38 @@ class ProofPreset:
         if jsonFormat:
             return json.dumps(self.preset, indent=2)
         return self.preset
+
+    def getXMLGroups(self):
+        """
+        Return XML-formatted groups:
+        <group>
+        UC
+        ABCDEFGHIJKLMNOPQRSTUVWXYZ
+        </group>
+
+        <group>
+        lc
+        abcdefghijklmnopqrstuvwxyz
+        </group>
+        ...
+        """
+        xmlGroups = ""
+        presetGroups = self.getGroups(verbose=False)
+        for index, group in enumerate(presetGroups):
+            xmlGroup = "<group>\n"
+            xmlGroup += group["name"]
+            xmlGroup += "\n"
+            xmlGroup += "\n".join(group["contents"])
+            xmlGroup += "\n"
+
+            if index != len(presetGroups) - 1:
+                xmlGroup += "</group>\n\n"
+            else:
+                xmlGroup += "</group>"
+
+            xmlGroups += xmlGroup
+
+        return xmlGroups
 
     def addGroup(self, groupToAdd, overwrite=False):
         """
@@ -384,18 +444,21 @@ class ProofPreset:
         and everything after last </group> tag.
         """
         xmlObj = None
-        if os.path.isfile(xmlTaggedInput):
-            ext = os.path.splitext(xmlTaggedInput)[1].lower()
-            if ext in (".xml", ".txt"):
-                with open(xmlTaggedInput, "r") as xmlFile:
-                    xmlObj = xmlFile.readlines()
-        elif isinstance(xmlTaggedInput, str):
-            xmlObj = xmlTaggedInput.split("\n")
+        if isinstance(xmlTaggedInput, str):
+            if not os.path.isfile(xmlTaggedInput):
+                xmlObj = xmlTaggedInput.split("\n")
+
+            else:
+                ext = os.path.splitext(xmlTaggedInput)[1].lower()
+                if ext in (".xml", ".txt"):
+                    with open(xmlTaggedInput, "r") as xmlFile:
+                        xmlObj = xmlFile.readlines()
+
         elif isinstance(xmlTaggedInput, list):
             xmlObj = copy.deepcopy(xmlTaggedInput)
 
         if not xmlObj:
-            raise ProofPresetError("Invalid JSON input")
+            raise ProofPresetError("Invalid XML input")
 
         self._xmlGroups = utils.cleanList(xmlObj,
                                          discardBefore="<group>",
@@ -466,6 +529,40 @@ class ProofPreset:
         # Import preset & fix groupNames
         self.preset = dictPreset
         self._inspectAndFixGroupNames(restartCount=True)
+
+    def exportToXML(self, filePath):
+        """
+        Export groups to XML file.
+
+        filePath will be created if it doesn't exist,
+        but must have an extension of .xml or .txt
+
+        This method is a helper built on top of
+        ProofPreset.getXMLGroups()
+        """
+        ext = os.path.splitext(filePath)[1].lower()
+        if ext not in (".xml", ".txt"):
+            raise ProofPresetError("File not .xml or .txt")
+
+        with open(filePath, "w+") as xmlFile:
+            xmlFile.write(self.getXMLGroups())
+
+    def exportToJSON(self, filePath):
+        """
+        Export preset to JSON file.
+
+        filePath will be created if it doesn't exist,
+        but must have an extension of .json
+
+        This method is a helper built on top of
+        ProofPreset.getPreset(jsonFormat=True)
+        """
+        ext = os.path.splitext(filePath)[1].lower()
+        if ext != ".json":
+            raise ProofPresetError("File not .json")
+
+        with open(filePath, "w+") as jsonFile:
+            jsonFile.write(self.getPreset(jsonFormat=True))
 
 
 if __name__ == "__main__":
