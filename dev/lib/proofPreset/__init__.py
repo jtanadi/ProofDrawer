@@ -80,13 +80,23 @@ class ProofPreset:
         return {key:value for key, value in groupToProcess.items()\
                 if key in self._keysInGroup}
 
-    def _checkForNameCopy(self, newName):
+    def _countNameCopies(self, newName):
         """
         Return a "count" appended to name if name
         already exists in the Preset groups.
 
         groupName, groupName-1, groupName-2, etc.
         """
+
+        # A while loop version, in case we want
+        # to stop using self._groupNameCount dict...
+        # baseName = newName
+        # count = 1
+        # while newName in groupNames:
+        #     newName = "%s-%s" % (baseName, count)
+        #     count += 1
+        # return newName
+
         groupNames = self.getGroupNames()
         nameToReturn = newName
 
@@ -96,7 +106,7 @@ class ProofPreset:
             self._groupNameCount[newName] = 1
 
         # Else, append count to nameToReturn and
-        # add increment newName count
+        # increment newName count
         else:
             nameToReturn += "-%s" % self._groupNameCount[newName]
             self._groupNameCount[newName] += 1
@@ -344,7 +354,7 @@ class ProofPreset:
 
         # Not overwriting: just add to groups
         if not overwrite:
-            newGroup["name"] = self._checkForNameCopy(newGroup["name"])
+            newGroup["name"] = self._countNameCopies(newGroup["name"])
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
