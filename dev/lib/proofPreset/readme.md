@@ -36,18 +36,18 @@ Each item in the `contents` list is a line of proof string.
 At initialization, a `ProofPreset()` object only has `name` (`"myPreset"` by default, unless passed in by user) and `groups`, which is an empty list.
 
 ```python
-myPreset = ProofPreset() # Default preset name is "myPreset"
-coolPreset = ProofPreset("Cool Preset") # Preset name is "Cool Preset"
+>>> myPreset = ProofPreset() # Default preset name is "myPreset"
+>>> coolPreset = ProofPreset("Cool Preset") # Preset name is "Cool Preset"
 ```
 
 ## Public Methods
 A Preset object comes with a handful of public methods. These methods are "plugged-in" to the `ProofDrawer()` UI.
 
 ### Importing Stuff
-Users can import XML-tagged strings or lists, JSON-formatted presets, or Python-formatted presets. Right now, the `ProofPreset()` object doesn't read or write files. _(Maybe it should?)_
+Users can import XML-tagged strings or lists, JSON-formatted presets, or Python-formatted presets. Some import methods accept file paths or a python type (`str` or `list`).
 
-#### `importFromXML(xmlTaggedProof)`
-Import from XML-tagged proof document. `xmlTaggedProof` can be a string or a list (depending on whether the user uses `read()` or `readlines()`).
+#### `importFromXML(xmlTaggedInput)`
+Import from XML-tagged proof document. `xmlTaggedInput` can be a file path, string, or list (eg. if user uses `read()` or `readlines()` outside of object.
 
 XML-tagged proof documents aren't presets, but only a list of proof "groups". Each group must be wrapped in `<group>` / `</group>` tags and the first line of each group is its group name. Each subsequent line in a group is an item in that group's `contents` list.
 
@@ -75,40 +75,46 @@ Before fully importing, `ProofPreset()` performs some basic cleaning & validatio
 
 If any part of the validation process fails, an `XMLtagError` is raised.
 
-Because `xmlTaggedProof` isn't a preset (ie. doesn't contain other data like `typeSize`), `ProofPreset()` will inject empty values into each group.
+Because `xmlTaggedInput` isn't a preset (ie. doesn't contain other data like `typeSize`), `ProofPreset()` will inject empty values into each group.
+
+If passing a file path, it must be to an `.xml` or `.txt` file.
 
 ```python
-proofStr = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
-proofList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
+>>> proofStr = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
+>>> proofList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
 
-myPreset.importFromXML(proofList) # Either object is fine
-myPreset.getPreset()
->>> {
-        "name": "Best Preset",
-        "groups": [
-            {
-                "name": "UC",
-                "typeSize": "",
-                "leading": "",
-                "print": False,
-                "contents": [
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                ]
-            }
-        ]
-    }
+>>> myPreset.importFromXML(proofList) # Either object is fine
+>>> myPreset.getPreset()
+{
+    "name": "Best Preset",
+    "groups": [
+        {
+            "name": "UC",
+            "typeSize": "",
+            "leading": "",
+            "print": False,
+            "contents": [
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            ]
+        }
+    ]
+}
 ```
 
-#### `importFromJSON(jsonObj, overwrite=False)`
-Import an entire preset from a JSON object and convert to `ProofPreset()` object. Since each `ProofPreset()` object can only contain one preset, if `overwrite=False`, a `ProofPresetError` will be raised.
+#### `importFromJSON(jsonInput, overwrite=False)`
+Import an entire preset from a JSON file path or a JSON-like `str` and convert it to a `ProofPreset()` object. Since each `ProofPreset()` object can only contain one preset, if `overwrite=False`, a `ProofPresetError` will be raised.
 
-This method simply converts a JSON object into a Python dictionary and passes it to the `importPreset()` method, so it has the same restrictions / requirements / processes as described below.
+This method simply reads the file path if given, converts a JSON object into a Python dictionary, and passes it to the `importPyDict()` method, so it has the same restrictions / requirements / processes as described next.
+
+If passing a file path, it must be to a `.json` file.
 
 ```python
-myPreset.importFromJSON(someJSONobject)
+>>> currentDir = os.path.dirname(__file__)
+>>> jsonPath = os.path.join(currentDir, "presets", "preset1.json")
+>>> myPreset.importFromJSON(jsonPath)
 ```
 
-#### `importPreset(presetToImport, overwrite=False)`
+#### `importPyDict(pyDictInput, overwrite=False)`
 Import an entire preset from a Python dict. If `overwrite=False`, a `ProofPresetError` will be raised if the `ProofPreset()` object isn't empty.
 
 Imported presets must have a name and at least one group—otherwise it's just an empty preset, which is the same as what we get when we initialize `ProofPreset()`. 
@@ -475,3 +481,6 @@ If `groupToRemove` doesn't exist, a `ProofPresetError` is raised.
     }
 ]
 ```
+
+### TODO
+Add documentation about file naming w/ counter.
