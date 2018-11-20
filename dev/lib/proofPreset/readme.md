@@ -333,11 +333,16 @@ Return the entire `ProofPreset()` as a Python dict. If `jsonFormat=True`, return
 }
 ```
 
-#### `getGroupNames()`
+#### `getGroupNames(returnCopies=True)`
 Return a list of group names.
+
+If `returnCopies=False`, only names without counters will be returned
 ```python
 >>> myPreset.getGroupNames()
-["UC", "lc", "numerals"]
+["UC", "UC-1", "UC-2", "lc", "lc-1", "numerals", "symbols", "symbols-1"]
+
+>>> myPreset.getGroupNames(returnCopies=False)
+["UC", "lc","numerals", "symbols"]
 ```
 
 #### `getGroups(verbose=True)`
