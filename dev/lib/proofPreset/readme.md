@@ -1,6 +1,9 @@
 # Proof Preset
 A Preset object for `ProofDrawer()`.
 
+**TODO**  
+Think about making a base preset implementation (`BasePreset()`?) as a parent of `ProofPreset()` so we can make other child preset objects (`ColorPreset()`, `PrintPreset()`, etc. etc.).
+
 ## Structure
 `ProofPreset()` objects are nested collections (lists and dicts) and have this structure:
 ```python
