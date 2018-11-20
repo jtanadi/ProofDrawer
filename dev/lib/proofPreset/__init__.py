@@ -36,7 +36,7 @@ class ProofPreset:
     Getters:
     - getPresetName()
     - getPreset()
-    - getGroupNames()
+    - getGroupNames(returnCopies=True)
     - getGroups()
     - getXMLGroups()
     """
@@ -97,12 +97,10 @@ class ProofPreset:
         #     count += 1
         # return newName
 
-        groupNames = self.getGroupNames()
         nameToReturn = newName
-
         # If newName hasn't been tracked,
         # initialize key/value in dict
-        if newName not in groupNames:
+        if newName not in self.getGroupNames():
             self._groupNameCount[newName] = 1
 
         # Else, append count to nameToReturn and
@@ -249,10 +247,17 @@ class ProofPreset:
             return json.dumps(self.preset, indent=2)
         return self.preset
 
-    def getGroupNames(self):
+    def getGroupNames(self, returnCopies=True):
         """
-        Return a list of all group names
+        Return a list of all group names.
+        If returnCopies=False, only return names without count
+        (ie. out of group, group-1, group-2, only return group)
         """
+        # Maybe a little hacky, but we already have a dict
+        # of "base" group names
+        if not returnCopies:
+            return [groupName for groupName in self._groupNameCount]
+
         return [group["name"] for group in self.preset["groups"]]
 
     def getGroups(self, verbose=True):

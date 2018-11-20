@@ -79,6 +79,20 @@ class TestGroupNames(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    def test_dontReturnNameCopies(self):
+        """
+        Import from XML doc, where groups
+        have the same name.
+
+        At import, duplicate names should have
+        a count appended, but only return names
+        without count.
+        """
+        self.proofPreset.importFromXML(self.xmlProof)
+        actual = Counter(self.proofPreset.getGroupNames(returnCopies=False))
+        expected = Counter(["controls", "lc", "numerals", "UC", "UC & lc"])
+
+        self.assertEqual(actual, expected)
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
