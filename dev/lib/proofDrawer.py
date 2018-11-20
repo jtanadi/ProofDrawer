@@ -90,7 +90,7 @@ class ProofDrawer:
         textHeight = 20
         popUpLeft = left + textWidth + 5
         presetsPopUpWidth = width - popUpLeft - 47
-        listWidth = textWidth + presetsPopUpWidth 
+        listWidth = textWidth + presetsPopUpWidth
 
         self.w = Window((width, 600), "Proof Drawer")
 
