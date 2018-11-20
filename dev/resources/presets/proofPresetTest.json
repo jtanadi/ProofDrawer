@@ -1,0 +1,40 @@
+{
+  "name": "proofPreset1",
+  "groups": [
+    {
+      "name": "UC, lc, numerals",
+      "typeSize": "",
+      "leading": "",
+      "print": false,
+      "contents": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789"
+      ]
+    },
+    {
+      "name": "UC control",
+      "typeSize": "",
+      "leading": "",
+      "print": false,
+      "contents": [
+        "|H| |O| HOHOHOHO",
+        "|A| HAHAHAOAOAOA",
+        "|B| HBHBHBOBOBOB",
+        "|C| HCHCHCOCOCOC"
+      ]
+    },
+    {
+      "name": "lc control",
+      "typeSize": "",
+      "leading": "",
+      "print": false,
+      "contents": [
+        "|n| |o| nononono",
+        "|a| nananaoaoaoa",
+        "|b| nbnbnbobobob",
+        "|c| ncncncocococ"
+      ]
+    }
+  ]
+}
