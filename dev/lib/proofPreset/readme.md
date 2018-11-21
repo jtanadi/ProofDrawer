@@ -37,7 +37,6 @@ Think about making a base preset implementation (`BasePreset()`?) as a parent of
 Each item in the `contents` list is a line of proof string.
 
 At initialization, a `ProofPreset()` object only has `name` (`"myPreset"` by default, unless passed in by user) and `groups`, which is an empty list.
-
 ```python
 >>> myPreset = ProofPreset() # Default preset name is "myPreset"
 >>> coolPreset = ProofPreset("Cool Preset") # Preset name is "Cool Preset"
@@ -55,7 +54,6 @@ Import an entire preset from a JSON file path or a JSON-like `str` and convert i
 This method simply reads the file path or string, converts the JSON object into a Python dictionary, and passes it to the `importPyDict()` method, so it has the same restrictions / requirements / processes as described next.
 
 If passing a file path, it must be to a `.json` file.
-
 ```python
 >>> currentDir = os.path.dirname(__file__)
 >>> jsonPath = os.path.join(currentDir, "presets", "preset1.json")
@@ -72,7 +70,6 @@ Before fully importing, `ProofPreset()` performs some basic tasks:
 - Add missing keys. If any of the keys listed above are missing, they will be added to the group.
 
 After import, `ProofPreset()` inspects all imported group names and appends a "count" to duplicated names.
-
 ```python
 >>> newPreset = {
     "name": "New Preset",
@@ -192,7 +189,6 @@ If any part of the validation process fails, an `XMLtagError` is raised.
 Because `xmlTaggedInput` isn't a preset (ie. doesn't contain other data like `typeSize`), `ProofPreset()` will inject empty values into each group.
 
 If passing a file path, it must be to an `.xml` or `.txt` file.
-
 ```python
 >>> proofStr = "<group>\nUC\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n</group>"
 >>> proofList = ["<group>", "UC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "</group>"]
@@ -221,7 +217,6 @@ _Should `ProofPreset()` export to a file w/ same name as preset name?_
 Export an entire preset to a JSON file. `filePath` must have have `.json` extension. If the file doesn't exist, it will be created.
 
 This method is a helper built ontop of `getPreset(jsonFormat=True)`.
-
 ```python
 >>> currentDir = os.path.dirname(__file__)
 >>> jsonFilePath = os.path.join(currentDir, "presets", "myPreset.json")
@@ -262,7 +257,6 @@ _Should `ProofPreset()` export to a file w/ same name as preset name?_
 Export `ProofPreset()` groups as XML-tagged groups. `filePath` must have an `.xml` or `.txt` extension. If the file doesn't exist, it will be created.
 
 This method is a helper built on top of `getXMLGroups()`.
-
 ```python
 >>> currentDir = os.path.dirname(__file__)
 >>> xmlFilePath = os.path.join(currentDir, "proof groups", "myProofGroups.xml")
@@ -401,7 +395,6 @@ abcdefghijklmnopqrstuvwxyz
 
 #### `renamePreset(newName)`
 Rename a `ProofPreset()` object. `newName` is a string and can be anything, even if the name already exists; the `ProofPreset()` object doesn't do any checking.
-
 ```python
 >>> newPreset = ProofPreset("New Preset")
 >>> newPreset.getPresetName()
@@ -416,7 +409,6 @@ Rename a `ProofPreset()` object. `newName` is a string and can be anything, even
 Duplicate a `ProofPreset()` object. If `duplicateName` is passed in, the duplicated object will have that name; otherwise, it will us the name of the original with "-copy" appended.
 
 The object returned is a `deepcopy` and needs to be captured by a variable.
-
 ```python
 >>> myPreset = ProofPreset("My Preset")
 >>> dupePreset1 = myPreset.duplicate()
@@ -434,6 +426,7 @@ Edit a specified group. `groupToEdit` can be the name of a group or its index wi
 
 `**kwargs` will accept any `key=value` pair. If the `key` passed in isn't part of the necessary set of keys (`name`, `typeSize`, `leading`, `print`, `contents`), it will be ignored.
 
+`typeSize` and `leading` **must** be `float`s. If not, a `ValueError` will be raised.
 ```python
 >>> myPreset.getGroups()
 [
@@ -479,7 +472,6 @@ Add a proof group to the `ProofPreset()` object. The new group is added to the e
 `groupToAdd` is a Python dict with at least a `name` key. Much like when importing an entire Preset, `ProofPreset()` checks whether any necessary keys are missing (and adds them) and whether the new group has unneeded keys (and doesn't include them).
 
 If `overwrite=False` and a group of the same name already exists, `ProofPreset()` will add a "count" to the end of the new group's name.
-
 ```python
 >>> newGroup = {
     "name": "Numerals"
@@ -537,7 +529,6 @@ If `overwrite=False` and a group of the same name already exists, `ProofPreset()
 
 #### `moveGroup(currentIndex, newIndex)`
 Move group of `currentIndex` to `newIndex`.
-
 ```python
 >>> myPreset.getGroups(verbose=False)
 [
@@ -582,7 +573,6 @@ Move group of `currentIndex` to `newIndex`.
 
 #### `removeGroup(groupToRemove)`
 Remove a group from the `ProofPreset()` object. `groupToRemove` can be the index of the group within the `groups` list or the name of the group.
-
 ```python
 >>> myPreset.getGroups(verbose=False)
 [
