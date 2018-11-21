@@ -1,10 +1,5 @@
 """
 Main window of Proof Drawer
-
-STILL NEED TO BE DONE:
-- This window should only be a "representation" of ProofPreset object.
-- All interactions should affect the ProofPreset object that it's representing
-  (ie. ProofPreset has methods that the users affect through UI)
 """
 
 import os
@@ -30,7 +25,6 @@ class ProofDrawer:
         self.editedGroupIndex = None
 
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
-        self.ignoreCheckFloat = False
         
         self._buildUI()
         self._refreshProofGroups()
@@ -215,8 +209,6 @@ class ProofDrawer:
         Refresh self.w.proofGroups and
         set order numbers
         """
-        # self.ignoreCheckFloat = True
-
         # Set flag so editProofGroupsCB() isn't
         # called when set proofGroups contents &
         # set order numbers
@@ -230,35 +222,6 @@ class ProofDrawer:
             newOrder += 1
 
         self._proofReadyToEdit = True
-        # self.ignoreCheckFloat = False
-
-    def _checkFloat(self, sender):
-        """
-        Make sure users don't input non-floats by capturing
-        value prior to new input, then using it
-        if user tries to input an illegal character
-
-        Only check float when user directly edits List;
-        add, remove, and move functions all ignore this function
-        """
-        pass
-        # if self.ignoreCheckFloat:
-        #     return
-
-        # selectionIndex = sender.getSelection()[0]
-        # editedGroup = self.w.proofGroups[selectionIndex]
-
-        # for key, value in editedGroup.items():
-        #     if key != "type size" and key != "leading":
-        #         continue
-
-        #     if value:
-        #         # Store everything up to newly-typed character
-        #         allButLast = value[:-1]
-        #         try:
-        #             float(value)
-        #         except ValueError:
-        #             editedGroup[key] = allButLast
 
     def fontButtonCB(self, sender):
         # pass
@@ -290,7 +253,6 @@ class ProofDrawer:
         self._uiEnabled(False)
 
     def editProofGroupsCB(self, sender):
-
         # Don't do anything if proof groups aren't
         # ready to be edited or if nothing is selected
         if not self._proofReadyToEdit or\
@@ -301,23 +263,32 @@ class ProofDrawer:
 
         currentGroup = self.currentPreset.getGroups()[selectedIndex]
         currentName = currentGroup["name"]
+        currentPrint = currentGroup["print"]
         currentSize = currentGroup["typeSize"]
         currentLeading = currentGroup["leading"]
-        currentPrint = currentGroup["print"]
 
         newName = self.w.proofGroups[selectedIndex]["name"]
-        newSize = self.w.proofGroups[selectedIndex]["typeSize"]
-        newLeading = self.w.proofGroups[selectedIndex]["leading"]
         newPrint = self.w.proofGroups[selectedIndex]["print"]
 
         if newName != currentName:
             self.currentPreset.editGroup(selectedIndex, name=newName)
-        if newSize != currentSize:
-            self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
-        if newLeading != currentLeading:
-            self.currentPreset.editGroup(selectedIndex, leading=newLeading)
         if newPrint != currentPrint:
             self.currentPreset.editGroup(selectedIndex, print=newPrint)
+
+        # float conversion should prob happen in editGroup?
+        try:
+            newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
+            if newSize != currentSize:
+                self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
+        except ValueError:
+            self.w.proofGroups[selectedIndex]["typeSize"] = currentSize
+
+        try:
+            newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
+            if newLeading != currentLeading:
+                self.currentPreset.editGroup(selectedIndex, leading=newLeading)
+        except ValueError:
+            self.w.proofGroups[selectedIndex]["leading"] = currentLeading
 
         self._refreshProofGroups()
 
@@ -329,13 +300,10 @@ class ProofDrawer:
         The sorting works by holding the selected object
         in a temp variable, deleting from the groups list,
         and then re-inserting in the index before or after.
-
-        Don't check float while running this function.
         """
         if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
 
-        self.ignoreCheckFloat = True
         direction = sender.getTitle()
         currentIndex = self.w.proofGroups.getSelection()[0]
 
@@ -349,45 +317,37 @@ class ProofDrawer:
             if currentIndex == len(self.w.proofGroups) - 1:
                 return
             newIndex = currentIndex + 1
-        
+
         self.currentPreset.moveGroup(currentIndex, newIndex)
         self._refreshProofGroups()
         self.w.proofGroups.setSelection([newIndex])
-        self.ignoreCheckFloat = False
 
     def removeGroupCB(self, sender):
         """
         Delete selected and refresh order number.
-        Don't check float while running this function
         """
         if not self.w.proofGroups or not self.w.proofGroups.getSelection():
             return
         
-        self.ignoreCheckFloat = True
         selectionIndex = self.w.proofGroups.getSelection()[0]
         self.currentPreset.removeGroup(selectionIndex)
         self._refreshProofGroups()
         self.w.proofGroups.setSelection([selectionIndex])
-        self.ignoreCheckFloat = False
 
     def addProofGroupCB(self, sender):
         """
         Append selected additional group to main list
         and add some information along the way.
-        Don't check float while running this function
         """
         selectionIndices = self.w.additionalGroups.getSelection()
         if not selectionIndices:
             return
 
-        self.ignoreCheckFloat = True
-        
         for index in selectionIndices:
             groupToAdd = {"name": self.w.additionalGroups[index]}
             self.currentPreset.addGroup(groupToAdd)
 
         self._refreshProofGroups()
-        self.ignoreCheckFloat = False
 
     def closeWindowCB(self, sender):
         """
