@@ -28,8 +28,8 @@ class ProofDrawer:
         self._buildUI()
         self._refreshProofGroups()
 
-        addObserver(self, "_inspectorClosed", "comInspectorClosed")
-        addObserver(self, "_updateProofGroup", "comProofGroupEdited")
+        addObserver(self, "_inspectorClosed", "com.InspectorClosed")
+        addObserver(self, "editProofGroupCB", "com.ProofGroupEdited")
         self.w.bind("close", self.closeWindowCB)
 
     def _buildUI(self):
@@ -188,17 +188,19 @@ class ProofDrawer:
         Prevent more than one inspector window
         from being opened.
         """
+        # self._refreshProofGroups()
         self._uiEnabled(True)
 
-    def _updateProofGroup(self, info):
-        """
-        Update the proof groups list to reflect
-        edits made in the inspector.
+    # def _updateProofGroup(self, info):
+    #     """
+    #     Update the proof groups list to reflect
+    #     edits made in the inspector.
 
-        The comProofGroupEdited event also returns
-        the newly-edited proof group.
-        """
-        self.w.proofGroups[self.editedGroupIndex] = info["newProofGroup"]
+    #     The com.ProofGroupEdited event also returns
+    #     the newly-edited proof group.
+    #     """
+    #     info["editedProofGroup"]
+    #     self.w.proofGroups[self.editedGroupIndex] = info["newProofGroup"]
 
     def _refreshProofGroups(self, newSelection=0):
         """
@@ -240,8 +242,10 @@ class ProofDrawer:
         if not self.w.proofGroups.getSelection():
             return
 
-        self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
-        selectedGroup = self.w.proofGroups[self.editedGroupIndex]
+        editGroupIndex = self.w.proofGroups.getSelection()[0]
+        selectedGroup = self.currentPreset.getGroups()[editGroupIndex]
+        # self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
+        # selectedGroup = self.w.proofGroups[self.editedGroupIndex]
 
         self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
@@ -249,7 +253,7 @@ class ProofDrawer:
         self.proofGroupInspector.w.makeKey()
         self._uiEnabled(False)
 
-    def editProofGroupCB(self, sender):
+    def editProofGroupCB(self, senderOrInfo):
         """
         Edit selected proof group and refresh proof groups list.
 
@@ -270,20 +274,36 @@ class ProofDrawer:
         currentPrint = currentGroup["print"]
         currentSize = currentGroup["typeSize"]
         currentLeading = currentGroup["leading"]
+        currentContents = currentGroup["contents"]
 
-        newName = self.w.proofGroups[selectedIndex]["name"]
-        newPrint = self.w.proofGroups[selectedIndex]["print"]
+        # Print isn't edited in inspector
+        # Contents aren't edited in main window
+        newPrint = None
+        newContents = None
 
-        # ProofPreset.editGroup() will only accept floats for
-        # typeSize and leading
-        try:
-            newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
-        except ValueError:
-            newSize = currentSize
-        try:
-            newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
-        except ValueError:
-            newLeading = currentLeading
+        if senderOrInfo["editedProofGroup"]:
+            editedGroup = senderOrInfo["editedProofGroup"]
+            newName = editedGroup["name"]
+            newSize = editedGroup["typeSize"]
+            newLeading = editedGroup["leading"]
+            newContents = editedGroup["contents"]
+
+        else:
+            newName = self.w.proofGroups[selectedIndex]["name"]
+            newPrint = self.w.proofGroups[selectedIndex]["print"]
+
+            # ProofPreset.editGroup() will only accept floats for
+            # typeSize and leading
+            try:
+                newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
+            except ValueError:
+                newSize = currentSize
+            try:
+                newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
+            except ValueError:
+                newLeading = currentLeading
+
+
 
         # "Target" editGroup() more precisely, so we're not constantly
         # calling editGroup() on all the other values if we've only edited one
@@ -292,12 +312,14 @@ class ProofDrawer:
         # update current group name with the same "new" name
         if newName != currentName:
             self.currentPreset.editGroup(selectedIndex, name=newName)
-        if newPrint != currentPrint:
+        if newPrint is not None and newPrint != currentPrint:
             self.currentPreset.editGroup(selectedIndex, print=newPrint)
         if newSize != currentSize:
             self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
         if newLeading != currentLeading:
             self.currentPreset.editGroup(selectedIndex, leading=newLeading)
+        if newContents is not None and newContents != currentContents:
+            self.currentPreset.editGroup(selectedIndex, contents=newContents)
 
         self._refreshProofGroups(selectedIndex)
 
@@ -366,8 +388,8 @@ class ProofDrawer:
         #                              "presets", "newTestPreset.json")
         # writeJSONpreset(newPresetPath, listToWrite)
 
-        removeObserver(self, "comInspectorClosed")
-        removeObserver(self, "comProofGroupEdited")
+        removeObserver(self, "com.InspectorClosed")
+        removeObserver(self, "com.ProofGroupEdited")
 
     def testerCB(self, sender):
         """

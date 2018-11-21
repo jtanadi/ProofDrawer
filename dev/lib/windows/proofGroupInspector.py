@@ -10,7 +10,7 @@ class ProofGroupInspector:
         ProofGroupInspector.setProofGroup() is called.
         """
         self.proofGroup = proofGroup
-        self.newProofGroup = {}
+        self.editedProofGroup = {}
 
         left = 10
         row = 10
@@ -39,7 +39,7 @@ class ProofGroupInspector:
                                        continuous=True,
                                        callback=self._checkFloat)
 
-        self.w.typeSizeEdit.set(self.proofGroup["type size"])
+        self.w.typeSizeEdit.set(self.proofGroup["typeSize"])
 
         self.w.leading = TextBox((leftEditText + 80, row + 2, 60, 22),
                                  "Leading:")
@@ -63,7 +63,7 @@ class ProofGroupInspector:
         self.w.cancelButton = Button((leftEditText, row, 138, 20),
                                      "Cancel",
                                      callback=self.cancelCB)
-        
+
         leftEditText += 147
         self.w.okButton = Button((leftEditText, row, 138, 20),
                                  "OK",
@@ -73,7 +73,7 @@ class ProofGroupInspector:
         self.w.bind("close", self._postCloseEvent)
 
     def _postCloseEvent(self, sender):
-        postEvent("comInspectorClosed")
+        postEvent("com.InspectorClosed")
 
     def _checkFloat(self, sender):
         """
@@ -81,6 +81,7 @@ class ProofGroupInspector:
         value prior to new input, then using it
         if user tries to input an illegal character
         """
+        # pass
         # Store everything up to newly-typed character
         allButLast = sender.get()[:-1]
         try:
@@ -106,12 +107,13 @@ class ProofGroupInspector:
         Get everything from fields, save in self.newProofGroup dict,
         post events (pass the new group to observer), and close window
         """
-        self.newProofGroup["name"] = self.w.groupNameEdit.get().strip()
-        self.newProofGroup["type size"] = self.w.typeSizeEdit.get()
-        self.newProofGroup["leading"] = self.w.leadingEdit.get()
-        self.newProofGroup["contents"] = self._makeCleanList(self.w.contentsEdit.get())
+        
+        self.editedProofGroup["name"] = self.w.groupNameEdit.get().strip()
+        self.editedProofGroup["typeSize"] = float(self.w.typeSizeEdit.get())
+        self.editedProofGroup["leading"] = float(self.w.leadingEdit.get())
+        self.editedProofGroup["contents"] = self._makeCleanList(self.w.contentsEdit.get())
 
-        postEvent("comProofGroupEdited", newProofGroup=self.newProofGroup)
+        postEvent("com.ProofGroupEdited", editedProofGroup=self.editedProofGroup)
         self.w.close()
 
     def cancelCB(self, sender):
@@ -122,8 +124,7 @@ if __name__ == "__main__":
     # Test basic functions
     tempProofGroup = {
         "name": "UC, lc, numerals",
-        "order": 1,
-        "type size": 10,
+        "typeSize": 10,
         "leading": 18,
         "print": False,
         "contents": [
