@@ -1,21 +1,37 @@
 {
-  "name": "proofPreset1",
+  "name": "My new preset",
   "groups": [
     {
-      "name": "UC, lc, numerals",
-      "typeSize": 10,
-      "leading": 12,
+      "name": "UC",
+      "typeSize": "",
+      "leading": "",
       "print": false,
       "contents": [
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        "abcdefghijklmnopqrstuvwxyz",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      ]
+    },
+    {
+      "name": "lc",
+      "typeSize": "",
+      "leading": "",
+      "print": false,
+      "contents": [
+        "abcdefghijklmnopqrstuvwxyz"
+      ]
+    },
+    {
+      "name": "numerals",
+      "typeSize": "",
+      "leading": "",
+      "print": false,
+      "contents": [
         "0123456789"
       ]
     },
     {
       "name": "UC control",
-      "typeSize": 10,
-      "leading": 12,
+      "typeSize": "",
+      "leading": "",
       "print": false,
       "contents": [
         "|H| |O| HOHOHOHO",
@@ -26,8 +42,8 @@
     },
     {
       "name": "lc control",
-      "typeSize": 10,
-      "leading": 12,
+      "typeSize": "",
+      "leading": "",
       "print": false,
       "contents": [
         "|n| |o| nononono",
