@@ -37,7 +37,7 @@ class ProofPreset:
     - getPresetName()
     - getPreset()
     - getGroupNames(returnCopies=True)
-    - getGroups()
+    - getGroups(verbose=True)
     - getXMLGroups()
     """
     def __init__(self, presetName="myPreset"):
