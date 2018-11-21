@@ -7,7 +7,7 @@ STILL NEED TO BE DONE:
   (ie. ProofPreset has methods that the users affect through UI)
 """
 
-import os.path
+import os
 from mojo.events import addObserver, removeObserver
 from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
                     List, CheckBoxListCell, HorizontalLine
@@ -18,32 +18,30 @@ from proofPreset import ProofPreset
 from windows.proofGroupInspector import ProofGroupInspector
 
 class ProofDrawer:
-    def __init__(self, inputPreset):
+    def __init__(self, presetsList):
         self.fonts = ["Font 1", "Font 2"]
-        self.presets = ["Preset 1", "Preset 2"]
+        self.presetsList = presetsList
+
+        self.currentPreset = self.presetsList[0]
+        self.presetNames = []
+        self._getPresetNames()
 
         self.proofGroupInspector = None
         self.editedGroupIndex = None
 
-        # These lists should be imported from json preset file
-        # proofGroupsList = readJSONpreset(proofListFilePath)
-        # or the extension looks at the resources folder for presets
-        
-        # Testing importing list
-        presetGroups = inputPreset.getPreset()["groups"]
-        self.additionalGroupsList = inputPreset.getGroupNames()
-
         self.listHasBeenEdited = False # A flag for later... see closeWindowCB()
         self.ignoreCheckFloat = False
-
-        self._buildUI(presetGroups)
+        
+        self._buildUI()
+        self._refreshProofGroups()
+        
 
         addObserver(self, "_inspectorClosed", "comInspectorClosed")
         addObserver(self, "_updateProofGroup", "comProofGroupEdited")
         self.w.bind("close", self.closeWindowCB)
 
-    def _buildUI(self, proofGroups):
-        editPresetsImgPath = os.path.join(currentFilePath,\
+    def _buildUI(self):
+        editPresetsImgPath = os.path.join(currentFileDir,\
                                           "..", "resources",\
                                           "editPresetsIcon.pdf")
 
@@ -68,7 +66,7 @@ class ProofDrawer:
             },
             {
                 "title": "Leading",
-                "key": "leadig",
+                "key": "leading",
                 "width": 65,
                 "editable": True
             },
@@ -80,8 +78,8 @@ class ProofDrawer:
         ]
 
         # Add order number for our list
-        for index, group in enumerate(proofGroups):
-            group["order"] = index + 1
+        # for index, group in enumerate(self.currentPreset.getGroups()):
+        #     group["order"] = index + 1
 
         width = 425
         left = 10
@@ -106,16 +104,14 @@ class ProofDrawer:
                                     "Preset:",
                                     alignment="right")
 
-        
         self.w.presetsList = PopUpButton((popUpLeft, row, presetsPopUpWidth, textHeight),
-                                         items=self.presets,
-                                         callback=self.testerCB)
+                                         items=self.presetNames,
+                                         callback=self.setCurrentPresetCB)
 
         self.w.editPresets = ImageButton((width - 38, row, 22, 22),
                                          imagePath=editPresetsImgPath,
                                          bordered=False,
                                          callback=self.testerCB)
-
 
         row += 35
         self.w.line1 = HorizontalLine((left, row, -10, 1))
@@ -123,11 +119,11 @@ class ProofDrawer:
         row += 15
         self.w.proofGroups = List((left + 3, row, listWidth, 255),
                                   rowHeight=18,
-                                  items=proofGroups,
+                                  items=self.currentPreset.getGroups(),
                                   columnDescriptions=listForList,
                                   allowsSorting=False,
                                   allowsMultipleSelection=False,
-                                  editCallback=self._checkFloat)
+                                  editCallback=self.editProofGroupsCB)
 
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
@@ -136,7 +132,7 @@ class ProofDrawer:
                                 callback=self.inspectGroupCB)
 
         buttonGroup1Top += 40
-        self.w.moveGroupUP = Button((buttonGroup1Left , buttonGroup1Top, 30, 20),
+        self.w.moveGroupUP = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                     "↑",
                                     callback=self.moveGroupCB)
         buttonGroup1Top += 25
@@ -147,8 +143,7 @@ class ProofDrawer:
         buttonGroup1Top += 40
         self.w.removeGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
                                     "-",
-                                    callback=self.removeGroup)
-        
+                                    callback=self.removeGroupCB)
 
         row += 275
         self.w.line2 = HorizontalLine((left, row, -10, 1))
@@ -160,13 +155,13 @@ class ProofDrawer:
         row += 25
         self.w.additionalGroups = List((left + 3, row, listWidth, 150),
                                        rowHeight=17,
-                                       items=self.additionalGroupsList,
+                                       items=self.currentPreset.getGroupNames(returnCopies=False),
                                        allowsSorting=False,
                                        allowsMultipleSelection=False)
 
         self.w.addGroup = Button((buttonGroup1Left, row + 60, 30, 20),
-                            "+",
-                            callback=self.addProofGroupCB)
+                                 "+",
+                                 callback=self.addProofGroupCB)
 
         # row += 25
         # self.w.previewButton = Button((additionalWidth + 20, row, -10, 20),
@@ -177,6 +172,10 @@ class ProofDrawer:
         # self.w.printButton = Button((additionalWidth + 20, row, -10, 20),
         #                              "Print",
         #                              callback=self.testerCB)
+
+    def _getPresetNames(self):
+        for preset in self.presetsList:
+            self.presetNames.append(preset.getPresetName())
 
     def _uiEnabled(self, onOff=True):
         """
@@ -211,14 +210,27 @@ class ProofDrawer:
         """
         self.w.proofGroups[self.editedGroupIndex] = info["newProofGroup"]
 
-    def _refreshOrder(self):
+    def _refreshProofGroups(self):
         """
-        Simple method to refresh the order number.
+        Refresh self.w.proofGroups and
+        set order numbers
         """
+        # self.ignoreCheckFloat = True
+
+        # Set flag so editProofGroupsCB() isn't
+        # called when set proofGroups contents &
+        # set order numbers
+        self._proofReadyToEdit = False
+        
+        self.w.proofGroups.set(self.currentPreset.getGroups())
+
         newOrder = 1
         for item in self.w.proofGroups:
             item["order"] = newOrder
             newOrder += 1
+
+        self._proofReadyToEdit = True
+        # self.ignoreCheckFloat = False
 
     def _checkFloat(self, sender):
         """
@@ -229,28 +241,36 @@ class ProofDrawer:
         Only check float when user directly edits List;
         add, remove, and move functions all ignore this function
         """
-        if self.ignoreCheckFloat:
-            return
+        pass
+        # if self.ignoreCheckFloat:
+        #     return
 
-        selectionIndex = sender.getSelection()[0]
-        editedGroup = self.w.proofGroups[selectionIndex]
+        # selectionIndex = sender.getSelection()[0]
+        # editedGroup = self.w.proofGroups[selectionIndex]
 
-        for key, value in editedGroup.items():
-            if key != "type size" and key != "leading":
-                continue
+        # for key, value in editedGroup.items():
+        #     if key != "type size" and key != "leading":
+        #         continue
 
-            if value:
-                # Store everything up to newly-typed character
-                allButLast = value[:-1]
-                try:
-                    float(value)
-                except ValueError:
-                    editedGroup[key] = allButLast
+        #     if value:
+        #         # Store everything up to newly-typed character
+        #         allButLast = value[:-1]
+        #         try:
+        #             float(value)
+        #         except ValueError:
+        #             editedGroup[key] = allButLast
 
     def fontButtonCB(self, sender):
         # pass
         selectedFont = self.fonts[sender.get()]
         self.w.setTitle("Proof Drawer: %s" % selectedFont)
+
+    def setCurrentPresetCB(self, sender):
+        selectedIndex = sender.get()
+        self.currentPreset = self.presetsList[selectedIndex]
+        self.w.proofGroups.set(self.currentPreset.getGroups())
+        self.w.additionalGroups.set(self.currentPreset.getGroupNames(returnCopies=False))
+        self._refreshProofGroups()
 
     def inspectGroupCB(self, sender):
         """
@@ -269,6 +289,38 @@ class ProofDrawer:
         self.proofGroupInspector.w.makeKey()
         self._uiEnabled(False)
 
+    def editProofGroupsCB(self, sender):
+
+        # Don't do anything if proof groups aren't
+        # ready to be edited or if nothing is selected
+        if not self._proofReadyToEdit or\
+        not self.w.proofGroups.getSelection():
+            return
+
+        selectedIndex = self.w.proofGroups.getSelection()[0]
+
+        currentGroup = self.currentPreset.getGroups()[selectedIndex]
+        currentName = currentGroup["name"]
+        currentSize = currentGroup["typeSize"]
+        currentLeading = currentGroup["leading"]
+        currentPrint = currentGroup["print"]
+
+        newName = self.w.proofGroups[selectedIndex]["name"]
+        newSize = self.w.proofGroups[selectedIndex]["typeSize"]
+        newLeading = self.w.proofGroups[selectedIndex]["leading"]
+        newPrint = self.w.proofGroups[selectedIndex]["print"]
+
+        if newName != currentName:
+            self.currentPreset.editGroup(selectedIndex, name=newName)
+        if newSize != currentSize:
+            self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
+        if newLeading != currentLeading:
+            self.currentPreset.editGroup(selectedIndex, leading=newLeading)
+        if newPrint != currentPrint:
+            self.currentPreset.editGroup(selectedIndex, print=newPrint)
+
+        self._refreshProofGroups()
+
     def moveGroupCB(self, sender):
         """
         Both up and down buttons call this method because
@@ -285,27 +337,25 @@ class ProofDrawer:
 
         self.ignoreCheckFloat = True
         direction = sender.getTitle()
-        selectionIndex = self.w.proofGroups.getSelection()[0]
+        currentIndex = self.w.proofGroups.getSelection()[0]
 
-        selectionObj = self.w.proofGroups[selectionIndex]
         if direction == "↑":
             # First object can't move up
-            if selectionIndex == 0:
+            if currentIndex == 0:
                 return
-            newIndex = selectionIndex - 1
+            newIndex = currentIndex - 1
         else:
             # Last object can't move down
-            if selectionIndex == len(self.w.proofGroups) - 1:
+            if currentIndex == len(self.w.proofGroups) - 1:
                 return
-            newIndex = selectionIndex + 1
+            newIndex = currentIndex + 1
         
-        del self.w.proofGroups[selectionIndex]
-        self.w.proofGroups.insert(newIndex, selectionObj)
+        self.currentPreset.moveGroup(currentIndex, newIndex)
+        self._refreshProofGroups()
         self.w.proofGroups.setSelection([newIndex])
-        self._refreshOrder()
         self.ignoreCheckFloat = False
 
-    def removeGroup(self, sender):
+    def removeGroupCB(self, sender):
         """
         Delete selected and refresh order number.
         Don't check float while running this function
@@ -315,8 +365,9 @@ class ProofDrawer:
         
         self.ignoreCheckFloat = True
         selectionIndex = self.w.proofGroups.getSelection()[0]
-        del self.w.proofGroups[selectionIndex]
-        self._refreshOrder()
+        self.currentPreset.removeGroup(selectionIndex)
+        self._refreshProofGroups()
+        self.w.proofGroups.setSelection([selectionIndex])
         self.ignoreCheckFloat = False
 
     def addProofGroupCB(self, sender):
@@ -330,29 +381,26 @@ class ProofDrawer:
             return
 
         self.ignoreCheckFloat = True
+        
         for index in selectionIndices:
-            proofRow = {
-                "name": self.additionalGroupsList[index],
-                "order": len(self.w.proofGroups) + 1,
-                "type size": "",
-                "leading": "",
-                "print": False
-            }
-            self.w.proofGroups.append(proofRow)
+            groupToAdd = {"name": self.w.additionalGroups[index]}
+            self.currentPreset.addGroup(groupToAdd)
+
+        self._refreshProofGroups()
         self.ignoreCheckFloat = False
 
     def closeWindowCB(self, sender):
         """
         On close, save the state of the current preset.
         """
-        if self.proofGroupInspector:
-            self.proofGroupInspector.w.close()
+        # if self.proofGroupInspector:
+        #     self.proofGroupInspector.w.close()
 
-        listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
+        # listToWrite = hf.convertToListOfPyDicts(self.w.proofGroups)
 
-        newPresetPath = os.path.join(currentFilePath, "..", "resources",\
-                                     "presets", "newTestPreset.json")
-        writeJSONpreset(newPresetPath, listToWrite)
+        # newPresetPath = os.path.join(currentFilePath, "..", "resources",\
+        #                              "presets", "newTestPreset.json")
+        # writeJSONpreset(newPresetPath, listToWrite)
 
         removeObserver(self, "comInspectorClosed")
         removeObserver(self, "comProofGroupEdited")
@@ -363,19 +411,20 @@ class ProofDrawer:
         """
         print("hit: ", sender)
 
+
 if __name__ == "__main__":
-    # This is just for testing. ProofDrawer() shouldn't import proof document
-    # at init, and should import a json preset instead
-    currentFilePath = os.path.dirname(__file__)
-    proofFilePath = os.path.join(currentFilePath, "..", "resources", "proofFile.txt")
-    # jsonFilePath = os.path.join(currentFilePath, "..", "resources", "proofPreset.json")
+    currentFileDir = os.path.dirname(__file__)
+    presetsDir = os.path.join(currentFileDir, "..", "resources", "presets")
 
-    with open(proofFilePath, "r") as proofFile:
-        proofList = proofFile.readlines()
+    presetsToUse = []
+    for fileName in os.listdir(presetsDir):
+        ext = os.path.splitext(fileName)[1]
+        if ext == ".json":
+            jsonPath = os.path.join(presetsDir, fileName)
+            newPreset = ProofPreset()
+            newPreset.importFromJSON(jsonPath)
+            presetsToUse.append(newPreset)
 
-    preset = ProofPreset("preset")
-    preset.importFromXML(proofList)
-    
-    proofDrawer = ProofDrawer(preset)
+    proofDrawer = ProofDrawer(presetsToUse)
     proofDrawer.w.open()
     proofDrawer.w.center()
