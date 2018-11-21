@@ -188,19 +188,7 @@ class ProofDrawer:
         Prevent more than one inspector window
         from being opened.
         """
-        # self._refreshProofGroups()
         self._uiEnabled(True)
-
-    # def _updateProofGroup(self, info):
-    #     """
-    #     Update the proof groups list to reflect
-    #     edits made in the inspector.
-
-    #     The com.ProofGroupEdited event also returns
-    #     the newly-edited proof group.
-    #     """
-    #     info["editedProofGroup"]
-    #     self.w.proofGroups[self.editedGroupIndex] = info["newProofGroup"]
 
     def _refreshProofGroups(self, newSelection=0):
         """
@@ -256,6 +244,7 @@ class ProofDrawer:
     def editProofGroupCB(self, senderOrInfo):
         """
         Edit selected proof group and refresh proof groups list.
+        senderOrInfo accepts callback sender or info from PostEvent
 
         ProofPreset.editGroup() is called on a field-by-field basis
         so we're not trying to edit "name" when only editing "leading"
@@ -270,56 +259,74 @@ class ProofDrawer:
 
         # Capture current values for checking later
         currentGroup = self.currentPreset.getGroups()[selectedIndex]
-        currentName = currentGroup["name"]
-        currentPrint = currentGroup["print"]
-        currentSize = currentGroup["typeSize"]
-        currentLeading = currentGroup["leading"]
-        currentContents = currentGroup["contents"]
+        # currentName = currentGroup["name"]
+        # currentPrint = currentGroup["print"]
+        # currentSize = currentGroup["typeSize"]
+        # currentLeading = currentGroup["leading"]
+        # currentContents = currentGroup["contents"]
 
-        # Print isn't edited in inspector
-        # Contents aren't edited in main window
-        newPrint = None
-        newContents = None
+        # iterate instead
+        for key in currentGroup:
+            currentValue = currentGroup[key]
 
-        if senderOrInfo["editedProofGroup"]:
-            editedGroup = senderOrInfo["editedProofGroup"]
-            newName = editedGroup["name"]
-            newSize = editedGroup["typeSize"]
-            newLeading = editedGroup["leading"]
-            newContents = editedGroup["contents"]
+            if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
+                newValue = senderOrInfo["editedProofGroup"][key]
+            else:
+                print('hey')
+                newValue = self.w.proofGroups[selectedIndex][key]
 
-        else:
-            newName = self.w.proofGroups[selectedIndex]["name"]
-            newPrint = self.w.proofGroups[selectedIndex]["print"]
+                if key == "typeSize" or key == "leading":
+                    try:
+                        newValue = float(newValue)
+                    except ValueError:
+                        newValue = currentValue
 
-            # ProofPreset.editGroup() will only accept floats for
-            # typeSize and leading
-            try:
-                newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
-            except ValueError:
-                newSize = currentSize
-            try:
-                newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
-            except ValueError:
-                newLeading = currentLeading
+            if newValue != currentValue:
+                self.currentPreset.editGroup(selectedIndex, key=newValue)
 
 
+        # # Print isn't edited in inspector
+        # # Contents aren't edited in main window
+        # newPrint = None
+        # newContents = None
 
-        # "Target" editGroup() more precisely, so we're not constantly
-        # calling editGroup() on all the other values if we've only edited one
-        # For ex. if calling editGroup() on everything, when only editing leading,
-        # we'll get a ValueError("Name already exists") because it'll try to
-        # update current group name with the same "new" name
-        if newName != currentName:
-            self.currentPreset.editGroup(selectedIndex, name=newName)
-        if newPrint is not None and newPrint != currentPrint:
-            self.currentPreset.editGroup(selectedIndex, print=newPrint)
-        if newSize != currentSize:
-            self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
-        if newLeading != currentLeading:
-            self.currentPreset.editGroup(selectedIndex, leading=newLeading)
-        if newContents is not None and newContents != currentContents:
-            self.currentPreset.editGroup(selectedIndex, contents=newContents)
+        # if senderOrInfo["editedProofGroup"]:
+        #     editedGroup = senderOrInfo["editedProofGroup"]
+        #     newName = editedGroup["name"]
+        #     newSize = editedGroup["typeSize"]
+        #     newLeading = editedGroup["leading"]
+        #     newContents = editedGroup["contents"]
+
+        # else:
+        #     newName = self.w.proofGroups[selectedIndex]["name"]
+        #     newPrint = self.w.proofGroups[selectedIndex]["print"]
+
+        #     # ProofPreset.editGroup() will only accept floats for
+        #     # typeSize and leading
+        #     try:
+        #         newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
+        #     except ValueError:
+        #         newSize = currentSize
+        #     try:
+        #         newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
+        #     except ValueError:
+        #         newLeading = currentLeading
+
+        # # "Target" editGroup() more precisely, so we're not constantly
+        # # calling editGroup() on all the other values if we've only edited one
+        # # For ex. if calling editGroup() on everything, when only editing leading,
+        # # we'll get a ValueError("Name already exists") because it'll try to
+        # # update current group name with the same "new" name
+        # if newName != currentName:
+        #     self.currentPreset.editGroup(selectedIndex, name=newName)
+        # if newPrint is not None and newPrint != currentPrint:
+        #     self.currentPreset.editGroup(selectedIndex, print=newPrint)
+        # if newSize != currentSize:
+        #     self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
+        # if newLeading != currentLeading:
+        #     self.currentPreset.editGroup(selectedIndex, leading=newLeading)
+        # if newContents is not None and newContents != currentContents:
+        #     self.currentPreset.editGroup(selectedIndex, contents=newContents)
 
         self._refreshProofGroups(selectedIndex)
 
