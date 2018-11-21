@@ -1,13 +1,31 @@
+"""
+Proof group inspector window for ProofDrawer
+
+Values in proof group passed-in aren't edited dynamically
+(ie. if user edits "name" here, the original proof group
+isn't immediately affected). Instead, values are passed
+*back* to ProofDrawer only when user hits the OK button.
+
+This is to prevent the edits made here from being permanent
+while editing, in case user changes their mind and wants
+to cancel.
+
+The inspector posts an event when user presses OK button
+(change is committed and data is passed back to ProofDrawer)
+and when the window is closed (to enable ProofDrawer UI)
+"""
+
 from vanilla import FloatingWindow, TextBox, EditText,\
                     ComboBox, TextEditor, Button
 from mojo.events import postEvent
 
+from utils import helperFunctions as hf
+
 class ProofGroupInspector:
     def __init__(self, proofGroup):
         """
-        Initialize inspector with empty fields.
-        Fields will be populated when
-        ProofGroupInspector.setProofGroup() is called.
+        Initialize inspector with proofGroup data.
+        proofGroup is a dictionary passed in by ProofDrawer().
         """
         self.proofGroup = proofGroup
         self.editedProofGroup = {}
@@ -92,26 +110,15 @@ class ProofGroupInspector:
         except ValueError:
             sender.set(allButLast)
 
-    def _makeCleanList(self, contentString):
-        """
-        Return a clean list from passed-in contentString
-
-        Clean means no empty items and no leading and
-        trailing whitespaces
-        """
-        tempList = contentString.split("\n")
-        return [item.strip() for item in tempList if item.strip()]
-
     def okCB(self, sender):
         """
-        Get everything from fields, save in self.newProofGroup dict,
-        post events (pass the new group to observer), and close window
+        Get everything from fields, save in self.editedProofGroup dict,
+        post event, pass the edited group to observer, and close window
         """
-        
         self.editedProofGroup["name"] = self.w.groupNameEdit.get().strip()
         self.editedProofGroup["typeSize"] = float(self.w.typeSizeEdit.get())
         self.editedProofGroup["leading"] = float(self.w.leadingEdit.get())
-        self.editedProofGroup["contents"] = self._makeCleanList(self.w.contentsEdit.get())
+        self.editedProofGroup["contents"] = hf.makeCleanListFromStr(self.w.contentsEdit.get())
 
         postEvent("com.ProofGroupEdited", editedProofGroup=self.editedProofGroup)
         self.w.close()
