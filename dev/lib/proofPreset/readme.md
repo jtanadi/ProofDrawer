@@ -1,8 +1,9 @@
 # Proof Preset
 A Preset object for `ProofDrawer()`.
+ 
+*Think about making a base preset implementation (`BasePreset()`?) as a parent of `ProofPreset()` so we can make other child preset objects (`ColorPreset()`, `PrintPreset()`, etc. etc.).*
 
-**TODO**  
-Think about making a base preset implementation (`BasePreset()`?) as a parent of `ProofPreset()` so we can make other child preset objects (`ColorPreset()`, `PrintPreset()`, etc. etc.).
+Need to implement a `float` checker when importing XML, py dict, and JSON.
 
 ## Structure
 `ProofPreset()` objects are nested collections (lists and dicts) and have this structure:
