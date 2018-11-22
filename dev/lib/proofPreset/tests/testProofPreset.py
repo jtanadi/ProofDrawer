@@ -179,6 +179,19 @@ class ProofPresetTest(unittest.TestCase):
         actual = strTestPreset.getPreset()
         self.assertEqual(actual, expected)
 
+    def test_duplicatePreset(self):
+        """
+        Test duplication
+        """
+        newPreset = self.testPreset.duplicatePreset('new')
+        
+        oldGroups = self.testPreset.getGroups()
+        newGroups = newPreset.getGroups()
+        
+        # Make sure groups are the same, but presets aren't
+        # actually pointing to the same object in memory
+        self.assertEqual(oldGroups, newGroups)
+        self.assertNotEqual(newPreset, self.testPreset)
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
