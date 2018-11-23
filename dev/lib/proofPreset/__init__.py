@@ -189,12 +189,6 @@ class ProofPreset:
 
         return presetList
 
-    def renamePreset(self, newName):
-        """
-        Rename preset
-        """
-        self.preset["name"] = newName
-
     def duplicatePreset(self, duplicateName=None):
         """
         Return a deepcopy of this instance of the
@@ -209,17 +203,25 @@ class ProofPreset:
         duplicatePreset = copy.deepcopy(self)
 
         if duplicateName is None:
-            duplicatePreset.renamePreset(self.preset["name"] + "-copy")
+            duplicatePreset.name = self.preset["name"] + "-copy"
         else:
-            duplicatePreset.renamePreset(duplicateName)
+            duplicatePreset.name = duplicateName
 
         return duplicatePreset
 
-    def getPresetName(self):
+    @property
+    def name(self):
         """
         Return Preset name
         """
         return self.preset["name"]
+
+    @name.setter
+    def name(self, newName):
+        """
+        Rename preset
+        """
+        self.preset["name"] = newName
 
     def getPreset(self, jsonFormat=False):
         """
@@ -247,6 +249,13 @@ class ProofPreset:
             return json.dumps(self.preset, indent=2)
         return self.preset
 
+    @property
+    def uniqueGroupNames(self):
+        """
+        Return unique group names as an attribute
+        """
+        return self.getGroupNames(returnCopies=False)
+
     def getGroupNames(self, returnCopies=True):
         """
         Return a list of all group names.
@@ -259,6 +268,13 @@ class ProofPreset:
             return [groupName for groupName in self._groupNameCount]
 
         return [group["name"] for group in self.preset["groups"]]
+
+    @property
+    def groups(self):
+        """
+        Return non-verbose groups as an attribute
+        """
+        return self.getGroups(verbose=False)
 
     def getGroups(self, verbose=True):
         """
@@ -290,7 +306,8 @@ class ProofPreset:
 
         return returnGroups
 
-    def getXMLGroups(self):
+    @property
+    def xmlGroups(self):
         """
         Return XML-formatted groups:
         <group>
@@ -420,7 +437,6 @@ class ProofPreset:
         Anything else will be ignored.
         """
         if isinstance(groupToEdit, str):
-            # Why not leave to KeyError?
             if groupToEdit not in self.getGroupNames():
                 raise ValueError("Group name doesn't exist")
 
@@ -429,7 +445,6 @@ class ProofPreset:
                     groupToEdit = group
 
         elif isinstance(groupToEdit, int):
-            # Why not leave to IndexError?
             if groupToEdit > len(self.preset["groups"]) - 1:
                 raise IndexError("Index out of range")
 
@@ -590,7 +605,7 @@ class ProofPreset:
             raise ProofPresetError("File not .xml or .txt")
 
         with open(filePath, "w+") as xmlFile:
-            xmlFile.write(self.getXMLGroups())
+            xmlFile.write(self.xmlGroups)
 
 
 if __name__ == "__main__":

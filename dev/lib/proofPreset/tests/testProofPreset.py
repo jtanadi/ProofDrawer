@@ -18,13 +18,13 @@ class ProofPresetTest(unittest.TestCase):
         self.testPreset.importFromXML(testList)
 
     def test_getName(self):
-        actual = self.testPreset.getPresetName()
+        actual = self.testPreset.name
         self.assertEqual(actual, "myPreset")
 
     def test_rename(self):
         newName = "funTimes"
-        self.testPreset.renamePreset(newName)
-        actual = self.testPreset.getPresetName()
+        self.testPreset.name = newName
+        actual = self.testPreset.name
 
         self.assertEqual(newName, actual)
 
@@ -151,7 +151,7 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_baseGetXMLGroups(self):
-        actual = self.testPreset.getXMLGroups()
+        actual = self.testPreset.xmlGroups
         expected = "<group>\nUC, lc, numerals\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789\n</group>\n\n"
         expected += "<group>\nUC control\n|H| |O| HOHOHOHO\n|A| HAHAHAOAOAOA\n|B| HBHBHBOBOBOB\n|C| HCHCHCOCOCOC\n</group>\n\n"
         expected += "<group>\nlc control\n|n| |o| nononono\n|a| nananaoaoaoa\n|b| nbnbnbobobob\n|c| ncncncocococ\n</group>"
