@@ -116,8 +116,8 @@ class ProofDrawer:
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
         self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
-                                "\u24D8",
-                                callback=self.inspectGroupCB)
+                                     "\u24D8",
+                                     callback=self.inspectGroupCB)
 
         buttonGroup1Top += 40
         self.w.moveGroupUP = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
@@ -138,12 +138,12 @@ class ProofDrawer:
 
         row += 10
         self.w.additionalGroupNamesText = TextBox((left, row, -10, 20),
-                                              "Add more proof groups:")
+                                                  "Add more proof groups:")
 
         row += 25
         self.w.additionalGroupNames = List((left + 3, row, listWidth, 150),
                                            rowHeight=17,
-                                           items=self.currentPreset.getGroupNames(returnCopies=False),
+                                           items=self.currentPreset.uniqueGroupNames,
                                            allowsSorting=False,
                                            allowsMultipleSelection=True)
 
@@ -165,7 +165,7 @@ class ProofDrawer:
         """
         Get preset names for display
         """
-        return [preset.getPresetName() for preset in self.presetsList]
+        return [preset.name for preset in self.presetsList]
 
     def _uiEnabled(self, onOff=True):
         """
@@ -202,7 +202,7 @@ class ProofDrawer:
         # set order numbers
         self._proofReadyToEdit = False
 
-        self.w.proofGroups.set(self.currentPreset.getGroups())
+        self.w.proofGroups.set(self.currentPreset.groups)
 
         newOrder = 1
         for item in self.w.proofGroups:
@@ -220,7 +220,7 @@ class ProofDrawer:
         selectedPresetIndex = sender.get()
         self.currentPreset = self.presetsList[selectedPresetIndex]
         self._refreshProofGroups()
-        self.w.additionalGroupNames.set(self.currentPreset.getGroupNames(returnCopies=False))
+        self.w.additionalGroupNames.set(self.currentPreset.uniqueGroupNames)
 
     def inspectGroupCB(self, sender):
         """
@@ -231,7 +231,7 @@ class ProofDrawer:
             return
 
         editGroupIndex = self.w.proofGroups.getSelection()[0]
-        selectedGroup = self.currentPreset.getGroups()[editGroupIndex]
+        selectedGroup = self.currentPreset.groups[editGroupIndex]
         # self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
         # selectedGroup = self.w.proofGroups[self.editedGroupIndex]
 
@@ -258,75 +258,75 @@ class ProofDrawer:
         selectedIndex = self.w.proofGroups.getSelection()[0]
 
         # Capture current values for checking later
-        currentGroup = self.currentPreset.getGroups()[selectedIndex]
-        # currentName = currentGroup["name"]
-        # currentPrint = currentGroup["print"]
-        # currentSize = currentGroup["typeSize"]
-        # currentLeading = currentGroup["leading"]
-        # currentContents = currentGroup["contents"]
+        currentGroup = self.currentPreset.groups[selectedIndex]
+        currentName = currentGroup.name
+        currentPrint = currentGroup.print
+        currentSize = currentGroup.typeSize
+        currentLeading = currentGroup.leading
+        currentContents = currentGroup.contents
 
-        # iterate instead
-        for key in currentGroup:
-            currentValue = currentGroup[key]
+        # # iterate instead
+        # for key in currentGroup:
+        #     currentValue = currentGroup[key]
 
-            if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
-                newValue = senderOrInfo["editedProofGroup"][key]
-            else:
-                print('hey')
-                newValue = self.w.proofGroups[selectedIndex][key]
+        #     if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
+        #         newValue = senderOrInfo["editedProofGroup"][key]
+        #     else:
+        #         newValue = self.w.proofGroups[selectedIndex][key]
 
-                if key == "typeSize" or key == "leading":
-                    try:
-                        newValue = float(newValue)
-                    except ValueError:
-                        newValue = currentValue
+        #         if key == "typeSize" or key == "leading":
+        #             try:
+        #                 newValue = float(newValue)
+        #             except ValueError:
+        #                 newValue = currentValue
+        #     if newValue != currentValue:
+        #         print(newValue, currentValue)
+        #         self.currentPreset.editGroup(selectedIndex, key=newValue)
+        #         print(self.currentPreset.groups)
 
-            if newValue != currentValue:
-                self.currentPreset.editGroup(selectedIndex, key=newValue)
 
+        # Print isn't edited in inspector
+        # Contents aren't edited in main window
+        newPrint = None
+        newContents = None
 
-        # # Print isn't edited in inspector
-        # # Contents aren't edited in main window
-        # newPrint = None
-        # newContents = None
+        if senderOrInfo["editedProofGroup"]:
+            editedGroup = senderOrInfo["editedProofGroup"]
+            newName = editedGroup["name"]
+            newSize = editedGroup["typeSize"]
+            newLeading = editedGroup["leading"]
+            newContents = editedGroup["contents"]
 
-        # if senderOrInfo["editedProofGroup"]:
-        #     editedGroup = senderOrInfo["editedProofGroup"]
-        #     newName = editedGroup["name"]
-        #     newSize = editedGroup["typeSize"]
-        #     newLeading = editedGroup["leading"]
-        #     newContents = editedGroup["contents"]
+        else:
+            newName = self.w.proofGroups[selectedIndex].name
+            newPrint = self.w.proofGroups[selectedIndex].print
 
-        # else:
-        #     newName = self.w.proofGroups[selectedIndex]["name"]
-        #     newPrint = self.w.proofGroups[selectedIndex]["print"]
+            # ProofPreset.editGroup() will only accept floats for
+            # typeSize and leading
+            try:
+                newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
+            except ValueError:
+                newSize = currentSize
+            try:
+                newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
+            except ValueError:
+                newLeading = currentLeading
 
-        #     # ProofPreset.editGroup() will only accept floats for
-        #     # typeSize and leading
-        #     try:
-        #         newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
-        #     except ValueError:
-        #         newSize = currentSize
-        #     try:
-        #         newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
-        #     except ValueError:
-        #         newLeading = currentLeading
-
-        # # "Target" editGroup() more precisely, so we're not constantly
-        # # calling editGroup() on all the other values if we've only edited one
-        # # For ex. if calling editGroup() on everything, when only editing leading,
-        # # we'll get a ValueError("Name already exists") because it'll try to
-        # # update current group name with the same "new" name
-        # if newName != currentName:
-        #     self.currentPreset.editGroup(selectedIndex, name=newName)
-        # if newPrint is not None and newPrint != currentPrint:
-        #     self.currentPreset.editGroup(selectedIndex, print=newPrint)
-        # if newSize != currentSize:
-        #     self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
-        # if newLeading != currentLeading:
-        #     self.currentPreset.editGroup(selectedIndex, leading=newLeading)
-        # if newContents is not None and newContents != currentContents:
-        #     self.currentPreset.editGroup(selectedIndex, contents=newContents)
+        # "Target" editGroup() more precisely, so we're not constantly
+        # calling editGroup() on all the other values if we've only edited one
+        # For ex. if calling editGroup() on everything, when only editing leading,
+        # we'll get a ValueError("Name already exists") because it'll try to
+        # update current group name with the same "new" name
+        if newName != currentName:
+            self.currentPreset.editGroup(selectedIndex, name=newName)
+        if newPrint is not None and newPrint != currentPrint:
+            self.currentPreset.editGroup(selectedIndex, print=newPrint)
+        if newSize != currentSize:
+            self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
+        if newLeading != currentLeading:
+            self.currentPreset.editGroup(selectedIndex, leading=newLeading)
+        if newContents is not None and newContents != currentContents:
+            self.currentPreset.editGroup(selectedIndex, contents=newContents)
 
         self._refreshProofGroups(selectedIndex)
 
