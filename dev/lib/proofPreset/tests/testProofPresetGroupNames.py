@@ -27,7 +27,7 @@ class TestGroupNames(unittest.TestCase):
         a count appended
         """
         self.proofPreset.importFromXML(self.xmlProof)
-        actual = Counter(self.proofPreset.getGroupNames())
+        actual = Counter(self.proofPreset.groupNames)
         expected = Counter([
             "controls", "controls-1", "controls-2",
             "lc", "lc-1",
@@ -68,7 +68,7 @@ class TestGroupNames(unittest.TestCase):
         self.proofPreset.addGroup(ucGroup)
         self.proofPreset.addGroup(controlsGroup)
 
-        actual = Counter(self.proofPreset.getGroupNames())
+        actual = Counter(self.proofPreset.groupNames)
         expected = Counter([
             "controls", "controls-1", "controls-2",
             "lc", "lc-1",
@@ -89,7 +89,7 @@ class TestGroupNames(unittest.TestCase):
         without count.
         """
         self.proofPreset.importFromXML(self.xmlProof)
-        actual = Counter(self.proofPreset.getGroupNames(returnCopies=False))
+        actual = Counter(self.proofPreset.uniqueGroupNames)
         expected = Counter(["controls", "lc", "numerals", "UC", "UC & lc"])
 
         self.assertEqual(actual, expected)

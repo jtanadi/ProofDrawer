@@ -116,8 +116,8 @@ class ProofDrawer:
         buttonGroup1Left = popUpLeft + presetsPopUpWidth + 3
         buttonGroup1Top = row + 58
         self.w.inspectGroup = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
-                                "\u24D8",
-                                callback=self.inspectGroupCB)
+                                     "\u24D8",
+                                     callback=self.inspectGroupCB)
 
         buttonGroup1Top += 40
         self.w.moveGroupUP = Button((buttonGroup1Left, buttonGroup1Top, 30, 20),
@@ -138,12 +138,12 @@ class ProofDrawer:
 
         row += 10
         self.w.additionalGroupNamesText = TextBox((left, row, -10, 20),
-                                              "Add more proof groups:")
+                                                  "Add more proof groups:")
 
         row += 25
         self.w.additionalGroupNames = List((left + 3, row, listWidth, 150),
                                            rowHeight=17,
-                                           items=self.currentPreset.getGroupNames(returnCopies=False),
+                                           items=self.currentPreset.uniqueGroupNames,
                                            allowsSorting=False,
                                            allowsMultipleSelection=True)
 
@@ -165,7 +165,7 @@ class ProofDrawer:
         """
         Get preset names for display
         """
-        return [preset.getPresetName() for preset in self.presetsList]
+        return [preset.name for preset in self.presetsList]
 
     def _uiEnabled(self, onOff=True):
         """
@@ -202,7 +202,7 @@ class ProofDrawer:
         # set order numbers
         self._proofReadyToEdit = False
 
-        self.w.proofGroups.set(self.currentPreset.getGroups())
+        self.w.proofGroups.set(self.currentPreset.groups)
 
         newOrder = 1
         for item in self.w.proofGroups:
@@ -220,7 +220,7 @@ class ProofDrawer:
         selectedPresetIndex = sender.get()
         self.currentPreset = self.presetsList[selectedPresetIndex]
         self._refreshProofGroups()
-        self.w.additionalGroupNames.set(self.currentPreset.getGroupNames(returnCopies=False))
+        self.w.additionalGroupNames.set(self.currentPreset.uniqueGroupNames)
 
     def inspectGroupCB(self, sender):
         """
@@ -231,9 +231,7 @@ class ProofDrawer:
             return
 
         editGroupIndex = self.w.proofGroups.getSelection()[0]
-        selectedGroup = self.currentPreset.getGroups()[editGroupIndex]
-        # self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
-        # selectedGroup = self.w.proofGroups[self.editedGroupIndex]
+        selectedGroup = self.currentPreset.groups[editGroupIndex]
 
         self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
@@ -256,6 +254,7 @@ class ProofDrawer:
             return
 
         selectedIndex = self.w.proofGroups.getSelection()[0]
+<<<<<<< HEAD
         currentGroup = self.currentPreset.getGroups()[selectedIndex]
 
         for key, currentValue in currentGroup.items():
@@ -264,10 +263,22 @@ class ProofDrawer:
                 newValue = senderOrInfo["editedProofGroup"][key]
 
             # "sender" (coming back from List)
+=======
+        currentGroup = self.currentPreset.groups[selectedIndex]
+
+        # Generate new dict to pass into ProofPreset.editGroup()
+        propertiesToUpdate = {}
+        for key, currentValue in currentGroup.items():
+            # "info" coming back from Inspector
+            if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
+                newValue = senderOrInfo["editedProofGroup"][key]
+            # "sender" coming back from List
+>>>>>>> use_group_obj
             else:
                 newValue = senderOrInfo[selectedIndex][key]
 
             if newValue != currentValue:
+<<<<<<< HEAD
                 if key == "name":
                     self.currentPreset.editGroup(selectedIndex, name=newValue)
                 elif key == "typeSize":
@@ -284,6 +295,15 @@ class ProofDrawer:
                     self.currentPreset.editGroup(selectedIndex, print=newValue)
                 elif key == "contents":
                     self.currentPreset.editGroup(selectedIndex, contents=newValue)
+=======
+                propertiesToUpdate[key] = newValue
+
+        try:
+            self.currentPreset.editGroup(selectedIndex, propertiesToUpdate)
+        except Exception as e:
+            # Error handling here (some sort of warning window)
+            print(e)
+>>>>>>> use_group_obj
 
         self._refreshProofGroups(selectedIndex)
 

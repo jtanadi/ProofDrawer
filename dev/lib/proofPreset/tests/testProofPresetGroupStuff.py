@@ -1,7 +1,7 @@
 from proofPreset import ProofPreset, ProofPresetError
 import unittest
 
-class TestImportExport(unittest.TestCase):
+class TestGroupStuff(unittest.TestCase):
     def setUp(self):
         self.testPreset = ProofPreset("testPreset")
 
@@ -36,7 +36,7 @@ class TestImportExport(unittest.TestCase):
             ]
         }
         self.testPreset.addGroup(groupToAdd)
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         self.assertDictEqual(expectedPreset, actual)
 
     def test_addIncompleteGroup(self):
@@ -57,7 +57,7 @@ class TestImportExport(unittest.TestCase):
             ]
         }
         self.testPreset.addGroup(groupToAdd)
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         self.assertDictEqual(expectedPreset, actual)
 
     def test_overwriteGroup(self):
@@ -70,7 +70,7 @@ class TestImportExport(unittest.TestCase):
         secondGroup = {"name": "new group", "typeSize": 8, "leading": 10}
         self.testPreset.addGroup(secondGroup, overwrite=True)
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         expected = {
             "name": "testPreset",
             "groups": [
@@ -100,7 +100,7 @@ class TestImportExport(unittest.TestCase):
         thirdGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
         self.testPreset.addGroup(thirdGroup)
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
 
         expected = {
             "name": "testPreset",
@@ -163,7 +163,7 @@ class TestImportExport(unittest.TestCase):
         for group in groupsToAdd:
             self.testPreset.addGroup(group)
 
-        actual = Counter(self.testPreset.getGroupNames())
+        actual = Counter(self.testPreset.groupNames)
         expected = Counter([
             "group1", "group1-1", "group1-2", "group1-3",
             "group2", "group2-1",
@@ -181,7 +181,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(newGroup)
         self.testPreset.removeGroup("new group")
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         expected = {
             "name": "testPreset",
             "groups": []
@@ -203,7 +203,7 @@ class TestImportExport(unittest.TestCase):
 
         self.testPreset.removeGroup("new group")
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         expected = {
             "name": "testPreset",
             "groups": [
@@ -247,7 +247,7 @@ class TestImportExport(unittest.TestCase):
                                   typeSize=10, leading=12,
                                   print=False, bleep=12)
 
-        actual = self.testPreset.getGroups()
+        actual = self.testPreset.groups
         expected = [
             {
                 "name": "Even newer",
@@ -260,6 +260,21 @@ class TestImportExport(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    def test_editGroupSameName(self):
+        newGroup = {
+            "name": "New Group",
+            "typeSize": 12,
+            "leading": 14,
+            "print": True,
+            "contents": []
+        }
+        self.testPreset.addGroup(newGroup)
+
+        with self.assertRaises(ValueError):
+            self.testPreset.editGroup(0, name="New Group",
+                                      typeSize=10, leading=12,
+                                      print=False, bleep=12)
+
     def test_moveGroupUp(self):
         group1 = {"name": "group1", "contents": ["abcde"]}
         group2 = {"name": "group2", "contents": ["fghij"]}
@@ -269,7 +284,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(group3)
 
         self.testPreset.moveGroup(2, 1)
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.shortGroups
 
         expected = [
             {"name": "group1", "contents": ["abcde"]},
@@ -288,7 +303,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(group3)
 
         self.testPreset.moveGroup(0, 2)
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.shortGroups
 
         expected = [
             {"name": "group2", "contents": ["fghij"]},
@@ -307,7 +322,7 @@ class TestImportExport(unittest.TestCase):
         self.testPreset.addGroup(group3)
 
         self.testPreset.moveGroup(-1, 1)
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.shortGroups
 
         expected = [
             {"name": "group1", "contents": ["abcde"]},

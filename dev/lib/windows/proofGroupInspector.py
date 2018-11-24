@@ -116,8 +116,8 @@ class ProofGroupInspector:
         post event, pass the edited group to observer, and close window
         """
         self.editedProofGroup["name"] = self.w.groupNameEdit.get().strip()
-        self.editedProofGroup["typeSize"] = float(self.w.typeSizeEdit.get())
-        self.editedProofGroup["leading"] = float(self.w.leadingEdit.get())
+        self.editedProofGroup["typeSize"] = self.w.typeSizeEdit.get()
+        self.editedProofGroup["leading"] = self.w.leadingEdit.get()
         self.editedProofGroup["print"] = self.proofGroup["print"] # just pass this back for now
         self.editedProofGroup["contents"] = hf.makeCleanListFromStr(self.w.contentsEdit.get())
 

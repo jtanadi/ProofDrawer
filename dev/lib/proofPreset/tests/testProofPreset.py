@@ -18,13 +18,13 @@ class ProofPresetTest(unittest.TestCase):
         self.testPreset.importFromXML(testList)
 
     def test_getName(self):
-        actual = self.testPreset.getPresetName()
+        actual = self.testPreset.name
         self.assertEqual(actual, "myPreset")
 
     def test_rename(self):
         newName = "funTimes"
-        self.testPreset.renamePreset(newName)
-        actual = self.testPreset.getPresetName()
+        self.testPreset.name = newName
+        actual = self.testPreset.name
 
         self.assertEqual(newName, actual)
 
@@ -32,7 +32,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         Base case for ProofPreset.parseProofDoc()
         """
-        testProof = self.testPreset.getPreset()
+        testProof = self.testPreset.preset
         expected = {
             "name": "myPreset",
             "groups": [
@@ -76,7 +76,7 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(testProof, expected)
 
     def test_baseGetGroupsNotVerbose(self):
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.groups
         expected = [
             {
                 "name": "UC, lc, numerals",
@@ -109,7 +109,7 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_baseGetGroups(self):
-        actual = self.testPreset.getGroups(verbose=True)
+        actual = self.testPreset.groups
         expected = [
             {
                 "name": "UC, lc, numerals",
@@ -151,7 +151,7 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_baseGetXMLGroups(self):
-        actual = self.testPreset.getXMLGroups()
+        actual = self.testPreset.xmlGroups
         expected = "<group>\nUC, lc, numerals\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789\n</group>\n\n"
         expected += "<group>\nUC control\n|H| |O| HOHOHOHO\n|A| HAHAHAOAOAOA\n|B| HBHBHBOBOBOB\n|C| HCHCHCOCOCOC\n</group>\n\n"
         expected += "<group>\nlc control\n|n| |o| nononono\n|a| nananaoaoaoa\n|b| nbnbnbobobob\n|c| ncncncocococ\n</group>"
@@ -176,7 +176,7 @@ class ProofPresetTest(unittest.TestCase):
         }
         strTestPreset = ProofPreset()
         strTestPreset.importFromXML(testString)
-        actual = strTestPreset.getPreset()
+        actual = strTestPreset.preset
         self.assertEqual(actual, expected)
 
     def test_duplicatePreset(self):
@@ -184,10 +184,10 @@ class ProofPresetTest(unittest.TestCase):
         Test duplication
         """
         newPreset = self.testPreset.duplicatePreset('new')
-        
-        oldGroups = self.testPreset.getGroups()
+
+        oldGroups = self.testPreset.groups
         newGroups = newPreset.getGroups()
-        
+
         # Make sure groups are the same, but presets aren't
         # actually pointing to the same object in memory
         self.assertEqual(oldGroups, newGroups)
