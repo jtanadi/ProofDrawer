@@ -24,7 +24,6 @@ class ProofPreset:
     - exportToXML(filePath)
 
     Preset methods:
-    - renamePreset()
     - duplicatePreset()
 
     Group methods:
@@ -33,12 +32,17 @@ class ProofPreset:
     - moveGroup(currentIndex, newIndex)
     - editGroup(groupToEdit)
 
-    Getters:
-    - getPresetName()
-    - getPreset()
-    - getGroupNames(returnCopies=True)
+    Properties:
+    - name (can be set)
+    - preset
+    - jsonPreset
+    - groupNames
+    - uniqueGroupNames
+    - groups
+    - xmlGroups
+
+    Other getters:
     - getGroups(verbose=True)
-    - getXMLGroups()
     """
     def __init__(self, presetName="myPreset"):
         """
@@ -51,8 +55,6 @@ class ProofPreset:
         self._xmlGroups = None
 
         self._groupNameCount = {}
-        self._keysInGroup = ["name", "typeSize", "leading",\
-                            "print", "contents"]
 
     def duplicatePreset(self, duplicateName=None):
         """
@@ -97,61 +99,30 @@ class ProofPreset:
         return json.dumps(self.preset, indent=2)
 
     @property
+    def groupNames(self):
+        """
+        Return all group names as an attribute
+        """
+        return [group.name for group in self.preset["groups"]]
+
+    @property
     def uniqueGroupNames(self):
         """
         Return unique group names as an attribute
         """
-        return self.getGroupNames(returnCopies=False)
-
-    def getGroupNames(self, returnCopies=True):
-        """
-        Return a list of all group names.
-        If returnCopies=False, only return names without count
-        (ie. out of group, group-1, group-2, only return group)
-        """
-        # Maybe a little hacky, but we already have a dict
-        # of "base" group names
-        if not returnCopies:
-            return [groupName for groupName in self._groupNameCount]
-
-        return [group["name"] for group in self.preset["groups"]]
+        return [groupName for groupName in self._groupNameCount]
 
     @property
     def groups(self):
         """
-        Return non-verbose groups as an attribute
+        Return verbose groups as an attribute
         """
-        return self.getGroups(verbose=False)
+        return self._getGroups(verbose=True)
 
-    def getGroups(self, verbose=True):
-        """
-        Return list of ProofPreset groups.
+    @property
+    def shortGroups(self):
+        return self._getGroups(verbose=False)
 
-        If NOT verbose, return without preset info:
-        [
-            {
-                "name": "UC",
-                "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-            },
-            {
-                "name": "lc",
-                "contents": ["abcdefghijklmnopqrstuvwxyz"]
-            }
-        ]
-        """
-        if not verbose:
-            returnGroups = []
-            for group in self.preset["groups"]:
-                tempGroup = {}
-                tempGroup["name"] = group.name
-                tempGroup["contents"] = group.contents
-
-                returnGroups.append(tempGroup)
-
-        else:
-            returnGroups = copy.deepcopy(self.preset["groups"])
-
-        return returnGroups
 
     @property
     def xmlGroups(self):
@@ -169,7 +140,7 @@ class ProofPreset:
         ...
         """
         xmlGroups = ""
-        presetGroups = self.getGroups(verbose=False)
+        presetGroups = self._getGroups(verbose=False)
         for index, group in enumerate(presetGroups):
             xmlGroup = "<group>\n"
             xmlGroup += group["name"]
@@ -239,7 +210,7 @@ class ProofPreset:
         be a valid name or valid index.
         """
         if isinstance(groupToRemove, str):
-            if groupToRemove not in self.getGroupNames():
+            if groupToRemove not in self.groupNames:
                 raise KeyError("Group doesn't exist")
 
             for group in self.preset["groups"]:
@@ -281,7 +252,7 @@ class ProofPreset:
         Anything else will be ignored.
         """
         if isinstance(groupToEdit, str):
-            if groupToEdit not in self.getGroupNames():
+            if groupToEdit not in self.groupNames:
                 raise ValueError("Group name doesn't exist")
 
             for group in self.preset["groups"]:
@@ -294,21 +265,10 @@ class ProofPreset:
 
             groupToEdit = self.preset["groups"][groupToEdit]
 
-        for key, value in kwargs.items():
-            if key not in self._keysInGroup:
-                continue
-            elif key == "name" and value in self.getGroupNames():
-                raise ValueError("Name already exists")
-            elif key == "typeSize" and not isinstance(value, (int, float)):
-                raise ValueError("Type size must be a number")
-            elif key == "leading" and not isinstance(value, (int, float)):
-                raise ValueError("Leading must be a number")
-            elif key == "print" and not isinstance(value, bool):
-                raise ValueError("Print must be a boolean")
-            elif key == "contents" and not isinstance(value, list):
-                raise ValueError("Contents must be a list")
+        if kwargs["name"] in self.groupNames:
+            raise ValueError("Name already exists")
 
-            groupToEdit[key] = value
+        groupToEdit.edit(kwargs)
 
     def importFromJSON(self, jsonInput, overwrite=False):
         """
@@ -355,17 +315,16 @@ class ProofPreset:
         elif not pyDictInput["groups"]:
             raise ProofPresetError("Imported preset has no groups")
 
-        # Copy so we're not changing imported object later
-        dictPreset = copy.deepcopy(pyDictInput)
+        newPreset = {}
+        newPreset["name"] = pyDictInput["name"]
+        newPreset["groups"] = []
 
-        # # Remove unneeded keys & add missing keys
-        # # Maybe should clean contents?
-        # for group in dictPreset["groups"]:
-        #     group = self._removeUnneededKeysInGroup(group)
-        #     group = self._addMissingKeysToGroup(group)
+        for group in pyDictInput["groups"]:
+            newGroup = ProofGroup(group)
+            newPreset["groups"].append(newGroup)
 
         # Import preset & fix groupNames
-        self.preset = dictPreset
+        self.preset = newPreset
         self._inspectAndFixGroupNames(restartCount=True)
 
     def importFromXML(self, xmlTaggedInput):
@@ -471,7 +430,7 @@ class ProofPreset:
         nameToReturn = newName
         # If newName hasn't been tracked,
         # initialize key/value in dict
-        if newName not in self.getGroupNames():
+        if newName not in self.groupNames:
             self._groupNameCount[newName] = 1
 
         # Else, append count to nameToReturn and
@@ -498,7 +457,7 @@ class ProofPreset:
         if restartCount:
             self._groupNameCount = {}
 
-        groupNames = self.getGroupNames()
+        groupNames = self.groupNames
 
         # Do an overall count of all groupNames
         # use list.count() instead of incrementing
@@ -554,6 +513,35 @@ class ProofPreset:
 
         return presetList
 
+    def _getGroups(self, verbose=True):
+        """
+        Return list of ProofPreset groups.
+
+        If NOT verbose, return without preset info:
+        [
+            {
+                "name": "UC",
+                "contents": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+            },
+            {
+                "name": "lc",
+                "contents": ["abcdefghijklmnopqrstuvwxyz"]
+            }
+        ]
+        """
+        if not verbose:
+            returnGroups = []
+            for group in self.preset["groups"]:
+                tempGroup = {}
+                tempGroup["name"] = group.name
+                tempGroup["contents"] = group.contents
+
+                returnGroups.append(tempGroup)
+
+        else:
+            returnGroups = copy.deepcopy(self.preset["groups"])
+
+        return returnGroups
 
 class ProofGroup(dict):
     """
@@ -613,7 +601,7 @@ class ProofGroup(dict):
         Setter so we can use dot notation
         """
         if not isinstance(newSize, (int, float)):
-            raise ValueError("Type size must be a number")
+            raise TypeError("Type size must be a number")
         self["typeSize"] = float(newSize)
 
     @property
@@ -629,7 +617,7 @@ class ProofGroup(dict):
         Setter so we can use dot notation
         """
         if not isinstance(newLeading, (int, float)):
-            raise ValueError("Leading must be a number")
+            raise TypeError("Leading must be a number")
         self["leading"] = float(newLeading)
 
     @property
@@ -645,7 +633,7 @@ class ProofGroup(dict):
         Setter so we can use dot notation
         """
         if not isinstance(newPrint, bool):
-            raise ValueError("Print must be a boolean")
+            raise TypeError("Print must be a boolean")
         self["print"] = newPrint
 
     @property
@@ -661,14 +649,14 @@ class ProofGroup(dict):
         Setter so we can use dot notation
         """
         if not isinstance(newContents, list):
-            raise ValueError("Contents must be a list")
+            raise TypeError("Contents must be a list")
         self["contents"] = newContents
 
-    def edit(self, **kwargs):
+    def edit(self, newDict):
         """
         Edit multiple group properties at once
         """
-        for key, value in kwargs.items():
+        for key, value in newDict.items():
             if key not in self._keysInGroup:
                 continue
             self[key] = value

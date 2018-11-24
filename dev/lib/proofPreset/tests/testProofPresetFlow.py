@@ -14,7 +14,7 @@ with open(proofFileDir, "r") as proofFile:
 
 proofPreset = ProofPreset("proofPreset1")
 proofPreset.importFromXML(proofList)
-presetList = proofPreset.getPreset()
+presetList = proofPreset.preset
 
 presetFileDir = os.path.join(currentDir, "resources", "proofPresetTest.json")
 writeJSONpreset(presetFileDir, presetList)

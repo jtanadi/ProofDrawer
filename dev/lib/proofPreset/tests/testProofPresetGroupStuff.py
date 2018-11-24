@@ -36,7 +36,7 @@ class TestGroupStuff(unittest.TestCase):
             ]
         }
         self.testPreset.addGroup(groupToAdd)
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         self.assertDictEqual(expectedPreset, actual)
 
     def test_addIncompleteGroup(self):
@@ -57,7 +57,7 @@ class TestGroupStuff(unittest.TestCase):
             ]
         }
         self.testPreset.addGroup(groupToAdd)
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         self.assertDictEqual(expectedPreset, actual)
 
     def test_overwriteGroup(self):
@@ -70,7 +70,7 @@ class TestGroupStuff(unittest.TestCase):
         secondGroup = {"name": "new group", "typeSize": 8, "leading": 10}
         self.testPreset.addGroup(secondGroup, overwrite=True)
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         expected = {
             "name": "testPreset",
             "groups": [
@@ -100,7 +100,7 @@ class TestGroupStuff(unittest.TestCase):
         thirdGroup = {"name": "new group", "print": True, "contents": ["fghij"]}
         self.testPreset.addGroup(thirdGroup)
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
 
         expected = {
             "name": "testPreset",
@@ -163,7 +163,7 @@ class TestGroupStuff(unittest.TestCase):
         for group in groupsToAdd:
             self.testPreset.addGroup(group)
 
-        actual = Counter(self.testPreset.getGroupNames())
+        actual = Counter(self.testPreset.groupNames)
         expected = Counter([
             "group1", "group1-1", "group1-2", "group1-3",
             "group2", "group2-1",
@@ -181,7 +181,7 @@ class TestGroupStuff(unittest.TestCase):
         self.testPreset.addGroup(newGroup)
         self.testPreset.removeGroup("new group")
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         expected = {
             "name": "testPreset",
             "groups": []
@@ -203,7 +203,7 @@ class TestGroupStuff(unittest.TestCase):
 
         self.testPreset.removeGroup("new group")
 
-        actual = self.testPreset.getPreset()
+        actual = self.testPreset.preset
         expected = {
             "name": "testPreset",
             "groups": [

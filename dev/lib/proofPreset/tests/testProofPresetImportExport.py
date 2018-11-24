@@ -96,7 +96,7 @@ class TestImport(TestBase):
         """
         self.preset.importFromJSON(self.jsonPath)
 
-        actual = self.preset.getPreset()
+        actual = self.preset.preset
         expected = {
             "name": "proofPreset1",
             "groups": [
