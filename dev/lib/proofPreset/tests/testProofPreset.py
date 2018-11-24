@@ -32,7 +32,7 @@ class ProofPresetTest(unittest.TestCase):
         """
         Base case for ProofPreset.parseProofDoc()
         """
-        testProof = self.testPreset.getPreset()
+        testProof = self.testPreset.preset
         expected = {
             "name": "myPreset",
             "groups": [
@@ -176,7 +176,7 @@ class ProofPresetTest(unittest.TestCase):
         }
         strTestPreset = ProofPreset()
         strTestPreset.importFromXML(testString)
-        actual = strTestPreset.getPreset()
+        actual = strTestPreset.preset
         self.assertEqual(actual, expected)
 
     def test_duplicatePreset(self):

@@ -54,116 +54,6 @@ class ProofPreset:
         self._keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
 
-
-    def _countNameCopies(self, newName):
-        """
-        Return a "count" appended to name if name
-        already exists in the Preset groups.
-
-        groupName, groupName-1, groupName-2, etc.
-        """
-
-        # A while loop version, in case we want
-        # to stop using self._groupNameCount dict...
-        # baseName = newName
-        # count = 1
-        # while newName in groupNames:
-        #     newName = "%s-%s" % (baseName, count)
-        #     count += 1
-        # return newName
-
-        nameToReturn = newName
-        # If newName hasn't been tracked,
-        # initialize key/value in dict
-        if newName not in self.getGroupNames():
-            self._groupNameCount[newName] = 1
-
-        # Else, append count to nameToReturn and
-        # increment newName count
-        else:
-            nameToReturn += "-%s" % self._groupNameCount[newName]
-            self._groupNameCount[newName] += 1
-
-        return nameToReturn
-
-    def _inspectAndFixGroupNames(self, restartCount=False):
-        """
-        On fresh XML, JSON, or preset import, count how many
-        times the same group name appears. If more than once,
-        append a "count" to all but the first group.
-
-        Counts start at "-0", but those are never shown
-        (ie. "original" name is always "-0"):
-        groupName, groupName-1, groupName-2, etc.
-
-        When restartCount=True, self._groupNameCount -> empty dict
-        Do this when importing an entire preset
-        """
-        if restartCount:
-            self._groupNameCount = {}
-
-        groupNames = self.getGroupNames()
-
-        # Do an overall count of all groupNames
-        # use list.count() instead of incrementing
-        # so we can skip same names as we iterate
-        for name in groupNames:
-            if name not in self._groupNameCount.keys():
-                nameCount = groupNames.count(name)
-                self._groupNameCount[name] = nameCount
-
-        # For all names that appear more than once,
-        # append a "count"
-        for countedName, value in self._groupNameCount.items():
-            if value <= 1:
-                continue
-
-            # Start count at 0 but don't append "-0"
-            nameCount = 0
-            for group in self.preset["groups"]:
-                if group["name"] == countedName:
-                    if nameCount == 0:
-                        nameCount += 1
-                        continue
-                    group["name"] += "-%s" % nameCount
-                    nameCount += 1
-
-    def _makePresetGroupsFromXML(self):
-        """
-        Return list of preset groups,
-        converted from proofGroups
-        """
-        presetList = []
-        startGroup = False
-
-        for line in self._xmlGroups:
-            # Open tag: initialize and move on
-            if "<group>" in line:
-                group = {}
-                startGroup = True
-                continue
-
-            # Close tag: add group to presetList and move on
-            elif "</group>" in line:
-                presetList.append(group)
-                continue
-
-            # Title line: add title to group["name"] and initialize presets
-            # This is a little shorter than iterating & using if statements...
-            if startGroup:
-                group["name"] = line.strip()
-                group["typeSize"] = ""
-                group["leading"] = ""
-                group["print"] = False
-                group["contents"] = []
-                startGroup = False # not the start of group anymore
-
-            # Middle of block: just add line to group["contents"]
-            else:
-                group["contents"].append(line)
-
-        return presetList
-
     def duplicatePreset(self, duplicateName=None):
         """
         Return a deepcopy of this instance of the
@@ -178,7 +68,7 @@ class ProofPreset:
         duplicatePreset = copy.deepcopy(self)
 
         if duplicateName is None:
-            duplicatePreset.name = self.preset["name"] + "-copy"
+            duplicatePreset.name = self.name + "-copy"
         else:
             duplicatePreset.name = duplicateName
 
@@ -198,31 +88,13 @@ class ProofPreset:
         """
         self.preset["name"] = newName
 
-    def getPreset(self, jsonFormat=False):
+    @property
+    def jsonPreset(self):
         """
-        Return preset, either as Py dict, or when
-        jsonFormat is True, as a JSON object.
-
-        Object structure:
-        {
-            "name": presetName,
-            "groups": [
-                {
-                    "name": "UC, numerals",
-                    "typeSize": 12,
-                    "leading": 14,
-                    "print": True,
-                    "contents": [
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                        "0123456789"
-                    ]
-                }
-            ]
-        }
+        Return preset as a JSON object with
+        2 spaces for indentation
         """
-        if jsonFormat:
-            return json.dumps(self.preset, indent=2)
-        return self.preset
+        return json.dumps(self.preset, indent=2)
 
     @property
     def uniqueGroupNames(self):
@@ -560,7 +432,7 @@ class ProofPreset:
             raise ProofPresetError("File not .json")
 
         with open(filePath, "w+") as jsonFile:
-            jsonFile.write(self.getPreset(jsonFormat=True))
+            jsonFile.write(self.jsonPreset)
 
     def exportToXML(self, filePath):
         """
@@ -579,6 +451,109 @@ class ProofPreset:
         with open(filePath, "w+") as xmlFile:
             xmlFile.write(self.xmlGroups)   
 
+    def _countNameCopies(self, newName):
+        """
+        Return a "count" appended to name if name
+        already exists in the Preset groups.
+
+        groupName, groupName-1, groupName-2, etc.
+        """
+
+        # A while loop version, in case we want
+        # to stop using self._groupNameCount dict...
+        # baseName = newName
+        # count = 1
+        # while newName in groupNames:
+        #     newName = "%s-%s" % (baseName, count)
+        #     count += 1
+        # return newName
+
+        nameToReturn = newName
+        # If newName hasn't been tracked,
+        # initialize key/value in dict
+        if newName not in self.getGroupNames():
+            self._groupNameCount[newName] = 1
+
+        # Else, append count to nameToReturn and
+        # increment newName count
+        else:
+            nameToReturn += "-%s" % self._groupNameCount[newName]
+            self._groupNameCount[newName] += 1
+
+        return nameToReturn
+
+    def _inspectAndFixGroupNames(self, restartCount=False):
+        """
+        On fresh XML, JSON, or preset import, count how many
+        times the same group name appears. If more than once,
+        append a "count" to all but the first group.
+
+        Counts start at "-0", but those are never shown
+        (ie. "original" name is always "-0"):
+        groupName, groupName-1, groupName-2, etc.
+
+        When restartCount=True, self._groupNameCount -> empty dict
+        Do this when importing an entire preset
+        """
+        if restartCount:
+            self._groupNameCount = {}
+
+        groupNames = self.getGroupNames()
+
+        # Do an overall count of all groupNames
+        # use list.count() instead of incrementing
+        # so we can skip same names as we iterate
+        for name in groupNames:
+            if name not in self._groupNameCount.keys():
+                nameCount = groupNames.count(name)
+                self._groupNameCount[name] = nameCount
+
+        # For all names that appear more than once,
+        # append a "count"
+        for countedName, value in self._groupNameCount.items():
+            if value <= 1:
+                continue
+
+            # Start count at 0 but don't append "-0"
+            nameCount = 0
+            for group in self.preset["groups"]:
+                if group.name == countedName:
+                    if nameCount == 0:
+                        nameCount += 1
+                        continue
+                    group.name += "-%s" % nameCount
+                    nameCount += 1
+
+    def _makePresetGroupsFromXML(self):
+        """
+        Return list of preset groups,
+        converted from proofGroups
+        """
+        presetList = []
+        startGroup = False
+
+        for line in self._xmlGroups:
+            # Open tag: initialize and move on
+            if "<group>" in line:
+                startGroup = True
+                continue
+
+            # Close tag: add group to presetList and move on
+            elif "</group>" in line:
+                presetList.append(group)
+                continue
+
+            # Title line: initialize ProofGroup with title as name
+            if startGroup:
+                group = ProofGroup({"name":line.strip()})
+                startGroup = False # not the start of group anymore
+
+            # Middle of block: just add line to group["contents"]
+            else:
+                group.contents.append(line)
+
+        return presetList
+
 
 class ProofGroup(dict):
     """
@@ -588,37 +563,28 @@ class ProofGroup(dict):
     like iterate over key, value.
     """
     def __init__(self, groupDict):
+        """
+        Initialized with default NoneType. If None,
+        an empty dictionary will be made.
+        (Using dict as default value is dangerous?)
+
+        Remove unecessary keys and add necessary ones.
+        """
         self._keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
+
+        if not isinstance(groupDict, dict):
+            raise TypeError("Pass in a dictionary")
+
+        if "name" not in groupDict.keys():
+            raise KeyError('"name" not in groupDict')
+
+
         newGroup = self._removeUnneededKeysInGroup(groupDict)
         newGroup = self._addMissingKeysToGroup(newGroup)
+
+        # Initialize dict object w/ key:value from newGroup
         super().__init__(newGroup)
-
-    def _addMissingKeysToGroup(self, groupToProcess):
-        """
-        Return new dict with missing keys added
-        """
-        dictWithAddedKeys = {}
-
-        for key in self._keysInGroup:
-            if key in groupToProcess:
-                dictWithAddedKeys[key] = groupToProcess[key]
-            else:
-                if key == "print":
-                    dictWithAddedKeys[key] = False
-                elif key == "contents":
-                    dictWithAddedKeys[key] = []
-                else:
-                    dictWithAddedKeys[key] = ""
-
-        return dictWithAddedKeys
-
-    def _removeUnneededKeysInGroup(self, groupToProcess):
-        """
-        Return new dict with only keys in self._keysInGroup
-        """
-        return {key:value for key, value in groupToProcess.items()\
-                if key in self._keysInGroup}
 
     @property
     def name(self):
@@ -699,7 +665,40 @@ class ProofGroup(dict):
         self["contents"] = newContents
 
     def edit(self, **kwargs):
-        pass
+        """
+        Edit multiple group properties at once
+        """
+        for key, value in kwargs.items():
+            if key not in self._keysInGroup:
+                continue
+            self[key] = value
+
+    def _addMissingKeysToGroup(self, groupToProcess):
+        """
+        Return new dict with missing keys added
+        """
+        dictWithAddedKeys = {}
+
+        for key in self._keysInGroup:
+            if key in groupToProcess:
+                dictWithAddedKeys[key] = groupToProcess[key]
+            else:
+                if key == "print":
+                    dictWithAddedKeys[key] = False
+                elif key == "contents":
+                    dictWithAddedKeys[key] = []
+                else:
+                    dictWithAddedKeys[key] = ""
+
+        return dictWithAddedKeys
+
+    def _removeUnneededKeysInGroup(self, groupToProcess):
+        """
+        Return new dict with only keys in self._keysInGroup
+        """
+        return {key:value for key, value in groupToProcess.items()\
+                if key in self._keysInGroup}
+
 
 if __name__ == "__main__":
     fileDir = os.path.dirname(__file__)
@@ -711,4 +710,4 @@ if __name__ == "__main__":
     # Simple testing:
     preset = ProofPreset("myPreset")
     preset.importFromXML(readList)
-    print(preset.getPreset())
+    print(preset.preset)

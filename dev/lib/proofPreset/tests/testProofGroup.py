@@ -2,25 +2,25 @@
 Test ProofPreset private methods
 """
 
-from proofPreset import ProofPreset
+from proofPreset import ProofGroup
 from proofPreset.errors import ProofPresetError, XMLtagError
 import unittest
 import os.path
 
 class ProofPresetTest(unittest.TestCase):
     def setUp(self):
-        self.testPreset = ProofPreset("myPreset")
+        self.testGroup = ProofGroup({"name": "test"})
 
     def test_removeUnnecessaryKeys(self):
         newGroup = {"name": "tester", "boinger": False}
-        actual = self.testPreset._removeUnneededKeysInGroup(newGroup)
+        actual = self.testGroup._removeUnneededKeysInGroup(newGroup)
         expected = {"name": "tester"}
 
         self.assertEqual(actual, expected)
 
     def test_addMissingKeys(self):
         newGroup = {"name": "tester"}
-        actual = self.testPreset._addMissingKeysToGroup(newGroup)
+        actual = self.testGroup._addMissingKeysToGroup(newGroup)
         expected = {
             "name": "tester",
             "typeSize": "",
