@@ -30,7 +30,7 @@ class ProofPreset:
     - addGroup(groupToAdd, overwrite=False)
     - removeGroup(groupToRemove)
     - moveGroup(currentIndex, newIndex)
-    - editGroup(groupToEdit)
+    - editGroup(groupToEdit, newProperties)
 
     Properties:
     - name (can be set)
@@ -240,7 +240,7 @@ class ProofPreset:
         currentGroup = self.preset["groups"].pop(currentIndex)
         self.preset["groups"].insert(newIndex, currentGroup)
 
-    def editGroup(self, groupToEdit, **kwargs):
+    def editGroup(self, groupToEdit, newProperties):
         """
         Edit group by name or index.
 
@@ -254,7 +254,6 @@ class ProofPreset:
         if isinstance(groupToEdit, str):
             if groupToEdit not in self.groupNames:
                 raise ValueError("Group name doesn't exist")
-
             for group in self.preset["groups"]:
                 if groupToEdit == group["name"]:
                     groupToEdit = group
@@ -262,13 +261,16 @@ class ProofPreset:
         elif isinstance(groupToEdit, int):
             if groupToEdit > len(self.preset["groups"]) - 1:
                 raise IndexError("Index out of range")
-
             groupToEdit = self.preset["groups"][groupToEdit]
 
-        if "name" in kwargs.keys() and kwargs["name"] in self.groupNames:
-            raise ValueError("Name already exists")
+        # Do some checking here
+        for key, value in newProperties.items():
+            if not hasattr(groupToEdit, key):
+                continue
+            elif key == "name" and value in self.groupNames:
+                raise ValueError("Name already exists")
 
-        groupToEdit.edit(kwargs)
+            setattr(groupToEdit, key, value)
 
     def importFromJSON(self, jsonInput, overwrite=False):
         """
@@ -577,60 +579,66 @@ class ProofGroup(dict):
     @property
     def name(self):
         """
-        Simple property, so we can use dot notation
+        Simple property, so we can use dot notation,
+        getattr and hasattr
         """
         return self["name"]
 
     @name.setter
     def name(self, newName):
         """
-        Setter so we can use dot notation
+        Setter so we can use dot notation & setattr
         """
         self["name"] = newName
 
     @property
     def typeSize(self):
         """
-        Simple property, so we can use dot notation
+        Simple property, so we can use dot notation,
+        getattr and hasattr
         """
         return self["typeSize"]
 
     @typeSize.setter
     def typeSize(self, newSize):
         """
-        Setter so we can use dot notation
+        Setter so we can use dot notation & setattr
         """
-        if not isinstance(newSize, (int, float)):
+        try:
+            self["typeSize"] = float(newSize)
+        except Exception:
             raise TypeError("Type size must be a number")
-        self["typeSize"] = float(newSize)
 
     @property
     def leading(self):
         """
-        Simple property, so we can use dot notation
+        Simple property, so we can use dot notation,
+        getattr and hasattr
         """
         return self["leading"]
 
     @leading.setter
     def leading(self, newLeading):
         """
-        Setter so we can use dot notation
+        Setter so we can use dot notation & setattr
         """
-        if not isinstance(newLeading, (int, float)):
+        try:
+            self["leading"] = float(newLeading)
+        except Exception:
             raise TypeError("Leading must be a number")
-        self["leading"] = float(newLeading)
 
     @property
     def print(self):
         """
-        Simple property, so we can use dot notation
+        Simple property, so we can use dot notation,
+        getattr and hasattr
         """
         return self["print"]
 
     @print.setter
     def print(self, newPrint):
         """
-        Setter so we can use dot notation
+        Setter so we can use dot notation & setattr
         """
         if not isinstance(newPrint, bool):
             raise TypeError("Print must be a boolean")
@@ -639,27 +647,19 @@ class ProofGroup(dict):
     @property
     def contents(self):
         """
-        Simple property, so we can use dot notation
+        Simple property, so we can use dot notation,
+        getattr and hasattr
         """
         return self["contents"]
 
     @contents.setter
     def contents(self, newContents):
         """
-        Setter so we can use dot notation
+        Setter so we can use dot notation & setattr
         """
         if not isinstance(newContents, list):
             raise TypeError("Contents must be a list")
         self["contents"] = newContents
-
-    def edit(self, newDict):
-        """
-        Edit multiple group properties at once
-        """
-        for key, value in newDict.items():
-            if key not in self._keysInGroup:
-                continue
-            self[key] = value
 
     def _addMissingKeysToGroup(self, groupToProcess):
         """

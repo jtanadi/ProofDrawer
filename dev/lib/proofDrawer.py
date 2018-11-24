@@ -232,8 +232,6 @@ class ProofDrawer:
 
         editGroupIndex = self.w.proofGroups.getSelection()[0]
         selectedGroup = self.currentPreset.groups[editGroupIndex]
-        # self.editedGroupIndex = self.w.proofGroups.getSelection()[0]
-        # selectedGroup = self.w.proofGroups[self.editedGroupIndex]
 
         self.proofGroupInspector = ProofGroupInspector(selectedGroup)
         self.proofGroupInspector.w.open()
@@ -258,6 +256,8 @@ class ProofDrawer:
         selectedIndex = self.w.proofGroups.getSelection()[0]
         currentGroup = self.currentPreset.groups[selectedIndex]
 
+        # Generate new dict to pass into ProofPreset.editGroup()
+        propertiesToUpdate = {}
         for key, currentValue in currentGroup.items():
             # "info" coming back from Inspector
             if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
@@ -267,23 +267,13 @@ class ProofDrawer:
                 newValue = senderOrInfo[selectedIndex][key]
 
             if newValue != currentValue:
-                print(newValue)
-                if key == "name":
-                    self.currentPreset.editGroup(selectedIndex, name=newValue)
-                elif key == "typeSize":
-                    try:
-                        self.currentPreset.editGroup(selectedIndex, typeSize=newValue)
-                    except ValueError:
-                        newValue = currentValue
-                elif key == "leading":
-                    try:
-                        self.currentPreset.editGroup(selectedIndex, leading=newValue)
-                    except ValueError:
-                        newValue = currentValue
-                elif key == "print":
-                    self.currentPreset.editGroup(selectedIndex, print=newValue)
-                elif key == "contents":
-                    self.currentPreset.editGroup(selectedIndex, contents=newValue)
+                propertiesToUpdate[key] = newValue
+
+        try:
+            self.currentPreset.editGroup(selectedIndex, propertiesToUpdate)
+        except Exception as e:
+            # Error handling here (some sort of warning window)
+            print(e)
 
         self._refreshProofGroups(selectedIndex)
 
