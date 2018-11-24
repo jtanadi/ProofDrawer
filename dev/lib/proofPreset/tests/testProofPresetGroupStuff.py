@@ -1,7 +1,7 @@
 from proofPreset import ProofPreset, ProofPresetError
 import unittest
 
-class TestImportExport(unittest.TestCase):
+class TestGroupStuff(unittest.TestCase):
     def setUp(self):
         self.testPreset = ProofPreset("testPreset")
 

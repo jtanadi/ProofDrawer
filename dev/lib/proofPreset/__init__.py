@@ -54,31 +54,6 @@ class ProofPreset:
         self._keysInGroup = ["name", "typeSize", "leading",\
                             "print", "contents"]
 
-    def _addMissingKeysToGroup(self, groupToProcess):
-        """
-        Return new dict with missing keys added
-        """
-        dictWithAddedKeys = {}
-
-        for key in self._keysInGroup:
-            if key in groupToProcess:
-                dictWithAddedKeys[key] = groupToProcess[key]
-            else:
-                if key == "print":
-                    dictWithAddedKeys[key] = False
-                elif key == "contents":
-                    dictWithAddedKeys[key] = []
-                else:
-                    dictWithAddedKeys[key] = ""
-
-        return dictWithAddedKeys
-
-    def _removeUnneededKeysInGroup(self, groupToProcess):
-        """
-        Return new dict with only keys in self._keysInGroup
-        """
-        return {key:value for key, value in groupToProcess.items()\
-                if key in self._keysInGroup}
 
     def _countNameCopies(self, newName):
         """
@@ -296,8 +271,8 @@ class ProofPreset:
             returnGroups = []
             for group in self.preset["groups"]:
                 tempGroup = {}
-                tempGroup["name"] = group["name"]
-                tempGroup["contents"] = group["contents"]
+                tempGroup["name"] = group.name
+                tempGroup["contents"] = group.contents
 
                 returnGroups.append(tempGroup)
 
@@ -368,22 +343,19 @@ class ProofPreset:
             raise ProofPresetError("groupToAdd needs a name")
 
         # Copy so we're not referencing the dict being passed in
-        newGroup = copy.deepcopy(groupToAdd)
-
-        # Remove unnecessary keys & add missing keys
-        newGroup = self._removeUnneededKeysInGroup(newGroup)
-        newGroup = self._addMissingKeysToGroup(newGroup)
+        # newGroup = copy.deepcopy(groupToAdd)
+        newGroup = ProofGroup(groupToAdd)
 
         # Not overwriting: just add to groups
         if not overwrite:
-            newGroup["name"] = self._countNameCopies(newGroup["name"])
+            newGroup.name = self._countNameCopies(newGroup.name)
             self.preset["groups"].append(newGroup)
 
         # Overwriting: find existing group with same name,
         # and copy newGroup to saved group
         else:
             for group in self.preset["groups"]:
-                if group["name"] == newGroup["name"]:
+                if group.name == newGroup.name:
                     for key in group:
                         group[key] = newGroup[key]
 
@@ -455,14 +427,14 @@ class ProofPreset:
                 continue
             elif key == "name" and value in self.getGroupNames():
                 raise ValueError("Name already exists")
-            elif key == "typeSize" and not isinstance(value, float):
-                raise ValueError("Type size should be a float")
-            elif key == "leading" and not isinstance(value, float):
-                raise ValueError("Type size should be a float")
+            elif key == "typeSize" and not isinstance(value, (int, float)):
+                raise ValueError("Type size must be a number")
+            elif key == "leading" and not isinstance(value, (int, float)):
+                raise ValueError("Leading must be a number")
             elif key == "print" and not isinstance(value, bool):
-                raise TypeError("Group print setting has to be a boolean")
+                raise ValueError("Print must be a boolean")
             elif key == "contents" and not isinstance(value, list):
-                raise TypeError("Group contents has to be a list")
+                raise ValueError("Contents must be a list")
 
             groupToEdit[key] = value
 
@@ -514,11 +486,11 @@ class ProofPreset:
         # Copy so we're not changing imported object later
         dictPreset = copy.deepcopy(pyDictInput)
 
-        # Remove unneeded keys & add missing keys
-        # Maybe should clean contents?
-        for group in dictPreset["groups"]:
-            group = self._removeUnneededKeysInGroup(group)
-            group = self._addMissingKeysToGroup(group)
+        # # Remove unneeded keys & add missing keys
+        # # Maybe should clean contents?
+        # for group in dictPreset["groups"]:
+        #     group = self._removeUnneededKeysInGroup(group)
+        #     group = self._addMissingKeysToGroup(group)
 
         # Import preset & fix groupNames
         self.preset = dictPreset
@@ -605,8 +577,129 @@ class ProofPreset:
             raise ProofPresetError("File not .xml or .txt")
 
         with open(filePath, "w+") as xmlFile:
-            xmlFile.write(self.xmlGroups)
+            xmlFile.write(self.xmlGroups)   
 
+
+class ProofGroup(dict):
+    """
+    A proof group object.
+
+    Subclassed from dict object, so we can do fancy things
+    like iterate over key, value.
+    """
+    def __init__(self, groupDict):
+        self._keysInGroup = ["name", "typeSize", "leading",\
+                            "print", "contents"]
+        newGroup = self._removeUnneededKeysInGroup(groupDict)
+        newGroup = self._addMissingKeysToGroup(newGroup)
+        super().__init__(newGroup)
+
+    def _addMissingKeysToGroup(self, groupToProcess):
+        """
+        Return new dict with missing keys added
+        """
+        dictWithAddedKeys = {}
+
+        for key in self._keysInGroup:
+            if key in groupToProcess:
+                dictWithAddedKeys[key] = groupToProcess[key]
+            else:
+                if key == "print":
+                    dictWithAddedKeys[key] = False
+                elif key == "contents":
+                    dictWithAddedKeys[key] = []
+                else:
+                    dictWithAddedKeys[key] = ""
+
+        return dictWithAddedKeys
+
+    def _removeUnneededKeysInGroup(self, groupToProcess):
+        """
+        Return new dict with only keys in self._keysInGroup
+        """
+        return {key:value for key, value in groupToProcess.items()\
+                if key in self._keysInGroup}
+
+    @property
+    def name(self):
+        """
+        Simple property, so we can use dot notation
+        """
+        return self["name"]
+
+    @name.setter
+    def name(self, newName):
+        """
+        Setter so we can use dot notation
+        """
+        self["name"] = newName
+
+    @property
+    def typeSize(self):
+        """
+        Simple property, so we can use dot notation
+        """
+        return self["typeSize"]
+
+    @typeSize.setter
+    def typeSize(self, newSize):
+        """
+        Setter so we can use dot notation
+        """
+        if not isinstance(newSize, (int, float)):
+            raise ValueError("Type size must be a number")
+        self["typeSize"] = float(newSize)
+
+    @property
+    def leading(self):
+        """
+        Simple property, so we can use dot notation
+        """
+        return self["leading"]
+
+    @leading.setter
+    def leading(self, newLeading):
+        """
+        Setter so we can use dot notation
+        """
+        if not isinstance(newLeading, (int, float)):
+            raise ValueError("Leading must be a number")
+        self["leading"] = float(newLeading)
+
+    @property
+    def print(self):
+        """
+        Simple property, so we can use dot notation
+        """
+        return self["print"]
+
+    @print.setter
+    def print(self, newPrint):
+        """
+        Setter so we can use dot notation
+        """
+        if not isinstance(newPrint, bool):
+            raise ValueError("Print must be a boolean")
+        self["print"] = newPrint
+
+    @property
+    def contents(self):
+        """
+        Simple property, so we can use dot notation
+        """
+        return self["contents"]
+
+    @contents.setter
+    def contents(self, newContents):
+        """
+        Setter so we can use dot notation
+        """
+        if not isinstance(newContents, list):
+            raise ValueError("Contents must be a list")
+        self["contents"] = newContents
+
+    def edit(self, **kwargs):
+        pass
 
 if __name__ == "__main__":
     fileDir = os.path.dirname(__file__)
