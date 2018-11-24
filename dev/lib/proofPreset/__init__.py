@@ -440,10 +440,16 @@ class ProofPreset:
                 continue
             elif key == "name" and value in self.getGroupNames():
                 raise ValueError("Name already exists")
-            elif key == "typeSize" and not isinstance(value, float):
-                raise ValueError("Type size should be a float")
-            elif key == "leading" and not isinstance(value, float):
-                raise ValueError("Type size should be a float")
+            elif key == "typeSize":
+                try:
+                    float(value)
+                except ValueError:
+                    raise ValueError("Type size should be a number")
+            elif key == "leading":
+                try:
+                    float(value)
+                except ValueError:
+                    raise ValueError("Leading should be a number")
             elif key == "print" and not isinstance(value, bool):
                 raise TypeError("Group print setting has to be a boolean")
             elif key == "contents" and not isinstance(value, list):
