@@ -21,7 +21,7 @@ class TestImport(TestBase):
         """
         self.preset.importFromXML(self.xmlPath)
 
-        actual = self.preset.getGroups(verbose=False)
+        actual = self.preset.shortGroups
         expected = [
             {
                 "name": "UC, lc, numerals",
@@ -58,7 +58,7 @@ class TestImport(TestBase):
         Base case: import txt
         """
         self.preset.importFromXML(self.txtPath)
-        actual = self.preset.getGroups(verbose=False)
+        actual = self.preset.shortGroups
         expected = [
             {
                 "name": "UC, lc, numerals",

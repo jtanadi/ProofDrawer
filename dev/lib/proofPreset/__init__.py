@@ -39,10 +39,8 @@ class ProofPreset:
     - groupNames
     - uniqueGroupNames
     - groups
+    - shortGroups
     - xmlGroups
-
-    Other getters:
-    - getGroups(verbose=True)
     """
     def __init__(self, presetName="myPreset"):
         """
@@ -122,7 +120,6 @@ class ProofPreset:
     @property
     def shortGroups(self):
         return self._getGroups(verbose=False)
-
 
     @property
     def xmlGroups(self):

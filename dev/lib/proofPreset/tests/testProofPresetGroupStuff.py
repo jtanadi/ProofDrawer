@@ -243,9 +243,9 @@ class TestGroupStuff(unittest.TestCase):
             "contents": []
         }
         self.testPreset.addGroup(newGroup)
-        self.testPreset.editGroup(0, name="Even newer",
-                                  typeSize=10, leading=12,
-                                  print=False, bleep=12)
+        self.testPreset.editGroup(0, {"name": "Even newer",
+                                  "typeSize": 10, "leading": 12,
+                                  "print": False, "bleep": 12})
 
         actual = self.testPreset.groups
         expected = [
@@ -271,9 +271,9 @@ class TestGroupStuff(unittest.TestCase):
         self.testPreset.addGroup(newGroup)
 
         with self.assertRaises(ValueError):
-            self.testPreset.editGroup(0, name="New Group",
-                                      typeSize=10, leading=12,
-                                      print=False, bleep=12)
+            self.testPreset.editGroup(0, {"name": "New Group",
+                                      "typeSize": 10, "leading": 12,
+                                      "print": False, "bleep": 12})
 
     def test_moveGroupUp(self):
         group1 = {"name": "group1", "contents": ["abcde"]}

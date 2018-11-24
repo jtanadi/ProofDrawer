@@ -76,7 +76,7 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(testProof, expected)
 
     def test_baseGetGroupsNotVerbose(self):
-        actual = self.testPreset.groups
+        actual = self.testPreset.shortGroups
         expected = [
             {
                 "name": "UC, lc, numerals",
@@ -186,7 +186,7 @@ class ProofPresetTest(unittest.TestCase):
         newPreset = self.testPreset.duplicatePreset('new')
 
         oldGroups = self.testPreset.groups
-        newGroups = newPreset.getGroups()
+        newGroups = newPreset.groups
 
         # Make sure groups are the same, but presets aren't
         # actually pointing to the same object in memory
