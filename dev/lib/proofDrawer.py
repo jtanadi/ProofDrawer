@@ -254,16 +254,6 @@ class ProofDrawer:
             return
 
         selectedIndex = self.w.proofGroups.getSelection()[0]
-<<<<<<< HEAD
-        currentGroup = self.currentPreset.getGroups()[selectedIndex]
-
-        for key, currentValue in currentGroup.items():
-            # "info" (coming back from Inspector)
-            if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
-                newValue = senderOrInfo["editedProofGroup"][key]
-
-            # "sender" (coming back from List)
-=======
         currentGroup = self.currentPreset.groups[selectedIndex]
 
         # Generate new dict to pass into ProofPreset.editGroup()
@@ -273,29 +263,10 @@ class ProofDrawer:
             if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
                 newValue = senderOrInfo["editedProofGroup"][key]
             # "sender" coming back from List
->>>>>>> use_group_obj
             else:
                 newValue = senderOrInfo[selectedIndex][key]
 
             if newValue != currentValue:
-<<<<<<< HEAD
-                if key == "name":
-                    self.currentPreset.editGroup(selectedIndex, name=newValue)
-                elif key == "typeSize":
-                    try:
-                        self.currentPreset.editGroup(selectedIndex, typeSize=newValue)
-                    except ValueError:
-                        newValue = currentValue
-                elif key == "leading":
-                    try:
-                        self.currentPreset.editGroup(selectedIndex, leading=newValue)
-                    except ValueError:
-                        newValue = currentValue
-                elif key == "print":
-                    self.currentPreset.editGroup(selectedIndex, print=newValue)
-                elif key == "contents":
-                    self.currentPreset.editGroup(selectedIndex, contents=newValue)
-=======
                 propertiesToUpdate[key] = newValue
 
         try:
@@ -303,7 +274,6 @@ class ProofDrawer:
         except Exception as e:
             # Error handling here (some sort of warning window)
             print(e)
->>>>>>> use_group_obj
 
         self._refreshProofGroups(selectedIndex)
 
