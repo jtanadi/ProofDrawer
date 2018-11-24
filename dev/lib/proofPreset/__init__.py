@@ -263,29 +263,13 @@ class ProofPreset:
                 raise IndexError("Index out of range")
             groupToEdit = self.preset["groups"][groupToEdit]
 
-        # Do some checking here
+        # Ignore attributes ont part of ProofGroup
+        # and check if name has been duplicated
         for key, value in newProperties.items():
             if not hasattr(groupToEdit, key):
                 continue
             elif key == "name" and value in self.groupNames:
                 raise ValueError("Name already exists")
-<<<<<<< HEAD
-            elif key == "typeSize":
-                try:
-                    float(value)
-                except ValueError:
-                    raise ValueError("Type size should be a number")
-            elif key == "leading":
-                try:
-                    float(value)
-                except ValueError:
-                    raise ValueError("Leading should be a number")
-            elif key == "print" and not isinstance(value, bool):
-                raise TypeError("Group print setting has to be a boolean")
-            elif key == "contents" and not isinstance(value, list):
-                raise TypeError("Group contents has to be a list")
-=======
->>>>>>> use_group_obj
 
             setattr(groupToEdit, key, value)
 
