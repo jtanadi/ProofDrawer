@@ -265,7 +265,7 @@ class ProofPreset:
 
             groupToEdit = self.preset["groups"][groupToEdit]
 
-        if kwargs["name"] in self.groupNames:
+        if "name" in kwargs.keys() and kwargs["name"] in self.groupNames:
             raise ValueError("Name already exists")
 
         groupToEdit.edit(kwargs)

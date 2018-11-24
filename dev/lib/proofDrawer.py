@@ -256,77 +256,34 @@ class ProofDrawer:
             return
 
         selectedIndex = self.w.proofGroups.getSelection()[0]
-
-        # Capture current values for checking later
         currentGroup = self.currentPreset.groups[selectedIndex]
-        currentName = currentGroup.name
-        currentPrint = currentGroup.print
-        currentSize = currentGroup.typeSize
-        currentLeading = currentGroup.leading
-        currentContents = currentGroup.contents
 
-        # # iterate instead
-        # for key in currentGroup:
-        #     currentValue = currentGroup[key]
+        for key, currentValue in currentGroup.items():
+            # "info" coming back from Inspector
+            if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
+                newValue = senderOrInfo["editedProofGroup"][key]
+            # "sender" coming back from List
+            else:
+                newValue = senderOrInfo[selectedIndex][key]
 
-        #     if isinstance(senderOrInfo, dict) and senderOrInfo["editedProofGroup"]:
-        #         newValue = senderOrInfo["editedProofGroup"][key]
-        #     else:
-        #         newValue = self.w.proofGroups[selectedIndex][key]
-
-        #         if key == "typeSize" or key == "leading":
-        #             try:
-        #                 newValue = float(newValue)
-        #             except ValueError:
-        #                 newValue = currentValue
-        #     if newValue != currentValue:
-        #         print(newValue, currentValue)
-        #         self.currentPreset.editGroup(selectedIndex, key=newValue)
-        #         print(self.currentPreset.groups)
-
-
-        # Print isn't edited in inspector
-        # Contents aren't edited in main window
-        newPrint = None
-        newContents = None
-
-        if senderOrInfo["editedProofGroup"]:
-            editedGroup = senderOrInfo["editedProofGroup"]
-            newName = editedGroup["name"]
-            newSize = editedGroup["typeSize"]
-            newLeading = editedGroup["leading"]
-            newContents = editedGroup["contents"]
-
-        else:
-            newName = self.w.proofGroups[selectedIndex].name
-            newPrint = self.w.proofGroups[selectedIndex].print
-
-            # ProofPreset.editGroup() will only accept floats for
-            # typeSize and leading
-            try:
-                newSize = float(self.w.proofGroups[selectedIndex]["typeSize"])
-            except ValueError:
-                newSize = currentSize
-            try:
-                newLeading = float(self.w.proofGroups[selectedIndex]["leading"])
-            except ValueError:
-                newLeading = currentLeading
-
-        # "Target" editGroup() more precisely, so we're not constantly
-        # calling editGroup() on all the other values if we've only edited one
-        # For ex. if calling editGroup() on everything, when only editing leading,
-        # we'll get a ValueError("Name already exists") because it'll try to
-        # update current group name with the same "new" name
-        if newName != currentName:
-            self.currentPreset.editGroup(selectedIndex, name=newName)
-        if newPrint is not None and newPrint != currentPrint:
-            self.currentPreset.editGroup(selectedIndex, print=newPrint)
-        if newSize != currentSize:
-            self.currentPreset.editGroup(selectedIndex, typeSize=newSize)
-        if newLeading != currentLeading:
-            self.currentPreset.editGroup(selectedIndex, leading=newLeading)
-        if newContents is not None and newContents != currentContents:
-            self.currentPreset.editGroup(selectedIndex, contents=newContents)
+            if newValue != currentValue:
+                print(newValue)
+                if key == "name":
+                    self.currentPreset.editGroup(selectedIndex, name=newValue)
+                elif key == "typeSize":
+                    try:
+                        self.currentPreset.editGroup(selectedIndex, typeSize=newValue)
+                    except ValueError:
+                        newValue = currentValue
+                elif key == "leading":
+                    try:
+                        self.currentPreset.editGroup(selectedIndex, leading=newValue)
+                    except ValueError:
+                        newValue = currentValue
+                elif key == "print":
+                    self.currentPreset.editGroup(selectedIndex, print=newValue)
+                elif key == "contents":
+                    self.currentPreset.editGroup(selectedIndex, contents=newValue)
 
         self._refreshProofGroups(selectedIndex)
 
