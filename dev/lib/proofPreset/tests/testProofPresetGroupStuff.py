@@ -247,7 +247,7 @@ class TestGroupStuff(unittest.TestCase):
                                   typeSize=10, leading=12,
                                   print=False, bleep=12)
 
-        actual = self.testPreset.getGroups()
+        actual = self.testPreset.groups
         expected = [
             {
                 "name": "Even newer",
@@ -260,6 +260,21 @@ class TestGroupStuff(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
+    def test_editGroupSameName(self):
+        newGroup = {
+            "name": "New Group",
+            "typeSize": 12,
+            "leading": 14,
+            "print": True,
+            "contents": []
+        }
+        self.testPreset.addGroup(newGroup)
+
+        with self.assertRaises(ValueError):
+            self.testPreset.editGroup(0, name="New Group",
+                                      typeSize=10, leading=12,
+                                      print=False, bleep=12)
+
     def test_moveGroupUp(self):
         group1 = {"name": "group1", "contents": ["abcde"]}
         group2 = {"name": "group2", "contents": ["fghij"]}
@@ -269,7 +284,7 @@ class TestGroupStuff(unittest.TestCase):
         self.testPreset.addGroup(group3)
 
         self.testPreset.moveGroup(2, 1)
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.shortGroups
 
         expected = [
             {"name": "group1", "contents": ["abcde"]},
@@ -288,7 +303,7 @@ class TestGroupStuff(unittest.TestCase):
         self.testPreset.addGroup(group3)
 
         self.testPreset.moveGroup(0, 2)
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.shortGroups
 
         expected = [
             {"name": "group2", "contents": ["fghij"]},
@@ -307,7 +322,7 @@ class TestGroupStuff(unittest.TestCase):
         self.testPreset.addGroup(group3)
 
         self.testPreset.moveGroup(-1, 1)
-        actual = self.testPreset.getGroups(verbose=False)
+        actual = self.testPreset.shortGroups
 
         expected = [
             {"name": "group1", "contents": ["abcde"]},
