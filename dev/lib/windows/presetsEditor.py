@@ -1,44 +1,64 @@
 from vanilla import Sheet, TextBox, Button, EditText,\
-                    Box, Window
-from proofPreset import ProofPreset
+                    Box, Window, List, TextEditor
+# from proofPreset import ProofPreset
 
 class PresetsEditor:
     def __init__(self, mainWindow):
-        self.w = Sheet((350, 300), mainWindow)
+        self.w = Sheet((630, 300), mainWindow)
 
         left = 10
         row = 10
-        textWidth = 90
-        editLeft = left + textWidth + 5
+        width = 240
+        height = 200
+        col2Left = left + width + 15
+        col3Left = col2Left + width + 15
+        buttonWidth = 60
 
-        self.w.presetName = TextBox((left, row, textWidth, 20),
-                                    "Preset name:")
-        
-        self.w.presetNameEdit = EditText((editLeft, row, -10, 22))
+        self.w.presetsText = TextBox((left, row, width, 20),
+                                     "Presets:",
+                                     sizeStyle="small")
 
-        
-        row += 30
-        self.w.importBox = Box((left, row, -10, 100))
-        
-        boxRow = 0
-        boxLeft = 0
-        self.w.importBox.importText = TextBox((boxLeft + 4, boxRow, -10, 20),
-                                              "Import new proof file")
+        self.w.proofGroupsText = TextBox((col2Left, row, width, 20),
+                                         "Proof groups:",
+                                         sizeStyle="small")
 
-        boxRow += 30
-        self.w.importBox.filePath = TextBox((boxLeft, boxRow, textWidth, 20),
-                                            "File path:",
-                                            alignment="right")
-        self.w.importBox.filePathEdit = EditText((editLeft, boxRow, -10, 22))
+        row += 17
+        self.w.presetsList = List((left, row, width, 200),
+                                  items=[],
+                                  rowHeight=17,
+                                  allowsSorting=False)
 
-        row += 100
-        self.w.closeSheet = Button((left, row, -10, 20),
-                                   "Close",
-                                   callback=self.closeCB)
+        self.w.proofGroupsList = TextEditor((col2Left, row, width, height),
+                                            text="List\nof\nproof\ngroups",
+                                            readOnly=True)
+
+        buttonRow = row
+        self.w.closeButton = Button((col3Left, buttonRow, 100, 22),
+                                    "Close",
+                                    callback=self.closeCB)
+
+        buttonRow += 50
+        self.w.importPresetButton = Button((col3Left, buttonRow, 100, 22),
+                                           "Import Preset",
+                                           callback=self.testerCB)
+        buttonRow += 30
+        self.w.importGroupsButton = Button((col3Left, buttonRow, 100, 22),
+                                           "Import Proof Groups",
+                                           callback=self.testerCB)
+
+        row += (height + 10)
+        self.w.presetName = TextBox((left, row, width, 20),
+                                    "Preset name:",
+                                    sizeStyle="small")
+
+        row += 17
+        self.w.presetNameEdit = EditText((left, row, width, 22))
 
     def closeCB(self, sender):
         self.w.close()
 
+    def testerCB(self, sender):
+        print("hit: %s" % sender.get())
 
 if __name__ == "__main__":
     # Mock main window
