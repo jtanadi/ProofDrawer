@@ -12,7 +12,7 @@ class PresetsEditor:
         height = 200
         col2Left = left + width + 15
         col3Left = col2Left + width + 15
-        buttonWidth = 60
+        buttonWidth = 100
 
         self.w.presetsText = TextBox((left, row, width, 20),
                                      "Presets:",
@@ -33,16 +33,16 @@ class PresetsEditor:
                                             readOnly=True)
 
         buttonRow = row
-        self.w.closeButton = Button((col3Left, buttonRow, 100, 22),
+        self.w.closeButton = Button((col3Left, buttonRow, buttonWidth, 22),
                                     "Close",
                                     callback=self.closeCB)
 
         buttonRow += 50
-        self.w.importPresetButton = Button((col3Left, buttonRow, 100, 22),
+        self.w.importPresetButton = Button((col3Left, buttonRow, buttonWidth, 22),
                                            "Import Preset",
                                            callback=self.testerCB)
         buttonRow += 30
-        self.w.importGroupsButton = Button((col3Left, buttonRow, 100, 22),
+        self.w.importGroupsButton = Button((col3Left, buttonRow, buttonWidth, 22),
                                            "Import Proof Groups",
                                            callback=self.testerCB)
 
