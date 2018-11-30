@@ -9,7 +9,7 @@ class PresetsEditor:
         left = 10
         row = 10
         width = 240
-        height = 207
+        height = 210
         col2Left = left + width + 15
         col3Left = col2Left + width + 15
         buttonWidth = 100
@@ -24,7 +24,7 @@ class PresetsEditor:
 
         row += 17
         self.w.presetsList = List((left, row, width, height),
-                                  items=[],
+                                  items=["List", "of", "presets", "go", "here"],
                                   rowHeight=17,
                                   allowsSorting=False)
 
@@ -45,12 +45,12 @@ class PresetsEditor:
         # buttonRow += 50
         # self.w.line1 = HorizontalLine((col3Left, buttonRow, -10, 1))
 
-        buttonRow += 105
+        buttonRow += 112
         self.w.importText = TextBox((col3Left, buttonRow, buttonWidth, 20),
                                     "Import:",
                                     sizeStyle="small")
 
-        buttonRow += 20
+        buttonRow += 17
         self.w.importJSONButton = Button((col3Left, buttonRow, buttonWidth, 22),
                                          "JSON",
                                          callback=self.testerCB)
