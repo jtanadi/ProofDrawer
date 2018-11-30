@@ -1,5 +1,5 @@
 from vanilla import Sheet, TextBox, Button, EditText,\
-                    Box, Window, List, TextEditor
+                    HorizontalLine, Window, List, TextEditor
 # from proofPreset import ProofPreset
 
 class PresetsEditor:
@@ -9,7 +9,7 @@ class PresetsEditor:
         left = 10
         row = 10
         width = 240
-        height = 200
+        height = 207
         col2Left = left + width + 15
         col3Left = col2Left + width + 15
         buttonWidth = 100
@@ -23,7 +23,7 @@ class PresetsEditor:
                                          sizeStyle="small")
 
         row += 17
-        self.w.presetsList = List((left, row, width, 200),
+        self.w.presetsList = List((left, row, width, height),
                                   items=[],
                                   rowHeight=17,
                                   allowsSorting=False)
@@ -33,32 +33,48 @@ class PresetsEditor:
                                             readOnly=True)
 
         buttonRow = row
-        self.w.closeButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                    "Close",
-                                    callback=self.closeCB)
+        self.w.newButton = Button((col3Left, buttonRow, buttonWidth, 22),
+                                  "New preset",
+                                  callback=self.testerCB)
 
-        buttonRow += 50
-        self.w.importPresetButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                           "Import Preset",
-                                           callback=self.testerCB)
+        buttonRow += 30
+        self.w.deleteButton = Button((col3Left, buttonRow, buttonWidth, 22),
+                                     "Delete preset",
+                                     callback=self.testerCB)
+
+        # buttonRow += 50
+        # self.w.line1 = HorizontalLine((col3Left, buttonRow, -10, 1))
+
+        buttonRow += 105
+        self.w.importText = TextBox((col3Left, buttonRow, buttonWidth, 20),
+                                    "Import:",
+                                    sizeStyle="small")
+
+        buttonRow += 20
+        self.w.importJSONButton = Button((col3Left, buttonRow, buttonWidth, 22),
+                                         "JSON",
+                                         callback=self.testerCB)
         buttonRow += 30
         self.w.importGroupsButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                           "Import Proof Groups",
+                                           "Proof groups",
                                            callback=self.testerCB)
 
-        row += (height + 10)
-        self.w.presetName = TextBox((left, row, width, 20),
-                                    "Preset name:",
+        row += (height + 12)
+        self.w.renameText = TextBox((left, row, width, 20),
+                                    "Rename preset:",
                                     sizeStyle="small")
 
         row += 17
-        self.w.presetNameEdit = EditText((left, row, width, 22))
+        self.w.renameEdit = EditText((left, row, width, 22))
+        self.w.closeButton = Button((col3Left, row, buttonWidth, 22),
+                                    "Close",
+                                    callback=self.closeCB)
 
     def closeCB(self, sender):
         self.w.close()
 
     def testerCB(self, sender):
-        print("hit: %s" % sender.get())
+        print("hit: %s" % sender)
 
 if __name__ == "__main__":
     # Mock main window
