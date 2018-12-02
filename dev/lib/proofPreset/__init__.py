@@ -657,7 +657,7 @@ class ProofGroup(dict):
         """
         if not isinstance(newContents, list):
             raise TypeError("Contents must be a list")
-        self["contents"] = newContents
+        self["contents"] = utils.cleanList(newContents)
 
     def _addMissingKeysToGroup(self, groupToProcess):
         """
