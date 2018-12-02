@@ -32,30 +32,20 @@ class ProofPresetTest(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_editGroup(self):
-        self.testGroup.edit({"name": "new name", "typeSize": 12, "leading": 10})
+        self.testGroup.name = "new name"
+        self.testGroup.typeSize = 12
+        self.testGroup.leading = 10
+        self.testGroup.contents = ["hey", "how", "are", "you"]
+
         actual = self.testGroup
         expected = {
             "name": "new name",
             "typeSize": 12,
             "leading": 10,
             "print": False,
-            "contents": []
+            "contents": ["hey", "how", "are", "you"]
         }
         self.assertEqual(actual, expected)
-    
-    def test_editGroup2(self):
-        self.testGroup.edit({"name": "new name", "typeSize": 12, "leading": 10})
-        self.testGroup.edit({"name": "new name", "typeSize": 10, "leading": 24})
-        actual = self.testGroup
-        expected = {
-            "name": "new name",
-            "typeSize": 10,
-            "leading": 24,
-            "print": False,
-            "contents": []
-        }
-        self.assertEqual(actual, expected)
-
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
