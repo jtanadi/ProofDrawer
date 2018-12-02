@@ -1,6 +1,5 @@
 from AppKit import NSFont
-from vanilla import Sheet, TextBox, Button, EditText,\
-                    HorizontalLine, Window, List, TextEditor
+from vanilla import Sheet, TextBox, Button, EditText, List, TextEditor
 
 monoFont = NSFont.fontWithName_size_("Monaco", 13)
 
@@ -141,7 +140,6 @@ class PresetsEditor:
 
         self.w.groupContents.set("\n".join(selectedGroup.contents))
         self.w.groupContents.getNSTextView().setEditable_(True)
-        print(selectedGroup.contents)
 
     def editGroupContents(self, sender):
         """
@@ -163,6 +161,7 @@ if __name__ == "__main__":
     # Make a list of presets
     import os
     import proofPreset as pp
+    from vanilla import Window
 
     currentDir = os.path.dirname(__file__)
     presetsDir = os.path.join(currentDir, "..", "..", "resources", "presets")
