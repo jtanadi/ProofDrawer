@@ -260,7 +260,7 @@ class ProofPreset:
                 raise IndexError("Index out of range")
             groupToEdit = self.preset["groups"][groupToEdit]
 
-        # Ignore attributes ont part of ProofGroup
+        # Ignore attributes not part of ProofGroup
         # and check if name has been duplicated
         for key, value in newProperties.items():
             if not hasattr(groupToEdit, key):
