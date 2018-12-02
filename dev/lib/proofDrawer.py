@@ -10,6 +10,7 @@ from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
 from utils.readWritePreset import readJSONpreset, writeJSONpreset
 from utils import helperFunctions as hf
 from proofPreset import ProofPreset
+from windows.presetsEditor import PresetsEditor
 from windows.proofGroupInspector import ProofGroupInspector
 
 class ProofDrawer:
@@ -99,7 +100,7 @@ class ProofDrawer:
         self.w.editPresets = ImageButton((width - 38, row, 22, 22),
                                          imagePath=editPresetsImgPath,
                                          bordered=False,
-                                         callback=self.testerCB)
+                                         callback=self.openPresetsEditorCB)
 
         row += 35
         self.w.line1 = HorizontalLine((left, row, -10, 1))
@@ -155,66 +156,19 @@ class ProofDrawer:
         # self.w.previewButton = Button((additionalWidth + 20, row, -10, 20),
         #                               "Preview",
         #                               callback=self.testerCB)
-        
+
         # row += 25
         # self.w.printButton = Button((additionalWidth + 20, row, -10, 20),
         #                              "Print",
         #                              callback=self.testerCB)
 
-    def _getPresetNames(self):
-        """
-        Get preset names for display
-        """
-        return [preset.name for preset in self.presetsList]
-
-    def _uiEnabled(self, onOff=True):
-        """
-        A master switch for all editable UI elements
-        """
-        self.w.proofGroups.enable(onOff)
-        self.w.fontsList.enable(onOff)
-        self.w.presetsList.enable(onOff)
-        self.w.editPresets.enable(onOff)
-        self.w.editPresets.enable(onOff)
-        self.w.inspectGroup.enable(onOff)
-        self.w.moveGroupUP.enable(onOff)
-        self.w.moveGroupDN.enable(onOff)
-        self.w.removeGroup.enable(onOff)
-        self.w.additionalGroupNames.enable(onOff)
-        self.w.addGroup.enable(onOff)
-
-    def _inspectorClosed(self, info):
-        """
-        Prevent more than one inspector window
-        from being opened.
-        """
-        self._uiEnabled(True)
-
-    def _refreshProofGroups(self, newSelection=0):
-        """
-        Refresh the proof groups list, set order numbers,
-        and set selection.
-
-        newSelection defaults to first index in list.
-        """
-        # Set flag so editProofGroupCB() isn't
-        # called when set proofGroups contents &
-        # set order numbers
-        self._proofReadyToEdit = False
-
-        self.w.proofGroups.set(self.currentPreset.groups)
-
-        newOrder = 1
-        for item in self.w.proofGroups:
-            item["order"] = newOrder
-            newOrder += 1
-
-        self._proofReadyToEdit = True
-        self.w.proofGroups.setSelection([newSelection])
-
     def fontButtonCB(self, sender):
         selectedFont = self.fonts[sender.get()]
         self.w.setTitle("Proof Drawer: %s" % selectedFont)
+
+    def openPresetsEditorCB(self, sender):
+        presetsEditor = PresetsEditor(self.w, self.presetsList)
+        presetsEditor.w.open()
 
     def setCurrentPresetCB(self, sender):
         selectedPresetIndex = sender.get()
@@ -350,6 +304,57 @@ class ProofDrawer:
         Use this for fake CB
         """
         print("hit: ", sender)
+
+    def _getPresetNames(self):
+        """
+        Get preset names for display
+        """
+        return [preset.name for preset in self.presetsList]
+
+    def _uiEnabled(self, onOff=True):
+        """
+        A master switch for all editable UI elements
+        """
+        self.w.proofGroups.enable(onOff)
+        self.w.fontsList.enable(onOff)
+        self.w.presetsList.enable(onOff)
+        self.w.editPresets.enable(onOff)
+        self.w.editPresets.enable(onOff)
+        self.w.inspectGroup.enable(onOff)
+        self.w.moveGroupUP.enable(onOff)
+        self.w.moveGroupDN.enable(onOff)
+        self.w.removeGroup.enable(onOff)
+        self.w.additionalGroupNames.enable(onOff)
+        self.w.addGroup.enable(onOff)
+
+    def _inspectorClosed(self, info):
+        """
+        Prevent more than one inspector window
+        from being opened.
+        """
+        self._uiEnabled(True)
+
+    def _refreshProofGroups(self, newSelection=0):
+        """
+        Refresh the proof groups list, set order numbers,
+        and set selection.
+
+        newSelection defaults to first index in list.
+        """
+        # Set flag so editProofGroupCB() isn't
+        # called when set proofGroups contents &
+        # set order numbers
+        self._proofReadyToEdit = False
+
+        self.w.proofGroups.set(self.currentPreset.groups)
+
+        newOrder = 1
+        for item in self.w.proofGroups:
+            item["order"] = newOrder
+            newOrder += 1
+
+        self._proofReadyToEdit = True
+        self.w.proofGroups.setSelection([newSelection])
 
 
 if __name__ == "__main__":
