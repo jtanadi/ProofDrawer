@@ -1,5 +1,6 @@
 from AppKit import NSFont
-from vanilla import Sheet, TextBox, Button, EditText, List, TextEditor
+from vanilla import Sheet, TextBox, Button, EditText,\
+                    List, TextEditor, Box
 
 monoFont = NSFont.fontWithName_size_("Monaco", 13)
 
@@ -10,26 +11,22 @@ class PresetsEditor:
         self.selectedPreset = None
         self.selectedGroupIndex = None
 
+        gutter = 10
         left = 10
         row = 10
-        colWidth = 240
-        listHeight = 210
-        gutter = 15
+        colWidth = 275
+        listHeight = 115
         col2Left = left + colWidth + gutter
-        col3Left = col2Left + colWidth + gutter
-        # col4Left = col3Left + colWidth + gutter
-        buttonWidth = 100
-        windowWidth = col3Left + buttonWidth + 10
+        btnWidth = 85
+        btnHeight = 22
+        boxWidth = btnWidth * 2 + 15
+        windowWidth = col2Left + boxWidth + 10
 
-        self.w = Sheet((windowWidth, 500), mainWindow)
+        self.w = Sheet((windowWidth, 550), mainWindow)
 
         self.w.presetsText = TextBox((left, row, colWidth, 20),
                                      "Presets:",
                                      sizeStyle="small")
-
-        self.w.proofGroupsText = TextBox((col2Left, row, colWidth, 20),
-                                         "Proof groups:",
-                                         sizeStyle="small")
 
         row += 17
         self.w.presetsList = List((left, row, colWidth, listHeight),
@@ -39,64 +36,128 @@ class PresetsEditor:
                                   allowsEmptySelection=False,
                                   selectionCallback=self.updatePresetInfo)
 
-        self.w.proofGroupNames = List((col2Left, row, colWidth, listHeight),
+        self.w.presetCtrls = Box((col2Left, row, boxWidth, listHeight))
+
+        boxLeft = 0
+        boxRow = 0
+        self.w.presetCtrls.edit = TextBox((boxLeft, boxRow, btnWidth, 20),
+                                          "Edit:",
+                                          sizeStyle="small")
+        boxRow += 15
+        self.w.presetCtrls.newBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                           "New",
+                                           sizeStyle="small",
+                                           callback=self.testerCB)
+
+        boxRow += 22
+        self.w.presetCtrls.dupeBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                            "Duplicate",
+                                            sizeStyle="small",
+                                            callback=self.testerCB)
+
+        boxRow += 22
+        self.w.presetCtrls.renameBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                              "Rename",
+                                              sizeStyle="small",
+                                              callback=self.testerCB)
+
+        boxRow += 22
+        self.w.presetCtrls.delBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                           "Delete",
+                                           sizeStyle="small",
+                                           callback=self.testerCB)
+
+        boxRow = 0
+        boxLeft += btnWidth + 7
+        self.w.presetCtrls.importText = TextBox((boxLeft, boxRow, btnWidth, 20),
+                                                "Import:",
+                                                sizeStyle="small")
+
+        boxRow += 15
+        self.w.presetCtrls.importJSON = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                               "JSON",
+                                               sizeStyle="small",
+                                               callback=self.testerCB)
+        boxRow += 22
+        self.w.presetCtrls.importGroups = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                                 "Proof groups",
+                                                 sizeStyle="small",
+                                                 callback=self.testerCB)
+
+        row += listHeight + 12
+        self.w.proofGroupsText = TextBox((left, row, colWidth, 20),
+                                         "Proof groups:",
+                                         sizeStyle="small")
+
+        row += 17
+        listHeight = 150
+        self.w.proofGroupNames = List((left, row, colWidth, listHeight),
                                       items=[],
                                       allowsSorting=False,
                                       allowsMultipleSelection=False,
                                       selectionCallback=self.updateGroupContents)
 
-        buttonRow = row
-        self.w.newPresetButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                        "New preset",
-                                        callback=self.testerCB)
+        self.w.groupCtrls = Box((col2Left, row, boxWidth, listHeight))
 
-        buttonRow += 30
-        self.w.delPresetButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                        "Delete preset",
-                                        callback=self.testerCB)
+        boxLeft = 0
+        boxRow = 0
+        self.w.groupCtrls.newBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                          "New",
+                                          sizeStyle="small",
+                                          callback=self.testerCB)
 
-        buttonRow += 60
-        self.w.newGroupButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                       "New group",
-                                       callback=self.testerCB)
-
-        buttonRow += 30
-        self.w.delGroupButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                       "Delete group",
-                                       callback=self.testerCB)
-
-        buttonRow += 102
-        self.w.importText = TextBox((col3Left, buttonRow, buttonWidth, 20),
-                                    "Import:",
-                                    sizeStyle="small")
-
-        buttonRow += 15
-        self.w.importJSONButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                         "JSON",
-                                         callback=self.testerCB)
-        buttonRow += 30
-        self.w.importGroupsButton = Button((col3Left, buttonRow, buttonWidth, 22),
-                                           "Proof groups",
+        boxRow += 22
+        self.w.groupCtrls.dupeBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                           "Duplicate",
+                                           sizeStyle="small",
                                            callback=self.testerCB)
 
-        row += (listHeight + 12)
+        boxRow += 22
+        self.w.groupCtrls.rename = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                          "Rename",
+                                          sizeStyle="small",
+                                          callback=self.testerCB)
+
+        boxRow += 22
+        self.w.groupCtrls.delBtn = Button((boxLeft, boxRow, btnWidth, btnHeight),
+                                          "Delete",
+                                          sizeStyle="small",
+                                          callback=self.testerCB)
+
+        boxRow = 22
+        boxLeft += btnWidth + 7 + (btnWidth / 2 - 15)
+        self.w.groupCtrls.upBtn = Button((boxLeft, boxRow, 30, btnHeight),
+                                         "↑",
+                                         sizeStyle="small",
+                                         callback=self.testerCB)
+        boxRow += 22
+        self.w.groupCtrls.dnBtn = Button((boxLeft, boxRow, 30, btnHeight),
+                                         "↓",
+                                         sizeStyle="small",
+                                         callback=self.testerCB)
+
+
+
+        row += listHeight + 12
         self.w.groupContentsText = TextBox((left, row, colWidth, 20),
                                            "Group contents:",
                                            sizeStyle="small")
 
         row += 17
-        self.w.groupContents = TextEditor((left, row, colWidth * 2 + gutter, -10),
+        self.w.groupContents = TextEditor((left, row, -10, -36),
                                           text="",
                                           readOnly=True,
                                           callback=self.editGroupContents)
         self.w.groupContents.getNSTextView().setFont_(monoFont)
 
+
         # self.w.renameText = TextBox((left, row, colWidth, 20),
         #                             "Rename preset:",
         #                             sizeStyle="small")
 
-        # self.w.renameEdit = EditText((left, row, colWidth, 22))
-        self.w.okButton = Button((col3Left, -32, buttonWidth, 22),
+        # self.w.renameEdit = EditText((left, row, colWidth, btnHeight))
+        row += 17
+        self.w.okButton = Button((windowWidth/2 - btnWidth/2, -31, btnWidth, btnHeight),
                                  "OK",
                                  callback=self.closeCB)
 
@@ -190,3 +251,4 @@ if __name__ == "__main__":
 
     mockWindow = MockWindow()
     mockWindow.w.open()
+    mockWindow.w.center()
