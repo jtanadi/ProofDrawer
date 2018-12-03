@@ -118,10 +118,12 @@ class ProofPreset:
         return self.preset["groups"]
         # return self._getGroups(verbose=True)
 
+    # This is probably useless, so delete & update doc
     @property
     def shortGroups(self):
         return self._getGroups(verbose=False)
 
+    # This prob should be a getter instead of attribute...
     @property
     def xmlGroups(self):
         """
