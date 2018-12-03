@@ -7,11 +7,11 @@ from mojo.events import addObserver, removeObserver
 from vanilla import Window, TextBox, PopUpButton, ImageButton, Button,\
                     List, CheckBoxListCell, HorizontalLine
 
-from utils.readWritePreset import readJSONpreset, writeJSONpreset
-from utils import helperFunctions as hf
+from comProofDrawerUtils.readWritePreset import readJSONpreset, writeJSONpreset
+from comProofDrawerUtils import helperFunctions as hf
 from proofPreset import ProofPreset
-from windows.presetsEditor import PresetsEditor
-from windows.proofGroupInspector import ProofGroupInspector
+from comProofDrawerWindows.presetsEditor import PresetsEditor
+from comProofDrawerWindows.proofGroupInspector import ProofGroupInspector
 
 class ProofDrawer:
     def __init__(self, presetsList):

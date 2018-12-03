@@ -19,7 +19,7 @@ from vanilla import FloatingWindow, TextBox, EditText,\
                     ComboBox, TextEditor, Button
 from mojo.events import postEvent
 
-from utils import helperFunctions as hf
+from comProofDrawerUtils import helperFunctions as hf
 
 class ProofGroupInspector:
     def __init__(self, proofGroup):
