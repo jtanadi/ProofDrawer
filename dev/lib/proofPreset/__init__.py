@@ -113,9 +113,10 @@ class ProofPreset:
     @property
     def groups(self):
         """
-        Return verbose groups as an attribute
+        Groups attribute (not copy of groups)
         """
-        return self._getGroups(verbose=True)
+        return self.preset["groups"]
+        # return self._getGroups(verbose=True)
 
     @property
     def shortGroups(self):
