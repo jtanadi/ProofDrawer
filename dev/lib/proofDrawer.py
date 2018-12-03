@@ -152,15 +152,15 @@ class ProofDrawer:
                                  "+",
                                  callback=self.addProofGroupsCB)
 
-        # row += 25
-        # self.w.previewButton = Button((additionalWidth + 20, row, -10, 20),
-        #                               "Preview",
-        #                               callback=self.testerCB)
+        buttonWidth = 100
+        self.w.previewButton = Button((width/2 - buttonWidth - 10, -37, buttonWidth, 20),
+                                      "Preview",
+                                      callback=self.testerCB)
 
-        # row += 25
-        # self.w.printButton = Button((additionalWidth + 20, row, -10, 20),
-        #                              "Print",
-        #                              callback=self.testerCB)
+        self.w.printButton = Button((width/2 + 10, -37, buttonWidth, 20),
+                                    "Print",
+                                    callback=self.testerCB)
+        self.w.setDefaultButton(self.w.printButton)
 
     def fontButtonCB(self, sender):
         selectedFont = self.fonts[sender.get()]
