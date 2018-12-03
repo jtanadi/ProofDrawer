@@ -207,8 +207,7 @@ class PresetsEditor:
         Set group contents to new contents
         """
         newContents = sender.get().split("\n")
-        self.selectedPreset.editGroup(self.selectedGroupIndex,
-                                      {"contents": newContents})
+        self.selectedPreset.groups[self.selectedGroupIndex].contents = newContents
 
     def _resetGroupContents(self):
         """
