@@ -1,8 +1,6 @@
-from AppKit import NSFont
 from vanilla import Sheet, TextBox, Button, EditText,\
                     List, TextEditor, Box
-
-monoFont = NSFont.fontWithName_size_("Monaco", 13)
+from comProofDrawerWindows import monoFont
 
 class PresetsEditor:
     def __init__(self, mainWindow, presetsList):

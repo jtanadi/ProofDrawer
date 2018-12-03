@@ -20,6 +20,7 @@ from vanilla import FloatingWindow, TextBox, EditText,\
 from mojo.events import postEvent
 
 from comProofDrawerUtils import helperFunctions as hf
+from comProofDrawerWindows import monoFont
 
 class ProofGroupInspector:
     def __init__(self, proofGroup):
@@ -76,6 +77,7 @@ class ProofGroupInspector:
 
         self.w.contentsEdit = TextEditor((leftEditText, row, -10, 150),
                                          "\n".join(self.proofGroup["contents"]))
+        self.w.contentsEdit.getNSTextView().setFont_(monoFont)
 
         row += 160
         self.w.cancelButton = Button((leftEditText, row, 138, 20),
